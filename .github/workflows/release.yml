@@ -71,8 +71,8 @@ jobs:
             --label org.opencontainers.image.version="$version" \
             --label org.opencontainers.image.revision="$(git rev-parse HEAD)" .
           # The image must serve health and refuse unauthenticated MCP before it ships.
-          docker run -d --name smoke -p 8080:8080 -e NINJAONE_HTTP_AUTH=bearer \
-            -e NINJAONE_HTTP_BEARER_TOKENS=release-smoke-token-not-a-secret-0123 -e NINJAONE_REGION=us \
+          docker run -d --name smoke -p 8080:8080 -e MCP_HTTP_AUTH=bearer \
+            -e MCP_BEARER_TOKEN=release-smoke-token-not-a-secret-0123456789 -e NINJAONE_REGION=us \
             "$image:$version-${{ matrix.arch }}"
           for _ in $(seq 1 20); do curl -fsS localhost:8080/healthz && break; sleep 1; done
           test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8080/mcp -H 'content-type: application/json' -d '{}')" = 401

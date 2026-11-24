@@ -1,0 +1,126 @@
+name: Deploy to Azure
+
+# Manual deploy of the Azure Container Apps lane (docs/deploy-azure.md).
+#
+# Does nothing unless the repository variable DEPLOY_AZURE_ENABLED is "true".
+# Runs in the GitHub environment "azure", so its reviewers and branch rules gate
+# every run. Signs in with OpenID Connect: no Azure secret is stored in GitHub.
+#
+# azure environment variables:
+#   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID   the deploying identity (federated credential)
+#   AZURE_ENV_NAME, AZURE_LOCATION                            the azd environment
+#   NINJAONE_REGION, NINJAONE_SCOPES, NINJAONE_TOOLSETS,
+#   NINJAONE_MODE, NINJAONE_ALLOW_DESTRUCTIVE, NINJAONE_ALLOWED_ORG_IDS,
+#   MCP_HTTP_AUTH, MCP_ENTRA_CLIENT_ID, MCP_ENTRA_APP_ID_URI,
+#   MCP_ALLOWED_ORIGINS, MCP_MIN_REPLICAS                     optional; unset means us, monitoring, read only, entra, scale to zero
+# azure environment secrets (only read when provision is ticked):
+#   NINJAONE_CLIENT_ID, NINJAONE_CLIENT_SECRET, MCP_BEARER_TOKEN (bearer mode only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      provision:
+        description: Also run azd provision (apply infra and settings, rewrite Key Vault secrets)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-azure
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: vars.DEPLOY_AZURE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: azure
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+    steps:
+      - name: Deploys run from main only
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Deploys run from main only (this run is on $GITHUB_REF)."
+          exit 1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: Azure/setup-azd@0b7e3a35ab00f2eee7080c845eb39c3f0ebfa553 # v2.4.0
+
+      - name: Check required settings
+        env:
+          PROVISION: ${{ inputs.provision }}
+          HAS_CLIENT_ID: ${{ secrets.NINJAONE_CLIENT_ID != '' }}
+          HAS_CLIENT_SECRET: ${{ secrets.NINJAONE_CLIENT_SECRET != '' }}
+        run: |
+          missing=()
+          for name in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID AZURE_ENV_NAME AZURE_LOCATION; do
+            [ -n "${!name}" ] || missing+=("$name")
+          done
+          if [ "$PROVISION" = true ] && [ "$HAS_CLIENT_ID" != true ]; then missing+=("NINJAONE_CLIENT_ID (secret)"); fi
+          if [ "$PROVISION" = true ] && [ "$HAS_CLIENT_SECRET" != true ]; then missing+=("NINJAONE_CLIENT_SECRET (secret)"); fi
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Set these on the azure environment: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Sign in with OpenID Connect
+        run: azd auth login --client-id "$AZURE_CLIENT_ID" --tenant-id "$AZURE_TENANT_ID" --federated-credential-provider github
+
+      - name: Select the azd environment
+        env:
+          NINJAONE_REGION: ${{ vars.NINJAONE_REGION }}
+          NINJAONE_SCOPES: ${{ vars.NINJAONE_SCOPES }}
+          NINJAONE_TOOLSETS: ${{ vars.NINJAONE_TOOLSETS }}
+          NINJAONE_MODE: ${{ vars.NINJAONE_MODE }}
+          NINJAONE_ALLOW_DESTRUCTIVE: ${{ vars.NINJAONE_ALLOW_DESTRUCTIVE }}
+          NINJAONE_ALLOWED_ORG_IDS: ${{ vars.NINJAONE_ALLOWED_ORG_IDS }}
+          MCP_HTTP_AUTH: ${{ vars.MCP_HTTP_AUTH }}
+          MCP_ENTRA_CLIENT_ID: ${{ vars.MCP_ENTRA_CLIENT_ID }}
+          MCP_ENTRA_APP_ID_URI: ${{ vars.MCP_ENTRA_APP_ID_URI }}
+          MCP_ALLOWED_ORIGINS: ${{ vars.MCP_ALLOWED_ORIGINS }}
+          MCP_MIN_REPLICAS: ${{ vars.MCP_MIN_REPLICAS }}
+        run: |
+          azd env new "$AZURE_ENV_NAME" --subscription "$AZURE_SUBSCRIPTION_ID" --location "$AZURE_LOCATION" --no-prompt
+          # Non-secret settings only. Secrets stay in the process environment of the provision step.
+          for name in NINJAONE_REGION NINJAONE_SCOPES NINJAONE_TOOLSETS NINJAONE_MODE NINJAONE_ALLOW_DESTRUCTIVE \
+                      NINJAONE_ALLOWED_ORG_IDS MCP_HTTP_AUTH MCP_ENTRA_CLIENT_ID MCP_ENTRA_APP_ID_URI \
+                      MCP_ALLOWED_ORIGINS MCP_MIN_REPLICAS; do
+            if [ -n "${!name}" ]; then azd env set "$name" "${!name}"; fi
+          done
+
+      - name: Provision
+        if: inputs.provision
+        env:
+          NINJAONE_CLIENT_ID: ${{ secrets.NINJAONE_CLIENT_ID }}
+          NINJAONE_CLIENT_SECRET: ${{ secrets.NINJAONE_CLIENT_SECRET }}
+          MCP_BEARER_TOKEN: ${{ secrets.MCP_BEARER_TOKEN }}
+        run: azd provision --no-prompt
+
+      - name: Load outputs of the last provision
+        if: ${{ !inputs.provision }}
+        run: azd env refresh --no-prompt
+
+      - name: Deploy the image
+        run: azd deploy --no-prompt
+
+      - name: Smoke test
+        run: |
+          base="$(azd env get-value MCP_URL | sed 's#/mcp$##')"
+          for _ in $(seq 1 30); do curl -fsS "$base/healthz" && break; sleep 5; done
+          code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/mcp" -H 'content-type: application/json' -d '{}')"
+          if [ "$code" != 401 ]; then
+            echo "::error::POST /mcp without a token answered $code, expected 401."
+            exit 1
+          fi
+          echo "Deployed: $base/mcp" >> "$GITHUB_STEP_SUMMARY"

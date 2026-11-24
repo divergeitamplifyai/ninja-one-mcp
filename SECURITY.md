@@ -4,7 +4,7 @@ This server sits between an AI agent and a live RMM that can reboot machines and
 
 ## Reporting a vulnerability
 
-Report privately through [GitHub private vulnerability reporting](https://github.com/patrickking67/ninja-one-mcp/security/advisories/new). Include a description and, if you have one, a reproduction.
+Report privately through [GitHub private vulnerability reporting](https://github.com/divergeitamplifyai/ninja-one-mcp/security/advisories/new). Include a description and, if you have one, a reproduction.
 
 - Do not open a public issue, pull request or discussion for anything exploitable.
 - Do not include credentials, tokens, tenant ids or client data in a report. If a secret was exposed, say which one and where, not its value.
@@ -29,15 +29,16 @@ Vulnerabilities in NinjaOne itself go to NinjaOne: https://www.ninjaone.com/prod
 
 ## Remote deployments
 
-When the server runs over HTTP:
+The Node HTTP lane (Azure Container Apps) and the Cloudflare Worker share one handler, `src/remote/`, and refuse the same things (LANES.md, section 4):
 
-- It refuses to start off loopback without inbound authentication: Entra ID tokens, or shared tokens of at least 32 characters.
-- Entra tokens are checked for signature, issuer, tenant, audience, lifetime and scope or role.
-- Browser `Origin` headers must be allowed.
-- The caller's token is never forwarded to NinjaOne.
-- Bodies are capped at 1 MB.
+- No inbound auth configured: the container exits, the Worker answers 503. `MCP_HTTP_AUTH=none` works on loopback only.
+- Entra ID tokens are checked for signature, issuer, tenant, audience, lifetime and scope or role. Cloudflare Access tokens are read from `Cf-Access-Jwt-Assertion` only, with the team domain and AUD pinned. Shared tokens must be at least 32 characters and are compared in constant time.
+- Browser `Origin` headers must be allowed. A loopback listener answers loopback `Host` names only.
+- Nothing is read from the URL: `/mcp` refuses query strings and extra path segments.
+- The caller's token never reaches a tool, a log line or NinjaOne.
+- Bodies are capped at 1 MB. Only `POST` is served; there are no sessions.
 
-See [docs/AZURE.md](docs/AZURE.md) for the trust boundaries.
+See [docs/deploy-azure.md](docs/deploy-azure.md) and [docs/deploy-cloudflare.md](docs/deploy-cloudflare.md) for the trust boundaries.
 
 ## The real boundary
 
@@ -45,7 +46,7 @@ The gates bind this server only. Anyone holding the same API client credential c
 
 ## Supply chain
 
-- Two runtime dependencies, the official MCP SDK and Zod, pinned exactly, with a committed lockfile.
+- Three runtime dependencies, the official MCP SDK, Zod and jose (JWT checks on the remote lanes), pinned exactly, with a committed lockfile.
 - The single-file bundle in `plugins/ninjaone/server/` is rebuilt in CI and must match the committed copy.
 - CI runs with read-only permissions, SHA-pinned actions and no secrets.
 - Tests make no network calls beyond loopback.

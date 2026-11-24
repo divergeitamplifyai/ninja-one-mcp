@@ -1,28 +1,12 @@
 /**
  * MCP resources: reference material an agent can read without a tool call.
  *
- *  - ninjaone://docs/llms.txt         NinjaOne public docs index (bundled llms.txt)
+ *  - ninjaone://docs/llms.txt         NinjaOne public docs index (llms.txt, inlined at build time)
  *  - ninjaone://docs/device-filters   the df syntax, condensed
  */
 
-import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-
-const HERE = dirname(fileURLToPath(import.meta.url));
-
-/** The file next to this module, in the package root (dist/tools/../..), or beside a single-file bundle. */
-function bundled(file: string): string {
-  for (const dir of [join(HERE, '..', '..'), HERE, join(HERE, '..')]) {
-    try {
-      return readFileSync(join(dir, file), 'utf8');
-    } catch {
-      // try the next location
-    }
-  }
-  return `${file} is not bundled with this install. See https://github.com/patrickking67/ninja-one-mcp/blob/main/${file}`;
-}
+import { LLMS_TXT } from '../generated/llms.js';
 
 export const DEVICE_FILTERS = `# NinjaOne device filters (df)
 
@@ -53,7 +37,7 @@ export function registerResources(server: McpServer): void {
     'ninjaone_docs_index',
     'ninjaone://docs/llms.txt',
     { description: 'Index of NinjaOne public API and help documentation (llms.txt format).', mimeType: 'text/markdown' },
-    async (uri) => ({ contents: [{ uri: uri.href, mimeType: 'text/markdown', text: bundled('llms.txt') }] }),
+    async (uri) => ({ contents: [{ uri: uri.href, mimeType: 'text/markdown', text: LLMS_TXT }] }),
   );
   server.registerResource(
     'ninjaone_device_filters',

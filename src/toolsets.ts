@@ -1,7 +1,7 @@
 /**
  * Toolsets: which groups of tools this deployment lists.
  *
- * The full server is about 300 tools. Some hosts cap the tools a model sees
+ * The full server is 315 tools. Some hosts cap the tools a model sees
  * (VS Code with Copilot allows 128 per request; Cursor warns past roughly 40),
  * and a smaller list also plans better. NINJAONE_TOOLSETS picks the groups;
  * the default is the everyday RMM set. Diagnostics are always listed.

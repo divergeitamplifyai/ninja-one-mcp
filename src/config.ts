@@ -38,6 +38,8 @@ export interface Config {
   toolsets: Set<Toolset>;
   /** The credentials file, when one was found (set by the entry point). */
   envFile?: EnvFileResult | undefined;
+  /** Where a stdio process looks for the credentials file (set by the stdio entry point; unset on remote lanes). */
+  envFilePath?: string | undefined;
   /** Required variables that are not set. */
   missing: string[];
   /** Values that are set but not usable, each naming the variable. */

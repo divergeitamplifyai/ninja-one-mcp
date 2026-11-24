@@ -1,0 +1,75 @@
+// Cloudflare Workers lane (LANES.md, docs/deploy-cloudflare.md).
+//
+//   npx wrangler dev                      local, reads .dev.vars (git-ignored)
+//   npx wrangler deploy --env staging     staging Worker
+//   npx wrangler deploy --env production  production Worker
+//
+// Committed defaults are read only and carry nothing tied to an account or a
+// person: no account_id, no routes or hostnames, no team domain, no AUD tag.
+// Those come from the deploy workflow (GitHub environment variables passed
+// with --var), from wrangler secrets, or from a git-ignored wrangler.local.jsonc
+// copy of this file. vars are not inherited by environments, so each block
+// repeats them.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ninja-one-mcp-dev",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "vars": {
+    "NINJAONE_REGION": "us",
+    "NINJAONE_SCOPES": "monitoring",
+    "NINJAONE_TOOLSETS": "default",
+    "NINJAONE_MODE": "read",
+    "NINJAONE_ALLOW_DESTRUCTIVE": "false",
+    "NINJAONE_ALLOWED_ORG_IDS": "",
+    "MCP_HTTP_AUTH": "bearer",
+    "MCP_ALLOWED_ORIGINS": ""
+  },
+  "env": {
+    "staging": {
+      "name": "ninja-one-mcp-staging",
+      "workers_dev": true,
+      "preview_urls": false,
+      "observability": { "enabled": true },
+      "vars": {
+        // NinjaOne instance (us, us2, eu, ca, oc) and the OAuth scopes to request.
+        // monitoring is read only; management and control must be granted to the API client.
+        "NINJAONE_REGION": "us",
+        "NINJAONE_SCOPES": "monitoring",
+        "NINJAONE_TOOLSETS": "default",
+        // Gates. Turn writes on here first, against a test account, never by default.
+        "NINJAONE_MODE": "read",
+        "NINJAONE_ALLOW_DESTRUCTIVE": "false",
+        // Optional hard boundary: comma-separated organization ids.
+        "NINJAONE_ALLOWED_ORG_IDS": "",
+        // access: Cloudflare Access in front, MCP_ACCESS_TEAM_DOMAIN and MCP_ACCESS_AUD
+        // passed at deploy time. bearer: MCP_BEARER_TOKEN as a wrangler secret.
+        "MCP_HTTP_AUTH": "access",
+        // Comma list of browser origins allowed to call /mcp. Empty allows none.
+        "MCP_ALLOWED_ORIGINS": ""
+      },
+      "secrets": { "required": ["NINJAONE_CLIENT_ID", "NINJAONE_CLIENT_SECRET"] }
+    },
+    "production": {
+      "name": "ninja-one-mcp",
+      // Set false once a custom domain behind Access is live.
+      "workers_dev": true,
+      "preview_urls": false,
+      "observability": { "enabled": true },
+      "vars": {
+        "NINJAONE_REGION": "us",
+        "NINJAONE_SCOPES": "monitoring",
+        "NINJAONE_TOOLSETS": "default",
+        "NINJAONE_MODE": "read",
+        "NINJAONE_ALLOW_DESTRUCTIVE": "false",
+        "NINJAONE_ALLOWED_ORG_IDS": "",
+        "MCP_HTTP_AUTH": "access",
+        "MCP_ALLOWED_ORIGINS": ""
+      },
+      "secrets": { "required": ["NINJAONE_CLIENT_ID", "NINJAONE_CLIENT_SECRET"] }
+    }
+  }
+}

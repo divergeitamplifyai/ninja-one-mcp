@@ -1,8 +1,12 @@
-# Only what the build stage copies is needed. Keep secrets and local state out.
-*
-!package.json
-!package-lock.json
-!tsconfig.json
-!llms.txt
-!src/
-!scripts/bundle.mjs
+node_modules
+dist
+.git
+.github
+.claude
+.worktrees
+.env
+.env.*
+.dev.vars
+wrangler.local.jsonc
+.wrangler
+*.mcpb

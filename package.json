@@ -7,10 +7,10 @@
   "author": "Patrick King (https://github.com/patrickking67)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/patrickking67/ninja-one-mcp.git"
+    "url": "git+https://github.com/divergeitamplifyai/ninja-one-mcp.git"
   },
-  "homepage": "https://github.com/patrickking67/ninja-one-mcp#readme",
-  "bugs": "https://github.com/patrickking67/ninja-one-mcp/issues",
+  "homepage": "https://github.com/divergeitamplifyai/ninja-one-mcp#readme",
+  "bugs": "https://github.com/divergeitamplifyai/ninja-one-mcp/issues",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -56,28 +56,33 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
+    "start:http": "node dist/http/main.js",
     "test": "npm run build && node --test \"test/**/*.test.mjs\"",
     "conformance": "node scripts/check-conformance.mjs",
+    "check:remote": "node scripts/check-remote.mjs",
     "coverage:spec": "npm run build && node scripts/spec-coverage.mjs",
     "gen:bodies": "node scripts/gen-bodies.mjs",
-    "check": "npm run typecheck && node scripts/gen-bodies.mjs --check && node scripts/gen-app-runtime.mjs --check && npm test && npm run conformance && node scripts/spec-coverage.mjs --check && node scripts/gen-catalog.mjs --check && node scripts/bundle.mjs --check",
+    "check": "npm run typecheck && node scripts/gen-bodies.mjs --check && node scripts/gen-app-runtime.mjs --check && node scripts/gen-docs.mjs --check && npm test && npm run conformance && node scripts/spec-coverage.mjs --check && node scripts/gen-catalog.mjs --check && node scripts/bundle.mjs --check && npm run check:remote",
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "mutations": "node scripts/generate-mutations.mjs",
     "pack:mcpb": "node scripts/pack-mcpb.mjs",
     "gen:runtime": "node scripts/gen-app-runtime.mjs",
+    "gen:docs": "node scripts/gen-docs.mjs",
     "bundle": "node scripts/bundle.mjs",
     "gen:catalog": "node scripts/gen-catalog.mjs",
-    "gen": "npm run build && node scripts/gen-bodies.mjs && node scripts/gen-app-runtime.mjs && npm run build && node scripts/gen-catalog.mjs && node scripts/spec-coverage.mjs && node scripts/bundle.mjs"
+    "gen": "node scripts/gen-docs.mjs && npm run build && node scripts/gen-bodies.mjs && node scripts/gen-app-runtime.mjs && npm run build && node scripts/gen-catalog.mjs && node scripts/spec-coverage.mjs && node scripts/bundle.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2",
+    "jose": "6.2.17",
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@modelcontextprotocol/ext-apps": "1.7.5",
+    "@modelcontextprotocol/ext-apps": "2.0.4",
     "@types/node": "22.20.5",
     "esbuild": "0.28.2",
     "typescript": "7.0.2",
+    "wrangler": "4.160.0",
     "yaml": "2.9.1"
   }
 }

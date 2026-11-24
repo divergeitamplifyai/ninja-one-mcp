@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Launcher. Runs the compiled server (dist/, present in the npm package and
 // after `npm run build`) or, in a git checkout without a build, the committed
-// single-file bundle. Either way `npx -y github:patrickking67/ninja-one-mcp`
+// single-file bundle. Either way `npx -y github:divergeitamplifyai/ninja-one-mcp`
 // starts without a build step.
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';

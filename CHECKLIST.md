@@ -86,8 +86,20 @@ server. A green run covers them; the rest need a person.
 
 - [ ] stdio works. [T1] **(auto)**
 - [ ] If HTTP is offered: auth fails closed off loopback, Origin is validated, one server per request, no SSE, no token forwarding. [T2]
+
+## Deployment lanes ([LANES.md](LANES.md))
+
+- [ ] `npm run check:remote` passes: fixed lane paths present, read-only and anonymous deploy config, digest-pinned non-root image, gated dispatch-only deploy workflows. [T3, T4] **(auto)**
+- [ ] Remote lanes use `src/remote/` unchanged: the refusal table in LANES.md section 4 holds on Node and on the Worker, and `test/http.test.mjs` and `test/worker.test.mjs` cover every row. [T2]
+- [ ] `MCP_*` transport variables use the LANES.md names; no repo-specific auth or host variables remain. [T3]
+- [ ] Every vendor credential is a Key Vault secret with a `secretRef` on Azure and a `wrangler secret` in `secrets.required` on Cloudflare; none is a plain value. [T3, X1]
+- [ ] `npx wrangler deploy --dry-run --env staging` bundles, `az bicep build --file infra/main.bicep` has no warnings, and `docker build .` produces an image that exits without `MCP_HTTP_AUTH` and answers 401 on `/mcp` without a token.
+- [ ] `docs/deploy-azure.md` and `docs/deploy-cloudflare.md` name this server's variables and secrets.
+- [ ] Packaging lanes, where shipped: `packaging/mcpb/manifest.json` defaults to read mode with the credential `sensitive`; `.claude-plugin/marketplace.json` points at `plugins/<name>/`. [T1]
+- [ ] Views use `THEME_CSS` and its semantic tokens only; no palette, `@import` or font URL of their own. [V2]
+- [ ] README follows README.template.md section order, with exact tool counts.
 - [ ] `AGENTS.md`, `CLAUDE.md`, `SECURITY.md`, `.env.example`, `.gitignore`, `mutations.json` exist. [R1] **(auto)**
 - [ ] Dependencies pinned exactly, lockfile committed, each dependency justified. [R2]
-- [ ] CI runs build, test and conformance with read-only permissions and SHA-pinned actions. [R3]
+- [ ] CI runs build, test, conformance and the lane checks with read-only permissions and SHA-pinned actions. [R3]
 - [ ] Tests make no network calls beyond loopback, and mocks reproduce the API's dangerous behaviors. [R4]
 - [ ] No secrets, tenant ids, or client names anywhere in the repository. [R5]

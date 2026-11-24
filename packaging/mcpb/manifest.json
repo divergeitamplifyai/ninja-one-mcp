@@ -10,12 +10,12 @@
     "name": "Patrick King",
     "url": "https://github.com/patrickking67"
   },
-  "homepage": "https://patrickking67.github.io/ninja-one-mcp/",
-  "documentation": "https://github.com/patrickking67/ninja-one-mcp#readme",
-  "support": "https://github.com/patrickking67/ninja-one-mcp/issues",
+  "homepage": "https://divergeitamplifyai.github.io/ninja-one-mcp/",
+  "documentation": "https://github.com/divergeitamplifyai/ninja-one-mcp#readme",
+  "support": "https://github.com/divergeitamplifyai/ninja-one-mcp/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/patrickking67/ninja-one-mcp.git"
+    "url": "https://github.com/divergeitamplifyai/ninja-one-mcp.git"
   },
   "license": "MIT",
   "keywords": ["ninjaone", "rmm", "msp", "patching", "endpoint-management"],

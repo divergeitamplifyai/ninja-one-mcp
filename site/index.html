@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ninja-one-mcp</title>
-<meta name="description" content="An open-source MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2. 314 tools, read-only by default, two gates for anything that changes a device.">
+<meta name="description" content="An open-source MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2. 315 tools, read-only by default, two gates for anything that changes a device.">
 <meta name="theme-color" content="#EDF0EC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E1412" media="(prefers-color-scheme: dark)">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ninja-one-mcp">
 <meta property="og:description" content="Safe, complete access to the NinjaOne RMM Public API v2 for AI agents. Read-only by default.">
-<meta property="og:url" content="https://patrickking67.github.io/ninja-one-mcp/">
-<meta property="og:image" content="https://patrickking67.github.io/ninja-one-mcp/assets/og.png">
+<meta property="og:url" content="https://divergeitamplifyai.github.io/ninja-one-mcp/">
+<meta property="og:image" content="https://divergeitamplifyai.github.io/ninja-one-mcp/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://patrickking67.github.io/ninja-one-mcp/assets/og.png">
+<meta name="twitter:image" content="https://divergeitamplifyai.github.io/ninja-one-mcp/assets/og.png">
 <link rel="apple-touch-icon" href="assets/icon.png">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,7 +40,7 @@
       <a href="#tools">Tools</a>
       <a href="#install">Install</a>
       <a href="#config">Config</a>
-      <a href="https://github.com/patrickking67/ninja-one-mcp">GitHub</a>
+      <a href="https://github.com/divergeitamplifyai/ninja-one-mcp">GitHub</a>
     </nav>
     <button class="theme" type="button" id="theme-toggle" aria-label="Switch color theme">
       <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.25"/><path d="M10 2.75a7.25 7.25 0 0 1 0 14.5z"/></svg>
@@ -56,7 +56,7 @@
       <p class="lede">An MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2. It starts read-only, and it takes two deliberate settings before an agent can touch a device.</p>
       <div class="hero-actions">
         <a class="btn primary" href="#install">Install</a>
-        <a class="btn" href="https://github.com/patrickking67/ninja-one-mcp">View on GitHub</a>
+        <a class="btn" href="https://github.com/divergeitamplifyai/ninja-one-mcp">View on GitHub</a>
       </div>
 
       <figure class="gates" aria-labelledby="gates-cap">
@@ -77,7 +77,7 @@
         </div>
         <div class="grid" id="gate-grid" aria-hidden="true"></div>
         <figcaption class="gates-foot">
-          <p class="gates-live" id="gates-live" aria-live="polite"><strong>154</strong> of 314 tools can run. Writes are listed but refuse.</p>
+          <p class="gates-live" id="gates-live" aria-live="polite"><strong>154</strong> of 315 tools can run. Writes are listed but refuse.</p>
           <ul class="legend" aria-label="Legend">
             <li><i class="k-read"></i>Read <span id="n-read">154</span></li>
             <li><i class="k-write"></i>Write <span id="n-write">105</span></li>
@@ -136,7 +136,7 @@
         <li class="rung r-destructive">
           <h3>Destructive</h3>
           <p class="setting"><code>NINJAONE_ALLOW_DESTRUCTIVE=true</code></p>
-          <p>Deletes, reboots, scripts, patch installs, full replacements, secret-bearing downloads, raw writes. 55 tools.</p>
+          <p>Deletes, reboots, scripts, patch installs, full replacements, secret-bearing downloads, raw writes. 56 tools.</p>
         </li>
       </ol>
 
@@ -173,13 +173,13 @@
     <div class="wrap split">
       <div>
         <h2 id="cover-title">The whole API, not a sample</h2>
-        <p class="muted">All 315 operations in the Public API v2 spec are reachable. 314 have a typed tool. A few multipart and UI-config endpoints go through a gated raw passthrough.</p>
+        <p class="muted">All 315 operations in the Public API v2 spec are reachable. 302 have a typed tool. A few multipart and UI-config endpoints go through a gated raw passthrough.</p>
       </div>
       <ul class="facts">
         <li><b>23 fleet reports</b> from <code>/v2/queries</code>: inventory, patches, antivirus, health, custom fields.</li>
         <li><b>Interactive views</b> with MCP Apps: a fleet dashboard, a device page, and alerts with a gated Reset button.</li>
         <li><b>NinjaOne docs on hand.</b> An <code>llms.txt</code> of NinjaOne's public docs ships as an MCP resource.</li>
-        <li><b>Toolsets</b> keep the default list to 107 tools. <code>NINJAONE_TOOLSETS=all</code> lists everything. Some clients cap tools, such as VS Code Copilot at 128 per request.</li>
+        <li><b>Toolsets</b> keep the default list to 108 tools. <code>NINJAONE_TOOLSETS=all</code> lists everything. Some clients cap tools, such as VS Code Copilot at 128 per request.</li>
       </ul>
     </div>
   </section>
@@ -243,25 +243,26 @@
           <button role="tab" id="t-cu" aria-controls="p-cu" aria-selected="false" tabindex="-1">Cursor</button>
           <button role="tab" id="t-vs" aria-controls="p-vs" aria-selected="false" tabindex="-1">VS Code</button>
           <button role="tab" id="t-az" aria-controls="p-az" aria-selected="false" tabindex="-1">Azure</button>
+          <button role="tab" id="t-cf" aria-controls="p-cf" aria-selected="false" tabindex="-1">Cloudflare</button>
           <button role="tab" id="t-ot" aria-controls="p-ot" aria-selected="false" tabindex="-1">Other</button>
         </div>
 
         <div class="panel" role="tabpanel" id="p-cc" aria-labelledby="t-cc" tabindex="0">
           <p>As a plugin. It asks for your client id, secret and region, and stores the secret in the OS keychain.</p>
-          <div class="code"><pre><code>/plugin marketplace add patrickking67/ninja-one-mcp
+          <div class="code"><pre><code>/plugin marketplace add divergeitamplifyai/ninja-one-mcp
 /plugin install ninjaone@ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
           <p>Or with the CLI.</p>
-          <div class="code"><pre><code>claude mcp add ninjaone -e NINJAONE_CLIENT_ID=your-id -e NINJAONE_CLIENT_SECRET=your-secret -e NINJAONE_REGION=us -- npx -y github:patrickking67/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+          <div class="code"><pre><code>claude mcp add ninjaone -e NINJAONE_CLIENT_ID=your-id -e NINJAONE_CLIENT_SECRET=your-secret -e NINJAONE_REGION=us -- npx -y github:divergeitamplifyai/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
         </div>
 
         <div class="panel" role="tabpanel" id="p-cd" aria-labelledby="t-cd" tabindex="0" hidden>
-          <p>Download <code>ninja-one-mcp.mcpb</code> from the <a href="https://github.com/patrickking67/ninja-one-mcp/releases/latest">latest GitHub release</a> and open it. Claude Desktop asks for the credentials.</p>
+          <p>Download <code>ninja-one-mcp.mcpb</code> from the <a href="https://github.com/divergeitamplifyai/ninja-one-mcp/releases/latest">latest GitHub release</a> and open it. Claude Desktop asks for the credentials.</p>
         </div>
 
         <div class="panel" role="tabpanel" id="p-cx" aria-labelledby="t-cx" tabindex="0" hidden>
-          <div class="code"><pre><code>codex mcp add ninjaone --env NINJAONE_CLIENT_ID=your-id --env NINJAONE_CLIENT_SECRET=your-secret --env NINJAONE_REGION=us -- npx -y github:patrickking67/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+          <div class="code"><pre><code>codex mcp add ninjaone --env NINJAONE_CLIENT_ID=your-id --env NINJAONE_CLIENT_SECRET=your-secret --env NINJAONE_REGION=us -- npx -y github:divergeitamplifyai/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
           <p>Or install the plugin.</p>
-          <div class="code"><pre><code>codex plugin marketplace add patrickking67/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+          <div class="code"><pre><code>codex plugin marketplace add divergeitamplifyai/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
         </div>
 
         <div class="panel" role="tabpanel" id="p-cu" aria-labelledby="t-cu" tabindex="0" hidden>
@@ -270,7 +271,7 @@
   "mcpServers": {
     "ninjaone": {
       "command": "npx",
-      "args": ["-y", "github:patrickking67/ninja-one-mcp"],
+      "args": ["-y", "github:divergeitamplifyai/ninja-one-mcp"],
       "env": {
         "NINJAONE_CLIENT_ID": "your-id",
         "NINJAONE_CLIENT_SECRET": "your-secret",
@@ -293,7 +294,7 @@
     "ninjaone": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:patrickking67/ninja-one-mcp"],
+      "args": ["-y", "github:divergeitamplifyai/ninja-one-mcp"],
       "env": {
         "NINJAONE_CLIENT_ID": "${input:ninjaone_client_id}",
         "NINJAONE_CLIENT_SECRET": "${input:ninjaone_client_secret}",
@@ -305,17 +306,27 @@
         </div>
 
         <div class="panel" role="tabpanel" id="p-az" aria-labelledby="t-az" tabindex="0" hidden>
-          <p>One endpoint for a whole team, on Azure Container Apps. People sign in with Microsoft Entra ID, the NinjaOne secret lives in Key Vault, and the same gates apply. VS Code signs in on its own. See the <a href="https://github.com/patrickking67/ninja-one-mcp/blob/main/docs/AZURE.md">Azure guide</a> for the design and every step.</p>
+          <p>One endpoint for a whole team, on Azure Container Apps. People sign in with Microsoft Entra ID, the NinjaOne secret lives in Key Vault, and the same gates apply. VS Code signs in on its own. See the <a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/deploy-azure.md">Azure guide</a> for the design and every step.</p>
           <div class="code"><pre><code>azd env new ninjaone-prod
 infra/scripts/entra-app.sh
-azd env set NINJAONE_CLIENT_ID your-id
+azd env set-secret NINJAONE_CLIENT_ID
 azd env set-secret NINJAONE_CLIENT_SECRET
 azd up</code></pre><button class="copy" type="button">Copy</button></div>
         </div>
 
+        <div class="panel" role="tabpanel" id="p-cf" aria-labelledby="t-cf" tabindex="0" hidden>
+          <p>The same server as a Cloudflare Worker, behind Cloudflare Access or a bearer token, with the same gates. The Worker checks every token itself and answers 503 until inbound auth is configured. See the <a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/deploy-cloudflare.md">Cloudflare guide</a> for the design and every step.</p>
+          <div class="code"><pre><code>npm ci
+npx wrangler secret put NINJAONE_CLIENT_ID --env staging
+npx wrangler secret put NINJAONE_CLIENT_SECRET --env staging
+npx wrangler deploy --env staging \
+  --var MCP_ACCESS_TEAM_DOMAIN:&lt;team&gt;.cloudflareaccess.com \
+  --var MCP_ACCESS_AUD:&lt;aud-tag&gt;</code></pre><button class="copy" type="button">Copy</button></div>
+        </div>
+
         <div class="panel" role="tabpanel" id="p-ot" aria-labelledby="t-ot" tabindex="0" hidden>
-          <p>Any MCP client that runs a local stdio server works the same way. Use command <code>npx</code>, args <code>-y github:patrickking67/ninja-one-mcp</code>, and set <code>NINJAONE_CLIENT_ID</code>, <code>NINJAONE_CLIENT_SECRET</code> and <code>NINJAONE_REGION</code> in its environment.</p>
-          <div class="code"><pre><code>npx -y github:patrickking67/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+          <p>Any MCP client that runs a local stdio server works the same way. Use command <code>npx</code>, args <code>-y github:divergeitamplifyai/ninja-one-mcp</code>, and set <code>NINJAONE_CLIENT_ID</code>, <code>NINJAONE_CLIENT_SECRET</code> and <code>NINJAONE_REGION</code> in its environment.</p>
+          <div class="code"><pre><code>npx -y github:divergeitamplifyai/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
         </div>
       </div>
     </div>
@@ -341,7 +352,7 @@ azd up</code></pre><button class="copy" type="button">Copy</button></div>
             <tr><th scope="row"><code>NINJAONE_ALLOWED_ORG_IDS</code></th><td>Comma-separated organization ids. Every call stays inside this set.</td><td>All</td></tr>
             <tr><th scope="row"><code>NINJAONE_ORG_ID</code></th><td>Default organization for tools that take one.</td><td>None</td></tr>
             <tr><th scope="row"><code>NINJAONE_WRITE_ALLOWLIST</code></th><td>Comma-separated tool names. Narrows which write tools may run.</td><td>None</td></tr>
-            <tr><th scope="row"><code>NINJAONE_TOOLSETS</code></th><td>Comma-separated toolsets to list, or <code>all</code>.</td><td>107 tools</td></tr>
+            <tr><th scope="row"><code>NINJAONE_TOOLSETS</code></th><td>Comma-separated toolsets to list, or <code>all</code>.</td><td>108 tools</td></tr>
             <tr><th scope="row"><code>NINJAONE_MAX_CONCURRENCY</code></th><td>Parallel requests for fleet-wide fan-out, 1 to 16.</td><td><code>4</code></td></tr>
           </tbody>
         </table>
@@ -353,9 +364,9 @@ azd up</code></pre><button class="copy" type="button">Copy</button></div>
     <div class="wrap split">
       <h2 id="links-title">Read more</h2>
       <ul class="links">
-        <li><a href="https://github.com/patrickking67/ninja-one-mcp">Source on GitHub</a><span>Code, issues and releases.</span></li>
-        <li><a href="https://github.com/patrickking67/ninja-one-mcp/blob/main/docs/TOOLS.md">docs/TOOLS.md</a><span>Every tool with its parameters.</span></li>
-        <li><a href="https://github.com/patrickking67/ninja-one-mcp/blob/main/llms.txt">llms.txt</a><span>The NinjaOne docs index the server bundles.</span></li>
+        <li><a href="https://github.com/divergeitamplifyai/ninja-one-mcp">Source on GitHub</a><span>Code, issues and releases.</span></li>
+        <li><a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/TOOLS.md">docs/TOOLS.md</a><span>Every tool with its parameters.</span></li>
+        <li><a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/llms.txt">llms.txt</a><span>The NinjaOne docs index the server bundles.</span></li>
         <li><a href="https://app.ninjarmm.com/apidocs-beta/">NinjaOne API docs</a><span>The Public API v2 reference.</span></li>
       </ul>
     </div>

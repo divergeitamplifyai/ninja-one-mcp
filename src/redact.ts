@@ -40,9 +40,12 @@ export function redact(input: string): string {
 
 /**
  * Log to stderr as one JSON line. stdout is the JSON-RPC channel on stdio, so
- * nothing else may ever write there.
+ * nothing else may ever write there. On Workers, where there is no stderr
+ * stream, the line goes to console.error, which Workers Logs collects.
  */
 export function logStderr(level: 'info' | 'warn' | 'error', event: string, fields: Record<string, unknown> = {}): void {
-  const line = JSON.stringify({ time: new Date().toISOString(), level, event, ...fields });
-  process.stderr.write(`${redact(line)}\n`);
+  const line = redact(JSON.stringify({ time: new Date().toISOString(), level, event, ...fields }));
+  const stderr = typeof process !== 'undefined' ? process.stderr : undefined;
+  if (stderr && typeof stderr.write === 'function') stderr.write(`${line}\n`);
+  else console.error(line);
 }

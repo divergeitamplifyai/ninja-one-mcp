@@ -16,3 +16,11 @@ CLAUDE.local.md
 .DS_Store
 *.log
 build/
+
+# Remote lanes: local Cloudflare settings and build output
+.dev.vars
+.dev.vars.*
+wrangler.local.jsonc
+.wrangler/
+# Azure Developer CLI environments (hold subscription and tenant ids)
+.azure/

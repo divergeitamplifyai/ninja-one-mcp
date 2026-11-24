@@ -6,7 +6,7 @@ This repository is an MCP server built to [STANDARD.md](STANDARD.md). Read the s
 
 ## Purpose
 
-`ninja-one-mcp` is a stdio MCP server for the NinjaOne RMM Public API v2. It covers every operation in `spec/ninjaone-public-api-v2.yaml`, for agents that manage many client organizations. It must never:
+`ninja-one-mcp` is an MCP server for the NinjaOne RMM Public API v2, shipped in the five lanes of [LANES.md](LANES.md): stdio, the Claude Desktop `.mcpb`, the Claude Code plugin, Azure Container Apps and Cloudflare Workers. It covers every operation in `spec/ninjaone-public-api-v2.yaml`, for agents that manage many client organizations. It must never:
 
 - change anything while the gates are shut;
 - touch an organization outside `NINJAONE_ALLOWED_ORG_IDS`;
@@ -21,8 +21,10 @@ npm ci                 # install from the lockfile
 npm run build          # tsc -> dist/
 npm test               # build, then node:test against dist/ (loopback only)
 npm run conformance    # standard checks against the built server (all toolsets)
-npm run check          # everything CI runs, including drift checks on generated files
-npm run gen            # regenerate body docs, views runtime, catalog, coverage, plugin bundle
+npm run check          # everything CI runs: drift checks on generated files, tests, conformance, lane checks
+npm run check:remote   # LANES.md checks on the committed deploy config (part of check)
+npm run start:http     # Node HTTP lane on 127.0.0.1:8080 (needs MCP_HTTP_AUTH)
+npm run gen            # regenerate docs index, body docs, views runtime, catalog, coverage, plugin bundle
 npm run pack:mcpb      # build/ninja-one-mcp.mcpb
 ```
 
@@ -40,18 +42,25 @@ src/
   envfile.ts       Optional credentials file
   gate.ts spec.ts  Gates, confirm, annotations; defineTool is the only registration path
   toolsets.ts      Listing groups
-  http/            Streamable HTTP transport: config, inbound auth, server
-  generated/       Generated files: body docs and the views runtime. Do not edit.
+  remote/          Remote lanes, runtime neutral: MCP_* settings, inbound auth (jose), the /mcp handler
+  http/            Node HTTP lane (the container): main.ts entry, node:http adapter, Host guard
+  worker/          Cloudflare Workers lane: export default { fetch }
+  apps/theme.ts    THEME_CSS, the one stylesheet for every view
+  generated/       Generated files: docs index, body docs and the views runtime. Do not edit.
 spec/              NinjaOne OpenAPI spec (source of truth)
 scripts/           conformance, coverage, catalog, generators, bundle, pack
 plugins/ninjaone/  The NinjaOne plugin (Claude Code and Codex) and the committed bundle
 site/              GitHub Pages site
-test/              harness.mjs (loopback NinjaOne mock), server, unit and http tests
-infra/, azure.yaml Azure Container Apps deployment (Bicep, azd); Dockerfile builds the image
+test/              harness.mjs (loopback NinjaOne mock), server, unit, http, worker and theme tests
+infra/, azure.yaml Azure Container Apps lane (Bicep, azd); Dockerfile builds the image
+wrangler.jsonc     Cloudflare Workers lane (staging and production)
+packaging/mcpb/    Claude Desktop bundle manifest and icon
+.claude-plugin/    Claude Code marketplace entry for plugins/ninjaone
 ```
 
 ## Rules that outrank everything else
 
+0. **Remote lanes follow LANES.md.** Refusals live once in `src/remote/`. Committed deploy config stays read only and anonymous: no account, tenant or subscription ids, emails or hostnames.
 1. **Every tool goes through `defineTool`** (directly, or through `registerRoutes`). Never call `server.registerTool`.
 2. **The kind is the safety fact.**
    - `read` changes nothing.

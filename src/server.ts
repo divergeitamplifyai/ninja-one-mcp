@@ -1,5 +1,10 @@
 /**
- * Server assembly. One McpServer per process on stdio.
+ * Server assembly. One McpServer per process on stdio. The remote lanes
+ * (src/http/, src/worker/) build one per request through src/remote/handler.ts,
+ * so nothing about one caller can reach another (STANDARD.md T2, LANES.md).
+ * They pass one Shared per deployment: the upstream client (its OAuth token
+ * cache) and the organization directory belong to the deployment's own
+ * NinjaOne credential, not to a caller.
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -41,6 +46,15 @@ export const INSTRUCTIONS = [
   'Docs: the ninjaone://docs/llms.txt resource indexes NinjaOne\'s public API and help documentation. Every error ends with a "Next step:" line; follow it rather than retrying unchanged.',
 ].join('\n');
 
+/** Which lane this server instance answers on. Reported by status_server. */
+export type Transport = 'stdio' | 'http' | 'worker';
+
+export interface CreateOptions {
+  transport?: Transport;
+  /** Deployment-level upstream state. One per process (stdio) or per deployment (remote). */
+  shared?: Shared;
+}
+
 export interface CreatedServer {
   server: McpServer;
   tools: Map<string, ToolKind>;
@@ -58,15 +72,23 @@ export function createShared(config: Config): Shared {
 }
 
 /**
- * Build one McpServer. stdio builds one per process; HTTP builds one per
- * request and passes the shared upstream state, so no caller state lives in it.
+ * Build one McpServer. stdio builds one per process; the remote lanes build one
+ * per request and pass the shared upstream state, so no caller state lives in it.
  */
-export function createServer(config: Config, shared: Shared = createShared(config)): CreatedServer {
+export function createServer(config: Config, options: CreateOptions = {}): CreatedServer {
+  const shared = options.shared ?? createShared(config);
   const server = new McpServer(
     { name: SERVER_NAME, title: SERVER_TITLE, version: SERVER_VERSION },
     { instructions: INSTRUCTIONS },
   );
-  const ctx: ToolContext = { config, client: shared.client, orgs: shared.orgs, tools: new Map(), readers: new Map() };
+  const ctx: ToolContext = {
+    config,
+    client: shared.client,
+    orgs: shared.orgs,
+    tools: new Map(),
+    readers: new Map(),
+    transport: options.transport ?? 'stdio',
+  };
   const on = config.toolsets;
   registerDiagnosticTools(server, ctx);
   registerRoutes(server, ctx, ALL_ROUTES);

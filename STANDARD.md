@@ -1,6 +1,6 @@
 # MCP server standard
 
-Version 1.0, 2026-11-08.
+Version 1.1, 2026-11-24.
 
 How these MCP servers are built. It is derived from the servers already in
 production, and it settles the places where they disagreed. The starter in
@@ -301,6 +301,12 @@ declare their `ui://` resource in `_meta`. Buttons in a view MUST call the
 server's own gated tools, never a private write path.
 _Why:_ a view is presentation; the safety facts underneath it do not change.
 
+**V2. SHOULD** style every view with `THEME_CSS` from `src/apps/theme.ts` and
+its semantic tokens only (LANES.md section 8): host variables first, DivergeIT
+fallbacks, no fonts or other assets loaded from the network.
+_Why:_ one theme reads as one product in every host, and a view that fetches a
+font leaks that it was opened.
+
 ## 12. Server instructions
 
 **I1. MUST** provide server instructions, kept short, that cover: the naming
@@ -320,9 +326,28 @@ default, validate `Origin`, act as an OAuth 2.1 resource server per the MCP
 authorization spec (audience validated against this server, RFC 9728 metadata)
 or use a shared bearer token of at least 32 characters compared in constant
 time, and never forward the inbound token upstream. Gate settings come from
-deployment configuration, not from the caller.
+deployment configuration, not from the caller. [LANES.md](LANES.md) section 4
+lists the exact refusals, and `src/remote/` implements them.
 _Why:_ an unauthenticated listener off-host exposes every tenant the credential
 can read.
+
+**T3. MUST** keep committed deploy configuration read only and anonymous: every
+`wrangler.jsonc` block, the azd parameter defaults and the Bicep defaults set
+`<PREFIX>_MODE=read` and `<PREFIX>_ALLOW_DESTRUCTIVE=false`, and no committed
+file carries an account id, tenant or subscription id, email address, or a
+hostname tied to an account. Those come from GitHub environment variables and
+secrets, the azd environment, wrangler secrets, or a git-ignored
+`wrangler.local.jsonc`. Secrets are never plain config values. Remote servers
+use the file paths and `MCP_*` variable names in LANES.md.
+_Why:_ a merged default is a deployed default, and a committed id ties a
+template to one person's account.
+
+**T4. MUST** make deploy workflows `workflow_dispatch` only, gated on a
+repository variable (`DEPLOY_AZURE_ENABLED`, `DEPLOY_CLOUDFLARE_ENABLED`) that is
+off unless set to `true`, run in a GitHub environment, use OIDC for Azure,
+pin actions to a commit SHA, and grant the least permissions.
+_Why:_ a deploy is a decision a person makes, in an environment whose reviewers
+can stop it.
 
 ## 14. Repository
 
@@ -335,8 +360,9 @@ official MCP SDK, and justify each added dependency (identity, maintenance,
 license, advisories).
 
 **R3. MUST** run in CI on every pull request: install from the lockfile, build,
-test, and `scripts/check-conformance.mjs`, with `permissions: contents: read`
-and third-party actions pinned to a commit SHA.
+test, and `scripts/check-conformance.mjs` (servers with remote lanes also
+`scripts/check-remote.mjs`), with `permissions: contents: read` and third-party
+actions pinned to a commit SHA.
 
 **R4. MUST** keep tests off the network beyond loopback. Mocks MUST reproduce
 the API's dangerous behaviors (for example a PUT that replaces a whole array)
