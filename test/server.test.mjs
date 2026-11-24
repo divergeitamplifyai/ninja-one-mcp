@@ -85,6 +85,18 @@ test('a 401 from the API refreshes the token once and retries', async () => {
   }
 });
 
+test('an unknown client id is explained as a likely wrong region', async () => {
+  const s = await session({}, (r) => (r.path === '/ws/oauth/token' ? { status: 404, body: { resultCode: 'Client app not exist', incidentId: 'X-1' } } : undefined));
+  try {
+    const result = await s.call('ninjaone_test_connection');
+    assert.equal(result.isError, true);
+    assert.match(textOf(result), /client app not exist/);
+    assert.match(lastLine(result), /NINJAONE_REGION/);
+  } finally {
+    await s.close();
+  }
+});
+
 test('bad client credentials are reported with a next step, and the secret never leaks', async () => {
   const s = await session({ NINJAONE_CLIENT_SECRET: 'wrong-secret-0000000000000' });
   try {
