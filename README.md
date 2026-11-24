@@ -9,7 +9,7 @@
 An MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2.<br>
 Read-only by default. Two gates for anything that changes a device.
 
-[Website](https://patrickking67.github.io/ninja-one-mcp/) · [Tool catalog](docs/TOOLS.md) · [API coverage](docs/api-coverage.md) · [Design](docs/DESIGN.md) · [NinjaOne docs index](llms.txt)
+[Website](https://patrickking67.github.io/ninja-one-mcp/) · [Tool catalog](docs/TOOLS.md) · [Deploy to Azure](docs/AZURE.md) · [API coverage](docs/api-coverage.md) · [Design](docs/DESIGN.md) · [NinjaOne docs index](llms.txt)
 
 [![CI](https://github.com/patrickking67/ninja-one-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/patrickking67/ninja-one-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-15201C)](LICENSE)
@@ -35,7 +35,7 @@ Read-only by default. Two gates for anything that changes a device.
 | **Safe by construction** | Read-only until you say otherwise. Destructive actions need a second switch, and every change needs `confirm: true`. Wide changes are dry runs first. Writes return `before` and `after`. |
 | **Built for many clients** | Organizations resolve by id or name, ambiguity is refused, and nothing is inferred. An optional boundary holds every call inside the clients you list. |
 | **Agent-shaped** | Compact, paged results. Composed workflows instead of 15 round trips. Every error ends with a `Next step:` line. Interactive views where the host supports MCP Apps. |
-| **Everywhere** | Claude Code, Claude Desktop, Codex, Cursor, VS Code with Copilot, and any MCP client that runs stdio servers. |
+| **Everywhere** | Claude Code, Claude Desktop, Codex, Cursor, VS Code with Copilot, and any MCP client that runs stdio servers. Or deploy it once to Azure Container Apps for a whole team, with Microsoft Entra ID sign-in. |
 
 ## What you can ask
 
@@ -148,6 +148,19 @@ Copilot sends at most 128 tools per request. The default toolsets list 107.
 <summary><b>Any other MCP client</b></summary>
 
 Run `npx -y github:patrickking67/ninja-one-mcp` as a stdio server, with `NINJAONE_CLIENT_ID`, `NINJAONE_CLIENT_SECRET` and `NINJAONE_REGION` in its environment. You can also use the [credentials file](#credentials-file).
+</details>
+
+<details>
+<summary><b>Remote, for a team</b>: Azure Container Apps with Entra ID sign-in</summary>
+
+```bash
+azd env new ninjaone-prod
+infra/scripts/entra-app.sh
+azd env set NINJAONE_CLIENT_ID <id> && azd env set-secret NINJAONE_CLIENT_SECRET
+azd up
+```
+
+This deploys one Streamable HTTP endpoint behind Microsoft Entra ID, with the NinjaOne secret in Key Vault and the same gates as the local server. VS Code signs in with Microsoft on its own. See [docs/AZURE.md](docs/AZURE.md) for the design, trust boundaries and every step.
 </details>
 
 ### Create the API client
@@ -268,10 +281,12 @@ src/
   orgs.ts          organization directory, boundary, device checks, df narrowing
   gate.ts spec.ts  the two gates, confirm, annotations; defineTool is the only way to register
   toolsets.ts      listing groups for clients that cap tools
+  http/            Streamable HTTP transport: Entra or shared-token auth, metadata, origin checks
 spec/              NinjaOne's OpenAPI spec, the source of truth for coverage and body docs
 scripts/           conformance, coverage, catalog, body docs, bundle, .mcpb pack
 plugins/ninjaone/  the NinjaOne plugin: Claude Code and Codex manifests, skills, bundled server
 site/              the website (GitHub Pages)
+infra/, azure.yaml Azure Container Apps deployment (Bicep + azd), Dockerfile
 ```
 
 Each tool is declared once as data. The engine applies the same order to every call:
