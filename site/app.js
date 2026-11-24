@@ -6,7 +6,7 @@
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var KINDS = ['read', 'write', 'destructive'];
   var KIND_LABEL = { read: 'Read', write: 'Write', destructive: 'Destructive' };
-  var FALLBACK_COUNTS = { total: 314, read: 154, write: 105, destructive: 55 };
+  var FALLBACK_COUNTS = { total: 315, read: 154, write: 105, destructive: 56 };
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function esc(s) {

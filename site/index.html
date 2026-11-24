@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ninja-one-mcp</title>
-<meta name="description" content="An open-source MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2. 314 tools, read-only by default, two gates for anything that changes a device.">
+<meta name="description" content="An open-source MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2. 315 tools, read-only by default, two gates for anything that changes a device.">
 <meta name="theme-color" content="#EDF0EC" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0E1412" media="(prefers-color-scheme: dark)">
 <meta property="og:type" content="website">
@@ -77,7 +77,7 @@
         </div>
         <div class="grid" id="gate-grid" aria-hidden="true"></div>
         <figcaption class="gates-foot">
-          <p class="gates-live" id="gates-live" aria-live="polite"><strong>154</strong> of 314 tools can run. Writes are listed but refuse.</p>
+          <p class="gates-live" id="gates-live" aria-live="polite"><strong>154</strong> of 315 tools can run. Writes are listed but refuse.</p>
           <ul class="legend" aria-label="Legend">
             <li><i class="k-read"></i>Read <span id="n-read">154</span></li>
             <li><i class="k-write"></i>Write <span id="n-write">105</span></li>
@@ -136,7 +136,7 @@
         <li class="rung r-destructive">
           <h3>Destructive</h3>
           <p class="setting"><code>NINJAONE_ALLOW_DESTRUCTIVE=true</code></p>
-          <p>Deletes, reboots, scripts, patch installs, full replacements, secret-bearing downloads, raw writes. 55 tools.</p>
+          <p>Deletes, reboots, scripts, patch installs, full replacements, secret-bearing downloads, raw writes. 56 tools.</p>
         </li>
       </ol>
 
@@ -173,7 +173,7 @@
     <div class="wrap split">
       <div>
         <h2 id="cover-title">The whole API, not a sample</h2>
-        <p class="muted">All 315 operations in the Public API v2 spec are reachable. 314 have a typed tool. A few multipart and UI-config endpoints go through a gated raw passthrough.</p>
+        <p class="muted">All 315 operations in the Public API v2 spec are reachable. 302 have a typed tool. A few multipart and UI-config endpoints go through a gated raw passthrough.</p>
       </div>
       <ul class="facts">
         <li><b>23 fleet reports</b> from <code>/v2/queries</code>: inventory, patches, antivirus, health, custom fields.</li>
@@ -306,20 +306,22 @@
         </div>
 
         <div class="panel" role="tabpanel" id="p-az" aria-labelledby="t-az" tabindex="0" hidden>
-          <p>One endpoint for a whole team, on Azure Container Apps. People sign in with Microsoft Entra ID, the NinjaOne secret lives in Key Vault, and the same gates apply. VS Code signs in on its own. See the <a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/AZURE.md">Azure guide</a> for the design and every step.</p>
+          <p>One endpoint for a whole team, on Azure Container Apps. People sign in with Microsoft Entra ID, the NinjaOne secret lives in Key Vault, and the same gates apply. VS Code signs in on its own. See the <a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/deploy-azure.md">Azure guide</a> for the design and every step.</p>
           <div class="code"><pre><code>azd env new ninjaone-prod
 infra/scripts/entra-app.sh
-azd env set NINJAONE_CLIENT_ID your-id
+azd env set-secret NINJAONE_CLIENT_ID
 azd env set-secret NINJAONE_CLIENT_SECRET
 azd up</code></pre><button class="copy" type="button">Copy</button></div>
         </div>
 
         <div class="panel" role="tabpanel" id="p-cf" aria-labelledby="t-cf" tabindex="0" hidden>
-          <p>The same image and sign-in on Cloudflare Workers and Containers. A Worker serves only the MCP paths and refuses to start a container without inbound auth. Needs the Workers Paid plan. See the <a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/CLOUDFLARE.md">Cloudflare guide</a> for the design and every step.</p>
-          <div class="code"><pre><code>cd deploy/cloudflare &amp;&amp; npm ci
-npx wrangler secret put NINJAONE_CLIENT_ID
-npx wrangler secret put NINJAONE_CLIENT_SECRET
-npx wrangler deploy</code></pre><button class="copy" type="button">Copy</button></div>
+          <p>The same server as a Cloudflare Worker, behind Cloudflare Access or a bearer token, with the same gates. The Worker checks every token itself and answers 503 until inbound auth is configured. See the <a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/deploy-cloudflare.md">Cloudflare guide</a> for the design and every step.</p>
+          <div class="code"><pre><code>npm ci
+npx wrangler secret put NINJAONE_CLIENT_ID --env staging
+npx wrangler secret put NINJAONE_CLIENT_SECRET --env staging
+npx wrangler deploy --env staging \
+  --var MCP_ACCESS_TEAM_DOMAIN:&lt;team&gt;.cloudflareaccess.com \
+  --var MCP_ACCESS_AUD:&lt;aud-tag&gt;</code></pre><button class="copy" type="button">Copy</button></div>
         </div>
 
         <div class="panel" role="tabpanel" id="p-ot" aria-labelledby="t-ot" tabindex="0" hidden>
