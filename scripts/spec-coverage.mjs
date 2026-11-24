@@ -13,13 +13,13 @@
 
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parse } from 'yaml';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'docs/api-coverage.md');
 const spec = parse(readFileSync(join(ROOT, 'spec/ninjaone-public-api-v2.yaml'), 'utf8'), { maxAliasCount: -1 });
-const { ALL_ROUTES } = await import(join(ROOT, 'dist/routes/index.js'));
+const { ALL_ROUTES } = await import(pathToFileURL(join(ROOT, 'dist/routes/index.js')).href);
 
 const HANDWRITTEN = {
   getTicketsByBoard: 'ninjaone_list_board_tickets',

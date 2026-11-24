@@ -8,14 +8,14 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const { loadConfig } = await import(join(ROOT, 'dist/config.js'));
-const { createServer } = await import(join(ROOT, 'dist/server.js'));
-const { ALL_ROUTES } = await import(join(ROOT, 'dist/routes/index.js'));
-const { TOOLSETS, DEFAULT_TOOLSETS, toolsetForRoute } = await import(join(ROOT, 'dist/toolsets.js'));
-const { SERVER_VERSION } = await import(join(ROOT, 'dist/constants.js'));
+const { loadConfig } = await import(pathToFileURL(join(ROOT, 'dist/config.js')).href);
+const { createServer } = await import(pathToFileURL(join(ROOT, 'dist/server.js')).href);
+const { ALL_ROUTES } = await import(pathToFileURL(join(ROOT, 'dist/routes/index.js')).href);
+const { TOOLSETS, DEFAULT_TOOLSETS, toolsetForRoute } = await import(pathToFileURL(join(ROOT, 'dist/toolsets.js')).href);
+const { SERVER_VERSION } = await import(pathToFileURL(join(ROOT, 'dist/constants.js')).href);
 
 const HANDWRITTEN = {
   ninjaone_status_server: 'core',
