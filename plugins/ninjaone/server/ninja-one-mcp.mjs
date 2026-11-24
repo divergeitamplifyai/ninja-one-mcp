@@ -37113,6 +37113,9 @@ var TokenProvider = class {
     }
     const text = await response.text();
     if (!response.ok) {
+      if (/client app not exist/i.test(text)) {
+        throw new ToolError(`NinjaOne has no API client with this id in ${baseUrl} (${response.status}: client app not exist).`, `An API client exists in one regional instance only. Check ${ENV.region} (us, us2, eu, ca, oc) matches the instance you sign in to, then check ${ENV.clientId}.`);
+      }
       const reason = /invalid_client|unauthorized|invalid_grant/i.test(text) ? " (invalid client credentials)" : /invalid_scope/i.test(text) ? " (scope not allowed for this client)" : "";
       throw new ToolError(`NinjaOne refused the token request with ${response.status}${reason}.`, reason.includes("scope") ? `Set ${ENV.scopes} to scopes this API client is allowed (Administration > Apps > API in NinjaOne), then restart.` : `Check ${ENV.clientId}, ${ENV.clientSecret} and ${ENV.region}. The API client must use the Client Credentials grant. Then call ${TOOL_PREFIX}_test_connection.`);
     }
@@ -41710,30 +41713,45 @@ function registerWorkflowTools(server, ctx) {
       return page(rows.map((r) => pickFields(r, compact, args.fields)), next, warning);
     }
   });
+  async function postComment(c, tool, ticketId, comment) {
+    c.orgs.assertUnbounded(tool, "tickets are addressed by id without an organization check");
+    const form = new FormData();
+    form.append("comment", new Blob([JSON.stringify(comment)], { type: "application/json" }));
+    const result = await c.client.request("POST", `/v2/ticketing/ticket/${ticketId}/comment`, { form, noRetry: true });
+    return { applied: true, ticket_id: ticketId, public: comment.public, result: result ?? null };
+  }
+  const commentFields = {
+    ticket_id: external_exports.number().int().describe(`Ticket id (from ${P6}_list_board_tickets).`),
+    body: external_exports.string().min(1).describe("Comment text."),
+    html_body: external_exports.string().min(1).optional().describe("HTML version of the comment."),
+    time_tracked_seconds: external_exports.number().int().min(0).optional().describe("Time to log against the ticket, in seconds.")
+  };
   def("ticketing", {
     name: `${P6}_add_ticket_comment`,
     kind: "write",
-    description: `Add a comment to a ticket: public (visible to the requester) or internal, as plain text or HTML, optionally with time tracked. Returns the result; read the ticket's log with ${P6}_list_ticket_log_entries. Needs NINJAONE_MODE=write and confirm: true.`,
-    inputSchema: {
-      ticket_id: external_exports.number().int().describe(`Ticket id (from ${P6}_list_board_tickets).`),
-      body: external_exports.string().min(1).describe("Comment text."),
-      html_body: external_exports.string().min(1).optional().describe("HTML version of the comment."),
-      public: external_exports.boolean().describe("true: visible to the requester. false: internal note."),
-      time_tracked_seconds: external_exports.number().int().min(0).optional().describe("Time to log against the ticket, in seconds."),
-      confirm: confirmParam
-    },
+    description: `Add an internal note to a ticket (never visible to the requester), as plain text or HTML, optionally with time tracked. To reply to the requester, use ${P6}_send_ticket_reply. Read the log with ${P6}_list_ticket_log_entries. NinjaOne may reject ticket writes from client-credentials apps (405); see the README. Needs NINJAONE_MODE=write and confirm: true.`,
+    inputSchema: { ...commentFields, confirm: confirmParam },
     async handler(args, c) {
-      c.orgs.assertUnbounded(`${P6}_add_ticket_comment`, "tickets are addressed by id without an organization check");
-      const comment = {
-        public: args.public,
+      return postComment(c, `${P6}_add_ticket_comment`, args.ticket_id, {
+        public: false,
         body: args.body,
         ...args.html_body ? { htmlBody: args.html_body } : {},
         ...args.time_tracked_seconds !== void 0 ? { timeTracked: args.time_tracked_seconds } : {}
-      };
-      const form = new FormData();
-      form.append("comment", new Blob([JSON.stringify(comment)], { type: "application/json" }));
-      const result = await c.client.request("POST", `/v2/ticketing/ticket/${args.ticket_id}/comment`, { form });
-      return { applied: true, ticket_id: args.ticket_id, result: result ?? null };
+      });
+    }
+  });
+  def("ticketing", {
+    name: `${P6}_send_ticket_reply`,
+    kind: "destructive",
+    description: `Send a public reply on a ticket. NinjaOne emails it to the requester, so it is a message to a client and cannot be taken back: show the exact text to the user and get their go-ahead first. For an internal note use ${P6}_add_ticket_comment. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true.`,
+    inputSchema: { ...commentFields, confirm: confirmParam },
+    async handler(args, c) {
+      return postComment(c, `${P6}_send_ticket_reply`, args.ticket_id, {
+        public: true,
+        body: args.body,
+        ...args.html_body ? { htmlBody: args.html_body } : {},
+        ...args.time_tracked_seconds !== void 0 ? { timeTracked: args.time_tracked_seconds } : {}
+      });
     }
   });
 }
