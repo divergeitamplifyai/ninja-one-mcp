@@ -2,6 +2,19 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Cloudflare deployment:** a Worker and Durable Object in front of Cloudflare Containers running the same image as the Azure lane, `deploy/cloudflare/`, front-door tests, a CI job, and docs/CLOUDFLARE.md.
+- **Deploy workflows:** manual, environment-gated `deploy-azure.yml` (OpenID Connect) and `deploy-cloudflare.yml`, each ending with a smoke test.
+
+### Changed
+
+- The repository moved to `divergeitamplifyai/ninja-one-mcp`. Links, the website address and the default image (`ghcr.io/divergeitamplifyai/ninja-one-mcp`) follow it.
+- `infra/scripts/entra-app.sh` works without azd and prints the values to set.
+- `.azure/` is ignored.
+
 ## [0.1.0] - 2026-11-23
 
 First release.
@@ -9,7 +22,7 @@ First release.
 ### Added
 
 - **Coverage:** all 315 operations in the NinjaOne Public API v2 (spec 2.0.9-draft), with 302 typed tools and 13 operations reachable through the gated passthrough. `docs/api-coverage.md` maps each one.
-- **Tools:** 315 in all, in 16 toolsets. The default set lists 107.
+- **Tools:** 315 in all, in 16 toolsets. The default set lists 108.
 - **Safety:**
   - Read-only by default, with two gates (`NINJAONE_MODE`, `NINJAONE_ALLOW_DESTRUCTIVE`), `confirm: true` on every change, and an optional write allowlist.
   - Dry runs for wide writes, and `before`/`after` read-back on writes.
@@ -26,7 +39,7 @@ First release.
   - A conformance suite with 5,184 checks.
   - 47 tests against a loopback NinjaOne mock that reproduces the API's dangerous behaviors, including the HTTP transport and Entra token validation.
   - CI drift checks on every generated file.
-- **Website:** at https://patrickking67.github.io/ninja-one-mcp/.
+- **Website:** at https://divergeitamplifyai.github.io/ninja-one-mcp/.
 - **Remote transport:** Streamable HTTP (`--http`), stateless, with Microsoft Entra ID or shared-token auth, RFC 9728 protected resource metadata, Origin checks and `/healthz`.
 - **Azure Container Apps deployment:** Bicep, azd, Key Vault, managed identity, a distroless image published to GHCR, an Entra app registration script, and docs/AZURE.md.
 - **Prompts:** fleet triage, patch review, device triage and connection check.

@@ -10,7 +10,7 @@ Thanks for helping. This project puts safety first: a change that adds a feature
 ## Setup
 
 ```bash
-git clone https://github.com/patrickking67/ninja-one-mcp.git
+git clone https://github.com/divergeitamplifyai/ninja-one-mcp.git
 cd ninja-one-mcp
 npm ci
 npm run check

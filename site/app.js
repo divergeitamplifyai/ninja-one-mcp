@@ -227,7 +227,7 @@
 
   function fail() {
     buildGrid(null);
-    var link = '<a href="https://github.com/patrickking67/ninja-one-mcp/blob/main/docs/TOOLS.md">docs/TOOLS.md</a>';
+    var link = '<a href="https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/TOOLS.md">docs/TOOLS.md</a>';
     if (countEl) countEl.innerHTML = 'The catalog could not load here. Browsers block it when the page is opened as a file. Read the full list in ' + link + ' on GitHub.';
     var ts = $('#toolsets');
     if (ts) ts.innerHTML = '<li><p>The toolset list comes from the catalog. See ' + link + ' for every toolset and tool.</p></li>';

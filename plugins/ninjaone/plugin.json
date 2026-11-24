@@ -7,8 +7,8 @@
     "name": "Patrick King",
     "url": "https://github.com/patrickking67"
   },
-  "homepage": "https://patrickking67.github.io/ninja-one-mcp/",
-  "repository": "https://github.com/patrickking67/ninja-one-mcp",
+  "homepage": "https://divergeitamplifyai.github.io/ninja-one-mcp/",
+  "repository": "https://github.com/divergeitamplifyai/ninja-one-mcp",
   "license": "MIT",
   "keywords": ["ninjaone", "rmm", "msp", "endpoint-management", "patching", "mcp"],
   "extensions": {
@@ -21,7 +21,7 @@
         "developerName": "Patrick King",
         "category": "Productivity",
         "capabilities": ["Read", "Write"],
-        "websiteURL": "https://patrickking67.github.io/ninja-one-mcp/",
+        "websiteURL": "https://divergeitamplifyai.github.io/ninja-one-mcp/",
         "defaultPrompt": [
           "Use NinjaOne to show fleet health across every client.",
           "Use NinjaOne to list offline servers and why they need attention.",

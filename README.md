@@ -9,9 +9,9 @@
 An MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2.<br>
 Read-only by default. Two gates for anything that changes a device.
 
-[Website](https://patrickking67.github.io/ninja-one-mcp/) · [Tool catalog](docs/TOOLS.md) · [Deploy to Azure](docs/AZURE.md) · [API coverage](docs/api-coverage.md) · [Design](docs/DESIGN.md) · [NinjaOne docs index](llms.txt)
+[Website](https://divergeitamplifyai.github.io/ninja-one-mcp/) · [Tool catalog](docs/TOOLS.md) · [Deploy to Azure](docs/AZURE.md) · [Deploy to Cloudflare](docs/CLOUDFLARE.md) · [API coverage](docs/api-coverage.md) · [Design](docs/DESIGN.md) · [NinjaOne docs index](llms.txt)
 
-[![CI](https://github.com/patrickking67/ninja-one-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/patrickking67/ninja-one-mcp/actions/workflows/ci.yml)
+[![CI](https://github.com/divergeitamplifyai/ninja-one-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/divergeitamplifyai/ninja-one-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-15201C)](LICENSE)
 ![Node 22+](https://img.shields.io/badge/node-22%2B-15201C)
 ![MCP](https://img.shields.io/badge/MCP-stdio-15201C)
@@ -19,7 +19,7 @@ Read-only by default. Two gates for anything that changes a device.
 </div>
 
 <p align="center">
-  <a href="https://patrickking67.github.io/ninja-one-mcp/">
+  <a href="https://divergeitamplifyai.github.io/ninja-one-mcp/">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="docs/assets/site-dark.png">
       <img src="docs/assets/site-light.png" alt="The ninja-one-mcp website: every tool as a square, lit by the two write gates" width="820">
@@ -35,7 +35,7 @@ Read-only by default. Two gates for anything that changes a device.
 | **Safe by construction** | Read-only until you say otherwise. Destructive actions need a second switch, and every change needs `confirm: true`. Wide changes are dry runs first. Writes return `before` and `after`. |
 | **Built for many clients** | Organizations resolve by id or name, ambiguity is refused, and nothing is inferred. An optional boundary holds every call inside the clients you list. |
 | **Agent-shaped** | Compact, paged results. Composed workflows instead of 15 round trips. Every error ends with a `Next step:` line. Interactive views where the host supports MCP Apps. |
-| **Everywhere** | Claude Code, Claude Desktop, Codex, Cursor, VS Code with Copilot, and any MCP client that runs stdio servers. Or deploy it once to Azure Container Apps for a whole team, with Microsoft Entra ID sign-in. |
+| **Everywhere** | Claude Code, Claude Desktop, Codex, Cursor, VS Code with Copilot, and any MCP client that runs stdio servers. Or deploy it once for a whole team, to Azure Container Apps or Cloudflare Containers, with Microsoft Entra ID sign-in. |
 
 ## What you can ask
 
@@ -57,7 +57,7 @@ You need a NinjaOne API client first (see [Create the API client](#create-the-ap
 <summary><b>Claude Code</b>: plugin, with skills and a keychain-stored secret</summary>
 
 ```bash
-/plugin marketplace add patrickking67/ninja-one-mcp
+/plugin marketplace add divergeitamplifyai/ninja-one-mcp
 /plugin install ninjaone@ninja-one-mcp
 ```
 
@@ -66,27 +66,27 @@ Claude Code asks for the client id, secret, region, mode and toolsets. The secre
 Or add just the server:
 
 ```bash
-claude mcp add ninjaone -e NINJAONE_CLIENT_ID=your-id -e NINJAONE_CLIENT_SECRET=your-secret -e NINJAONE_REGION=us -- npx -y github:patrickking67/ninja-one-mcp
+claude mcp add ninjaone -e NINJAONE_CLIENT_ID=your-id -e NINJAONE_CLIENT_SECRET=your-secret -e NINJAONE_REGION=us -- npx -y github:divergeitamplifyai/ninja-one-mcp
 ```
 </details>
 
 <details>
 <summary><b>Claude Desktop</b>: one-click bundle</summary>
 
-Download `ninja-one-mcp.mcpb` from the [latest release](https://github.com/patrickking67/ninja-one-mcp/releases/latest) and open it. Claude Desktop asks for the credentials and keeps the secret out of the model's view.
+Download `ninja-one-mcp.mcpb` from the [latest release](https://github.com/divergeitamplifyai/ninja-one-mcp/releases/latest) and open it. Claude Desktop asks for the credentials and keeps the secret out of the model's view.
 </details>
 
 <details>
 <summary><b>Codex</b></summary>
 
 ```bash
-codex mcp add ninjaone --env NINJAONE_CLIENT_ID=your-id --env NINJAONE_CLIENT_SECRET=your-secret --env NINJAONE_REGION=us -- npx -y github:patrickking67/ninja-one-mcp
+codex mcp add ninjaone --env NINJAONE_CLIENT_ID=your-id --env NINJAONE_CLIENT_SECRET=your-secret --env NINJAONE_REGION=us -- npx -y github:divergeitamplifyai/ninja-one-mcp
 ```
 
 Or install the plugin, then put the credentials in the [credentials file](#credentials-file):
 
 ```bash
-codex plugin marketplace add patrickking67/ninja-one-mcp
+codex plugin marketplace add divergeitamplifyai/ninja-one-mcp
 ```
 </details>
 
@@ -100,7 +100,7 @@ codex plugin marketplace add patrickking67/ninja-one-mcp
   "mcpServers": {
     "ninjaone": {
       "command": "npx",
-      "args": ["-y", "github:patrickking67/ninja-one-mcp"],
+      "args": ["-y", "github:divergeitamplifyai/ninja-one-mcp"],
       "env": {
         "NINJAONE_CLIENT_ID": "your-id",
         "NINJAONE_CLIENT_SECRET": "your-secret",
@@ -118,7 +118,7 @@ Cursor works best with a small toolset.
 <details>
 <summary><b>VS Code with GitHub Copilot</b></summary>
 
-[Install in VS Code](https://vscode.dev/redirect/mcp/install?name=ninjaone&config=%7B%22name%22%3A%22ninjaone%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3Apatrickking67%2Fninja-one-mcp%22%5D%2C%22env%22%3A%7B%22NINJAONE_CLIENT_ID%22%3A%22%24%7Binput%3Aninjaone_client_id%7D%22%2C%22NINJAONE_CLIENT_SECRET%22%3A%22%24%7Binput%3Aninjaone_client_secret%7D%22%2C%22NINJAONE_REGION%22%3A%22us%22%7D%2C%22inputs%22%3A%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22ninjaone_client_id%22%2C%22description%22%3A%22NinjaOne%20client%20id%22%7D%2C%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22ninjaone_client_secret%22%2C%22description%22%3A%22NinjaOne%20client%20secret%22%2C%22password%22%3Atrue%7D%5D%7D), or add `.vscode/mcp.json`. VS Code prompts for the secret and stores it securely:
+[Install in VS Code](https://vscode.dev/redirect/mcp/install?name=ninjaone&config=%7B%22name%22%3A%22ninjaone%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22github%3Adivergeitamplifyai%2Fninja-one-mcp%22%5D%2C%22env%22%3A%7B%22NINJAONE_CLIENT_ID%22%3A%22%24%7Binput%3Aninjaone_client_id%7D%22%2C%22NINJAONE_CLIENT_SECRET%22%3A%22%24%7Binput%3Aninjaone_client_secret%7D%22%2C%22NINJAONE_REGION%22%3A%22us%22%7D%2C%22inputs%22%3A%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22ninjaone_client_id%22%2C%22description%22%3A%22NinjaOne%20client%20id%22%7D%2C%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22ninjaone_client_secret%22%2C%22description%22%3A%22NinjaOne%20client%20secret%22%2C%22password%22%3Atrue%7D%5D%7D), or add `.vscode/mcp.json`. VS Code prompts for the secret and stores it securely:
 
 ```json
 {
@@ -130,7 +130,7 @@ Cursor works best with a small toolset.
     "ninjaone": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:patrickking67/ninja-one-mcp"],
+      "args": ["-y", "github:divergeitamplifyai/ninja-one-mcp"],
       "env": {
         "NINJAONE_CLIENT_ID": "${input:ninjaone_client_id}",
         "NINJAONE_CLIENT_SECRET": "${input:ninjaone_client_secret}",
@@ -141,13 +141,13 @@ Cursor works best with a small toolset.
 }
 ```
 
-Copilot sends at most 128 tools per request. The default toolsets list 107.
+Copilot sends at most 128 tools per request. The default toolsets list 108.
 </details>
 
 <details>
 <summary><b>Any other MCP client</b></summary>
 
-Run `npx -y github:patrickking67/ninja-one-mcp` as a stdio server, with `NINJAONE_CLIENT_ID`, `NINJAONE_CLIENT_SECRET` and `NINJAONE_REGION` in its environment. You can also use the [credentials file](#credentials-file).
+Run `npx -y github:divergeitamplifyai/ninja-one-mcp` as a stdio server, with `NINJAONE_CLIENT_ID`, `NINJAONE_CLIENT_SECRET` and `NINJAONE_REGION` in its environment. You can also use the [credentials file](#credentials-file).
 </details>
 
 <details>
@@ -161,6 +161,19 @@ azd up
 ```
 
 This deploys one Streamable HTTP endpoint behind Microsoft Entra ID, with the NinjaOne secret in Key Vault and the same gates as the local server. VS Code signs in with Microsoft on its own. See [docs/AZURE.md](docs/AZURE.md) for the design, trust boundaries and every step.
+</details>
+
+<details>
+<summary><b>Remote, for a team</b>: Cloudflare Workers and Containers</summary>
+
+```bash
+cd deploy/cloudflare && npm ci
+npx wrangler secret put NINJAONE_CLIENT_ID && npx wrangler secret put NINJAONE_CLIENT_SECRET
+# set NINJAONE_HTTP_AUTH and the Entra ids (or a bearer token) in wrangler.jsonc, then:
+npx wrangler deploy
+```
+
+The same image and the same auth as the Azure lane, behind a Worker that serves only the MCP paths and refuses to start a container without inbound auth. Needs the Workers Paid plan. See [docs/CLOUDFLARE.md](docs/CLOUDFLARE.md).
 </details>
 
 ### Create the API client
@@ -225,7 +238,7 @@ About 300 tools is more than some clients accept. `NINJAONE_TOOLSETS` picks what
 | `admin` | 18 | Webhook, notification channels, custom tabs, node roles, installers. |
 | `api` | 2 | `ninjaone_api_get` and `ninjaone_api_write`. |
 
-The first seven are the default: 107 tools. See every tool in [docs/TOOLS.md](docs/TOOLS.md).
+The first seven are the default: 108 tools. See every tool in [docs/TOOLS.md](docs/TOOLS.md).
 
 ### Highlights
 
@@ -287,6 +300,7 @@ scripts/           conformance, coverage, catalog, body docs, bundle, .mcpb pack
 plugins/ninjaone/  the NinjaOne plugin: Claude Code and Codex manifests, skills, bundled server
 site/              the website (GitHub Pages)
 infra/, azure.yaml Azure Container Apps deployment (Bicep + azd), Dockerfile
+deploy/cloudflare/ Cloudflare Workers and Containers deployment (Wrangler)
 ```
 
 Each tool is declared once as data. The engine applies the same order to every call:
@@ -317,7 +331,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md).
 
 ## Security
 
-Report vulnerabilities privately through GitHub's [private vulnerability reporting](https://github.com/patrickking67/ninja-one-mcp/security/advisories/new). See [SECURITY.md](SECURITY.md).
+Report vulnerabilities privately through GitHub's [private vulnerability reporting](https://github.com/divergeitamplifyai/ninja-one-mcp/security/advisories/new). See [SECURITY.md](SECURITY.md).
 
 ## License
 

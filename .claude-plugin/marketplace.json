@@ -13,7 +13,7 @@
       "source": "./plugins/ninjaone",
       "description": "NinjaOne RMM: fleet health, devices, patching, alerts, reports, ticketing and documentation. Read-only by default.",
       "category": "productivity",
-      "homepage": "https://patrickking67.github.io/ninja-one-mcp/"
+      "homepage": "https://divergeitamplifyai.github.io/ninja-one-mcp/"
     }
   ]
 }

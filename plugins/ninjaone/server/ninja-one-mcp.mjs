@@ -43640,7 +43640,7 @@ function bundled(file2) {
     } catch {
     }
   }
-  return `${file2} is not bundled with this install. See https://github.com/patrickking67/ninja-one-mcp/blob/main/${file2}`;
+  return `${file2} is not bundled with this install. See https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/${file2}`;
 }
 var DEVICE_FILTERS = `# NinjaOne device filters (df)
 
@@ -44296,7 +44296,7 @@ function protectedResourceMetadata(base, http) {
     scopes_supported: http.auth.advertisedScope ? [http.auth.advertisedScope] : [],
     bearer_methods_supported: ["header"],
     resource_name: "NinjaOne MCP",
-    resource_documentation: "https://github.com/patrickking67/ninja-one-mcp/blob/main/docs/AZURE.md"
+    resource_documentation: "https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/AZURE.md"
   };
 }
 function startHttpServer(config2, http) {

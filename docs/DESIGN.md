@@ -79,22 +79,24 @@ The full surface is about 300 tools. VS Code with Copilot accepts 128 per reques
 
 ## Remote lane
 
-The same server runs over Streamable HTTP with `--http`. [AZURE.md](AZURE.md) deploys it to Azure Container Apps. The decisions behind it:
+The same server runs over Streamable HTTP with `--http`. [AZURE.md](AZURE.md) deploys it to Azure Container Apps and [CLOUDFLARE.md](CLOUDFLARE.md) to Cloudflare Containers. The decisions behind it:
 
 - **Stateless.** No session ids. Every POST builds a fresh `McpServer`. Only deployment-level state is shared between requests: the NinjaOne token cache and the organization directory. Nothing about a caller lives in module scope, so any replica can serve any request.
 - **Fails closed.** Off loopback the server refuses to start without inbound auth. Shared tokens must be at least 32 characters and are compared in constant time.
 - **Auth is the server's job.** In Entra mode the server validates RS256 tokens itself with `node:crypto` against the tenant JWKS: issuer, tenant, audience, expiry, not-before, and scope or role. It publishes RFC 9728 protected resource metadata and returns a `WWW-Authenticate` challenge pointing at it, so MCP clients can sign in on their own. This adds no dependency, and the metadata path stays public, which Container Apps built-in auth cannot guarantee.
 - **No token passthrough.** The caller's token proves who may use the server. NinjaOne is always called with the deployment's own client credentials.
 - **Settings come from the deployment.** Gates, scopes, org boundary and toolsets are environment settings. A caller cannot change them.
+- **One image, two clouds.** Both lanes run the same container. On Cloudflare a Worker sits in front only as a router: it serves four paths, refuses to start a container without inbound auth configured, replaces caller `X-Forwarded-*` headers, and passes only `NINJAONE_*` settings in. It makes no auth decision, so token validation has one implementation and one set of tests.
+- **Deploys are manual and gated.** `deploy-azure.yml` (OpenID Connect, no stored Azure secret) and `deploy-cloudflare.yml` run on demand in GitHub environments, so reviewers can be required, and both finish with a smoke test that an unauthenticated `POST /mcp` answers 401.
 
 ## Distribution
 
 One codebase ships four ways:
 
-- `npx -y github:patrickking67/ninja-one-mcp`: `bin/` runs `dist/` when it is built, and the committed bundle otherwise, so a git install needs no build.
+- `npx -y github:divergeitamplifyai/ninja-one-mcp`: `bin/` runs `dist/` when it is built, and the committed bundle otherwise, so a git install needs no build.
 - `plugins/ninjaone/`: Claude Code (`.claude-plugin/plugin.json`, with `userConfig` and a keychain-stored secret) and Codex (portable `plugin.json` and `mcp.json`). Both run the same single-file bundle with plain `node`.
 - `build/ninja-one-mcp.mcpb`: Claude Desktop, built from the same bundle.
-- `Dockerfile`: the remote image. It builds from source and runs on distroless as non-root. Release tags publish it to GHCR, and `azd up` builds it into your own registry.
+- `Dockerfile`: the remote image. It builds from source and runs on distroless as non-root. Release tags publish it to GHCR, `azd up` builds it into your own registry, and `wrangler deploy` into your Cloudflare registry.
 - The npm package, once published.
 
 The bundle, the tool catalog, the coverage report and the generated body docs are committed. CI regenerates them and fails on drift.

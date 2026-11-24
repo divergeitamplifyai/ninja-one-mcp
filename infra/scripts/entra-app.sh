@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Creates the Microsoft Entra app registration that protects the MCP endpoint,
-# and saves its client id in the current azd environment.
+# and saves its client id in the current azd environment when there is one.
 #
 #   - Single tenant, no client secret (the server only validates tokens).
 #   - Application ID URI api://<client-id>, delegated scope mcp.access.
@@ -9,7 +9,8 @@
 #     an admin consent prompt. Add other clients the same way (see docs/AZURE.md).
 #
 # Usage: infra/scripts/entra-app.sh [display-name]
-# Needs: az login with rights to create app registrations, and azd.
+# Needs: az login with rights to create app registrations. azd is optional:
+# without it (the Cloudflare lane) the values to set are printed instead.
 set -euo pipefail
 
 NAME="${1:-NinjaOne MCP}"
@@ -49,11 +50,23 @@ az rest --method PATCH --uri "https://graph.microsoft.com/v1.0/applications/$OBJ
 # A service principal lets you require assignment (Enterprise applications > Properties).
 az ad sp create --id "$APP_ID" >/dev/null
 
-azd env set MCP_INBOUND_AUTH entra
-azd env set MCP_ENTRA_CLIENT_ID "$APP_ID"
+if command -v azd >/dev/null 2>&1 && azd env get-values >/dev/null 2>&1; then
+  azd env set MCP_INBOUND_AUTH entra
+  azd env set MCP_ENTRA_CLIENT_ID "$APP_ID"
+  SAVED=azd
+else
+  SAVED=
+fi
+TENANT_ID="$(az account show --query tenantId -o tsv)"
 
 echo
 echo "Done. Client id: $APP_ID"
 echo "Scope: api://$APP_ID/mcp.access"
+if [ -z "$SAVED" ]; then
+  echo "No azd environment; set these yourself (Cloudflare: deploy/cloudflare/wrangler.jsonc vars):"
+  echo "  NINJAONE_HTTP_AUTH=entra"
+  echo "  NINJAONE_HTTP_ENTRA_TENANT_ID=$TENANT_ID"
+  echo "  NINJAONE_HTTP_ENTRA_CLIENT_ID=$APP_ID"
+fi
 echo "Optional: require user assignment so only assigned users and groups can sign in:"
 echo "  az ad sp update --id $APP_ID --set appRoleAssignmentRequired=true"

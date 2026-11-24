@@ -4,7 +4,7 @@ This server sits between an AI agent and a live RMM that can reboot machines and
 
 ## Reporting a vulnerability
 
-Report privately through [GitHub private vulnerability reporting](https://github.com/patrickking67/ninja-one-mcp/security/advisories/new). Include a description and, if you have one, a reproduction.
+Report privately through [GitHub private vulnerability reporting](https://github.com/divergeitamplifyai/ninja-one-mcp/security/advisories/new). Include a description and, if you have one, a reproduction.
 
 - Do not open a public issue, pull request or discussion for anything exploitable.
 - Do not include credentials, tokens, tenant ids or client data in a report. If a secret was exposed, say which one and where, not its value.
@@ -37,7 +37,9 @@ When the server runs over HTTP:
 - The caller's token is never forwarded to NinjaOne.
 - Bodies are capped at 1 MB.
 
-See [docs/AZURE.md](docs/AZURE.md) for the trust boundaries.
+On Cloudflare, the Worker in front also refuses to start a container without inbound auth, serves only the MCP, health and metadata paths, and replaces caller `X-Forwarded-*` headers.
+
+See [docs/AZURE.md](docs/AZURE.md) and [docs/CLOUDFLARE.md](docs/CLOUDFLARE.md) for the trust boundaries.
 
 ## The real boundary
 

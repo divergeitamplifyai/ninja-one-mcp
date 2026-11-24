@@ -70,7 +70,7 @@ export function protectedResourceMetadata(base: string, http: HttpConfig): Recor
     scopes_supported: http.auth.advertisedScope ? [http.auth.advertisedScope] : [],
     bearer_methods_supported: ['header'],
     resource_name: 'NinjaOne MCP',
-    resource_documentation: 'https://github.com/patrickking67/ninja-one-mcp/blob/main/docs/AZURE.md',
+    resource_documentation: 'https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/AZURE.md',
   };
 }
 

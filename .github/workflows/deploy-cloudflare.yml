@@ -1,0 +1,106 @@
+name: Deploy to Cloudflare
+
+# Manual deployment of the remote lane to Cloudflare Workers and Containers
+# (docs/CLOUDFLARE.md). Runs in the GitHub environment "cloudflare", so
+# reviewers and branch rules on that environment gate every run.
+#
+# Environment secrets (Settings > Environments > cloudflare > Secrets):
+#   CLOUDFLARE_API_TOKEN          Workers Scripts:Edit, Containers:Edit (and Workers Routes:Edit for a custom domain)
+#   NINJAONE_CLIENT_ID, NINJAONE_CLIENT_SECRET, NINJAONE_HTTP_BEARER_TOKENS (bearer mode)
+#                                 optional: pushed to the Worker when set, left alone when not
+# Environment variables:
+#   CLOUDFLARE_ACCOUNT_ID         required
+#   NINJAONE_* settings           optional overrides of the vars in deploy/cloudflare/wrangler.jsonc,
+#                                 e.g. NINJAONE_HTTP_ENTRA_TENANT_ID, NINJAONE_HTTP_ENTRA_CLIENT_ID,
+#                                 NINJAONE_HTTP_PUBLIC_URL, NINJAONE_REGION, NINJAONE_ALLOWED_ORG_IDS
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Tag or branch to deploy, e.g. v0.1.0
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: deploy/cloudflare
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: cloudflare
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: deploy/cloudflare/package-lock.json
+
+      - name: Check required settings
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Set the CLOUDFLARE_API_TOKEN secret and the CLOUDFLARE_ACCOUNT_ID variable on the cloudflare environment."
+            exit 1
+          fi
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: Test the Worker
+        run: npm test
+
+      - name: Push secrets that are set
+        env:
+          NINJAONE_CLIENT_ID: ${{ secrets.NINJAONE_CLIENT_ID }}
+          NINJAONE_CLIENT_SECRET: ${{ secrets.NINJAONE_CLIENT_SECRET }}
+          NINJAONE_HTTP_BEARER_TOKENS: ${{ secrets.NINJAONE_HTTP_BEARER_TOKENS }}
+        run: |
+          # Values go through stdin, never the command line or the log.
+          for name in NINJAONE_CLIENT_ID NINJAONE_CLIENT_SECRET NINJAONE_HTTP_BEARER_TOKENS; do
+            if [ -n "${!name}" ]; then printf '%s' "${!name}" | npx wrangler secret put "$name" > /dev/null; echo "set $name"; fi
+          done
+
+      - name: Deploy the Worker and container
+        env:
+          VARS_JSON: ${{ toJSON(vars) }}
+        run: |
+          # Every NINJAONE_* environment variable overrides the default in wrangler.jsonc.
+          args=()
+          while IFS=$'\t' read -r key value; do
+            args+=(--var "$key:$value")
+          done < <(jq -r 'to_entries[] | select((.key | startswith("NINJAONE_")) and .value != "") | "\(.key)\t\(.value)"' <<< "$VARS_JSON")
+          npx wrangler deploy "${args[@]}"
+
+      - name: Smoke test
+        env:
+          PUBLIC_URL: ${{ vars.NINJAONE_HTTP_PUBLIC_URL }}
+        run: |
+          if [ -z "$PUBLIC_URL" ]; then
+            echo "NINJAONE_HTTP_PUBLIC_URL is not set; skipping the smoke test." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # The first request starts a container, so allow a cold start.
+          for _ in $(seq 1 30); do curl -fsS "$PUBLIC_URL/healthz" && break; sleep 5; done
+          code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$PUBLIC_URL/mcp" -H 'content-type: application/json' -d '{}')"
+          if [ "$code" != 401 ]; then
+            echo "::error::POST /mcp without a token answered $code, expected 401."
+            exit 1
+          fi
+          echo "Deployed: $PUBLIC_URL/mcp" >> "$GITHUB_STEP_SUMMARY"

@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.7
 #
-# ninja-one-mcp, remote (Streamable HTTP) image for Azure Container Apps.
+# ninja-one-mcp, remote (Streamable HTTP) image for Azure Container Apps and
+# Cloudflare Containers (docs/AZURE.md, docs/CLOUDFLARE.md).
 #
 # Stage 1 builds from source and bundles the server into one file.
 # Stage 2 is distroless: no shell, no package manager, runs as non-root.
@@ -18,7 +19,7 @@ RUN npx tsc && node scripts/bundle.mjs
 FROM gcr.io/distroless/nodejs22-debian12:nonroot@sha256:13593b7570658e8477de39e2f4a1dd25db2f836d68a0ba771251572d23bb4f8e
 LABEL org.opencontainers.image.title="ninja-one-mcp" \
       org.opencontainers.image.description="MCP server for the NinjaOne RMM Public API v2 (Streamable HTTP)" \
-      org.opencontainers.image.source="https://github.com/patrickking67/ninja-one-mcp" \
+      org.opencontainers.image.source="https://github.com/divergeitamplifyai/ninja-one-mcp" \
       org.opencontainers.image.licenses="MIT"
 WORKDIR /app
 COPY --from=build /src/plugins/ninjaone/server/ ./

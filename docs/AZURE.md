@@ -1,6 +1,6 @@
 # Deploy to Azure
 
-Run ninja-one-mcp as a remote MCP server on **Azure Container Apps**, so a team can connect to one endpoint without installing anything. Sign-in is Microsoft Entra ID, the NinjaOne secret lives in Key Vault, and the same safety gates apply as on a laptop.
+Run ninja-one-mcp as a remote MCP server on **Azure Container Apps**, so a team can connect to one endpoint without installing anything. Sign-in is Microsoft Entra ID, the NinjaOne secret lives in Key Vault, and the same safety gates apply as on a laptop. To run the same image on Cloudflare instead, see [CLOUDFLARE.md](CLOUDFLARE.md).
 
 ```text
  MCP client (VS Code, Claude Code, Cursor, ...)
@@ -142,6 +142,35 @@ azd up
 
 Clients then send `Authorization: Bearer <token>`. Tokens must be at least 32 characters. Rotate by setting a new value and running `azd provision`. Entra is the better default, because it is per user, revocable, and needs no shared secret.
 
+## Deploy from GitHub Actions
+
+`.github/workflows/deploy-azure.yml` deploys a chosen tag or branch by hand (Actions > Deploy to Azure > Run workflow). It signs in to Azure with OpenID Connect, so no Azure secret is stored in GitHub, and runs in the GitHub environment `azure`; add required reviewers there to gate every run.
+
+First run `azd up` once from your machine (above). Then create the deploying identity and trust this repository's `azure` environment:
+
+```bash
+APP_ID=$(az ad app create --display-name "ninja-one-mcp deploy" --query appId -o tsv)
+az ad sp create --id "$APP_ID"
+az ad app federated-credential create --id "$APP_ID" --parameters '{
+  "name": "github-azure-environment",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:<owner>/ninja-one-mcp:environment:azure",
+  "audiences": ["api://AzureADTokenExchange"]
+}'
+az role assignment create --assignee "$APP_ID" --role Contributor --scope "/subscriptions/<subscription-id>/resourceGroups/rg-<env>"
+```
+
+Contributor on the resource group is enough to deploy new images. To let the workflow provision as well (it creates role assignments and the resource group), grant Owner, or Contributor plus Role Based Access Control Administrator, on the subscription instead.
+
+| Kind | Name | Value |
+|---|---|---|
+| Variable | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` | The deploying identity. |
+| Variable | `AZURE_ENV_NAME`, `AZURE_LOCATION` | The same values as your azd environment, e.g. `ninjaone-prod` and `eastus2`. |
+| Variable (optional) | `NINJAONE_REGION`, `NINJAONE_CLIENT_ID`, `NINJAONE_SCOPES`, `NINJAONE_MODE`, `NINJAONE_ALLOW_DESTRUCTIVE`, `NINJAONE_ALLOWED_ORG_IDS`, `NINJAONE_TOOLSETS`, `MCP_INBOUND_AUTH`, `MCP_ENTRA_CLIENT_ID`, `MCP_ENTRA_APP_ID_URI`, `MCP_ALLOWED_ORIGINS`, `MCP_MIN_REPLICAS` | Used when `provision` is ticked. |
+| Secret | `NINJAONE_CLIENT_SECRET`, `MCP_BEARER_TOKEN` (bearer mode) | Needed only when `provision` is ticked. Provisioning rewrites the Key Vault secret with this value. |
+
+Without `provision`, the workflow loads the outputs of the last provision, builds and deploys the image, and checks `/healthz` and that `POST /mcp` without a token answers 401. With it, it also applies `infra/` and the settings first.
+
 ## Connect clients
 
 **VS Code / GitHub Copilot.** VS Code finds the sign-in from the metadata document and prompts you with Microsoft:
@@ -242,4 +271,4 @@ docker run --rm -p 8080:8080 \
   ninja-one-mcp
 ```
 
-Or without Docker: `NINJAONE_TRANSPORT=http npx -y github:patrickking67/ninja-one-mcp` listens on `127.0.0.1:8080` with no inbound auth. That is allowed on loopback only.
+Or without Docker: `NINJAONE_TRANSPORT=http npx -y github:divergeitamplifyai/ninja-one-mcp` listens on `127.0.0.1:8080` with no inbound auth. That is allowed on loopback only.

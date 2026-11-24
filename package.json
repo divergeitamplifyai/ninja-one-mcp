@@ -7,10 +7,10 @@
   "author": "Patrick King (https://github.com/patrickking67)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/patrickking67/ninja-one-mcp.git"
+    "url": "git+https://github.com/divergeitamplifyai/ninja-one-mcp.git"
   },
-  "homepage": "https://github.com/patrickking67/ninja-one-mcp#readme",
-  "bugs": "https://github.com/patrickking67/ninja-one-mcp/issues",
+  "homepage": "https://github.com/divergeitamplifyai/ninja-one-mcp#readme",
+  "bugs": "https://github.com/divergeitamplifyai/ninja-one-mcp/issues",
   "keywords": [
     "mcp",
     "model-context-protocol",

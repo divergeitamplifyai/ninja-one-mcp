@@ -182,7 +182,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
         {
           name: 'mcp'
           // azd replaces this with the image it builds. Until then the published image keeps probes healthy.
-          image: empty(containerImage) ? 'ghcr.io/patrickking67/ninja-one-mcp:latest' : containerImage
+          image: empty(containerImage) ? 'ghcr.io/divergeitamplifyai/ninja-one-mcp:latest' : containerImage
           resources: { cpu: json('0.5'), memory: '1Gi' }
           env: concat(baseEnv, inboundAuth == 'entra' ? entraEnv : bearerEnv)
           probes: [

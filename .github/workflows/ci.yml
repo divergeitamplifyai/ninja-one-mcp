@@ -110,3 +110,27 @@ jobs:
 
       - name: Shell scripts pass shellcheck
         run: shellcheck infra/scripts/*.sh
+
+  cloudflare:
+    name: Cloudflare Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: deploy/cloudflare
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: deploy/cloudflare/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Typecheck and test the front door
+        run: npm test
+      - name: Wrangler bundles the Worker and builds the container image
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+        run: npx wrangler deploy --dry-run --outdir build

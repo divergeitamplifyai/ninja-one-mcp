@@ -1,6 +1,6 @@
 # NinjaOne plugin
 
-The NinjaOne plugin connects Claude Code and Codex to the NinjaOne RMM Public API v2. It bundles the [ninja-one-mcp](https://github.com/patrickking67/ninja-one-mcp) server as one self-contained file, so there is nothing else to install. It also ships four skills:
+The NinjaOne plugin connects Claude Code and Codex to the NinjaOne RMM Public API v2. It bundles the [ninja-one-mcp](https://github.com/divergeitamplifyai/ninja-one-mcp) server as one self-contained file, so there is nothing else to install. It also ships four skills:
 
 - `ninjaone`: how to work with the tools.
 - `ninjaone-setup`: connecting and troubleshooting.
@@ -14,7 +14,7 @@ It is read-only by default. Writes need write mode, and destructive actions need
 Claude Code:
 
 ```bash
-/plugin marketplace add patrickking67/ninja-one-mcp
+/plugin marketplace add divergeitamplifyai/ninja-one-mcp
 /plugin install ninjaone@ninja-one-mcp
 ```
 
@@ -23,7 +23,7 @@ Claude Code asks for the client id, client secret, region, mode and toolsets. Th
 Codex:
 
 ```bash
-codex plugin marketplace add patrickking67/ninja-one-mcp
+codex plugin marketplace add divergeitamplifyai/ninja-one-mcp
 ```
 
 Then install NinjaOne from the plugin directory. Codex does not prompt for settings, so put the credentials in `~/.config/ninja-one-mcp/.env`:
@@ -42,6 +42,6 @@ Create an API client in NinjaOne under Administration > Apps > API:
 - Grant: Client Credentials.
 - Scopes: grant only what you need. `monitoring` reads, `management` makes changes, `control` runs scripts and remote actions.
 
-The full setup guide, configuration reference and tool catalog are at https://patrickking67.github.io/ninja-one-mcp/.
+The full setup guide, configuration reference and tool catalog are at https://divergeitamplifyai.github.io/ninja-one-mcp/.
 
 Independent open-source project by Patrick King, MIT licensed. Not affiliated with or endorsed by NinjaOne.

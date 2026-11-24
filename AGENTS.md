@@ -48,6 +48,7 @@ plugins/ninjaone/  The NinjaOne plugin (Claude Code and Codex) and the committed
 site/              GitHub Pages site
 test/              harness.mjs (loopback NinjaOne mock), server, unit and http tests
 infra/, azure.yaml Azure Container Apps deployment (Bicep, azd); Dockerfile builds the image
+deploy/cloudflare/ Cloudflare Workers and Containers deployment: Worker front door, its tests, wrangler.jsonc
 ```
 
 ## Rules that outrank everything else

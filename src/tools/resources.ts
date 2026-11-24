@@ -21,7 +21,7 @@ function bundled(file: string): string {
       // try the next location
     }
   }
-  return `${file} is not bundled with this install. See https://github.com/patrickking67/ninja-one-mcp/blob/main/${file}`;
+  return `${file} is not bundled with this install. See https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/${file}`;
 }
 
 export const DEVICE_FILTERS = `# NinjaOne device filters (df)
