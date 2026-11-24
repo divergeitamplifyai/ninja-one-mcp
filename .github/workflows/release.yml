@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   release:
@@ -26,6 +27,20 @@ jobs:
       - name: Tag matches package.json
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
       - run: node scripts/pack-mcpb.mjs build/ninja-one-mcp.mcpb
+      - name: Publish the container image to GHCR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          image=ghcr.io/${GITHUB_REPOSITORY,,}
+          version=${GITHUB_REF_NAME#v}
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build -t "$image:$version" -t "$image:latest" \
+            --label org.opencontainers.image.version="$version" \
+            --label org.opencontainers.image.revision="$GITHUB_SHA" .
+          docker push "$image:$version"
+          docker push "$image:latest"
+          docker logout ghcr.io
+
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
