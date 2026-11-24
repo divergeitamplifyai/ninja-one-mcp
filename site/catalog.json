@@ -1,10 +1,10 @@
 {
  "version": "0.1.0",
  "counts": {
-  "total": 314,
+  "total": 315,
   "read": 154,
   "write": 105,
-  "destructive": 55
+  "destructive": 56
  },
  "default_toolsets": [
   "core",
@@ -15,7 +15,7 @@
   "ticketing",
   "views"
  ],
- "default_count": 107,
+ "default_count": 108,
  "toolsets": {
   "core": "Diagnostics, organizations, locations, find and fleet health. Always on.",
   "devices": "Device lists, search, profile, hardware, software, services, custom field values.",
@@ -1958,7 +1958,7 @@
    "title": "Add Ticket Comment",
    "kind": "write",
    "toolset": "ticketing",
-   "description": "Add a comment to a ticket: public (visible to the requester) or internal, as plain text or HTML, optionally with time tracked. Returns the result; read the ticket's log with ninjaone_list_ticket_log_entries. Needs NINJAONE_MODE=write and confirm: true."
+   "description": "Add an internal note to a ticket (never visible to the requester), as plain text or HTML, optionally with time tracked. To reply to the requester, use ninjaone_send_ticket_reply. Read the log with ninjaone_list_ticket_log_entries. NinjaOne may reject ticket writes from client-credentials apps (405); see the README. Needs NINJAONE_MODE=write and confirm: true."
   },
   {
    "name": "ninjaone_create_ticket",
@@ -2036,6 +2036,13 @@
    "kind": "read",
    "toolset": "ticketing",
    "description": "Searches technicians, end users and contacts that can be set on a ticket (requester, assignee, cc). Returns uid and id to use in ninjaone_create_ticket."
+  },
+  {
+   "name": "ninjaone_send_ticket_reply",
+   "title": "Send Ticket Reply",
+   "kind": "destructive",
+   "toolset": "ticketing",
+   "description": "Send a public reply on a ticket. NinjaOne emails it to the requester, so it is a message to a client and cannot be taken back: show the exact text to the user and get their go-ahead first. For an internal note use ninjaone_add_ticket_comment. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
   },
   {
    "name": "ninjaone_update_ticket",
