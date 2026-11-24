@@ -72,3 +72,41 @@ jobs:
         with:
           node-version: 24
       - run: npm audit --omit=dev --audit-level=moderate
+
+  container:
+    name: Container image and infrastructure
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build the image
+        run: docker build -t ninja-one-mcp:ci .
+
+      - name: Image serves health and refuses unauthenticated MCP
+        run: |
+          docker run -d --name mcp -p 8080:8080 \
+            -e NINJAONE_HTTP_AUTH=bearer \
+            -e NINJAONE_HTTP_BEARER_TOKENS=ci-only-token-not-a-secret-0123456789 \
+            -e NINJAONE_REGION=us ninja-one-mcp:ci
+          for i in $(seq 1 20); do curl -fsS localhost:8080/healthz && break; sleep 1; done
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8080/mcp -H 'content-type: application/json' -d '{}')" = 401
+          docker rm -f mcp
+
+      - name: Image refuses to start without inbound auth
+        run: |
+          if docker run --rm -e NINJAONE_REGION=us ninja-one-mcp:ci; then
+            echo "::error::The image started without inbound authentication."
+            exit 1
+          fi
+
+      - name: Bicep builds without warnings
+        run: |
+          az bicep install
+          az bicep build --file infra/main.bicep --stdout > /dev/null 2> bicep.log || { cat bicep.log; exit 1; }
+          if grep -E "Warning|Error" bicep.log; then exit 1; fi
+
+      - name: Shell scripts pass shellcheck
+        run: shellcheck infra/scripts/*.sh
