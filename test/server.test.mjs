@@ -298,6 +298,23 @@ test('a full-replacement PUT is a dry run until dry_run is false, and returns wh
   }
 });
 
+test('an internal note is never public, and a public reply needs the destructive gate', async () => {
+  const s = await session({ NINJAONE_MODE: 'write' });
+  try {
+    const note = json(await s.call('ninjaone_add_ticket_comment', { ticket_id: 88, body: 'checked the disk', confirm: true }));
+    assert.equal(note.public, false);
+    const sent = s.api.apiRequests().find((r) => r.path === '/v2/ticketing/ticket/88/comment');
+    assert.match(sent.contentType, /multipart\/form-data/);
+    assert.match(sent.body, /"public":false/);
+    const reply = await s.call('ninjaone_send_ticket_reply', { ticket_id: 88, body: 'Fixed, thanks', confirm: true });
+    assert.equal(reply.isError, true);
+    assert.match(textOf(reply), /NINJAONE_ALLOW_DESTRUCTIVE=true/);
+    assert.equal(s.api.apiRequests().filter((r) => r.path.endsWith('/comment')).length, 1);
+  } finally {
+    await s.close();
+  }
+});
+
 // ------------------------------------------------------------------ retries
 
 test('a 429 on a read is retried, honoring Retry-After', async () => {
