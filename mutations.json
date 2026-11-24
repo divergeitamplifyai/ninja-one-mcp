@@ -1,7 +1,8 @@
 {
   "server": "ninjaone",
   "source": "derived",
-  "reviewed": "2026-11-23",
+  "reviewed": "2026-11-24",
+  "endpointNote": "Generated from this repository's tools/list (all toolsets), with blast radius and rollback written from each route's scope, read-back and verb, and hand-written for device actions, replacements, access changes and secrets. CI fails if a tool is added, removed or reclassified without updating this file. Set source to verified after a person reviews every entry.",
   "tools": {
     "ninjaone_add_catalog_ticket_products": {
       "mutating": true,
@@ -16,7 +17,7 @@
     "ninjaone_add_ticket_comment": {
       "mutating": true,
       "blastRadius": "single-object",
-      "rollback": "Comments cannot be deleted through the API. Remove it in the NinjaOne console."
+      "rollback": "Comments cannot be deleted through the API. Remove the internal note in the NinjaOne console."
     },
     "ninjaone_add_ticket_products": {
       "mutating": true,
@@ -1032,6 +1033,11 @@
     "ninjaone_search_devices": {
       "mutating": false
     },
+    "ninjaone_send_ticket_reply": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible: the requester has already been emailed. Follow up with a correction in a new reply, and remove the comment in the NinjaOne console if needed."
+    },
     "ninjaone_set_asset_tags": {
       "mutating": true,
       "blastRadius": "single-tenant",
@@ -1265,6 +1271,5 @@
     "ninjaone_view_fleet": {
       "mutating": false
     }
-  },
-  "endpointNote": "Generated from this repository's tools/list (all toolsets), with blast radius and rollback written from each route's scope, read-back and verb, and hand-written for device actions, replacements, access changes and secrets. CI fails if a tool is added, removed or reclassified without updating this file. Set source to verified after a person reviews every entry."
+  }
 }
