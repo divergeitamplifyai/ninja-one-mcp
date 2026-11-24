@@ -242,6 +242,7 @@
           <button role="tab" id="t-cx" aria-controls="p-cx" aria-selected="false" tabindex="-1">Codex</button>
           <button role="tab" id="t-cu" aria-controls="p-cu" aria-selected="false" tabindex="-1">Cursor</button>
           <button role="tab" id="t-vs" aria-controls="p-vs" aria-selected="false" tabindex="-1">VS Code</button>
+          <button role="tab" id="t-az" aria-controls="p-az" aria-selected="false" tabindex="-1">Azure</button>
           <button role="tab" id="t-ot" aria-controls="p-ot" aria-selected="false" tabindex="-1">Other</button>
         </div>
 
@@ -301,6 +302,15 @@
     }
   }
 }</code></pre><button class="copy" type="button">Copy</button></div>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-az" aria-labelledby="t-az" tabindex="0" hidden>
+          <p>One endpoint for a whole team, on Azure Container Apps. People sign in with Microsoft Entra ID, the NinjaOne secret lives in Key Vault, and the same gates apply. VS Code signs in on its own. See the <a href="https://github.com/patrickking67/ninja-one-mcp/blob/main/docs/AZURE.md">Azure guide</a> for the design and every step.</p>
+          <div class="code"><pre><code>azd env new ninjaone-prod
+infra/scripts/entra-app.sh
+azd env set NINJAONE_CLIENT_ID your-id
+azd env set-secret NINJAONE_CLIENT_SECRET
+azd up</code></pre><button class="copy" type="button">Copy</button></div>
         </div>
 
         <div class="panel" role="tabpanel" id="p-ot" aria-labelledby="t-ot" tabindex="0" hidden>
