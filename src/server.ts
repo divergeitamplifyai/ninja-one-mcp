@@ -46,13 +46,27 @@ export interface CreatedServer {
   tools: Map<string, ToolKind>;
 }
 
-export function createServer(config: Config): CreatedServer {
+/** Deployment-level state shared across requests: the upstream client (token cache) and org directory. */
+export interface Shared {
+  client: ApiClient;
+  orgs: OrgDirectory;
+}
+
+export function createShared(config: Config): Shared {
+  const client = new ApiClient(config);
+  return { client, orgs: new OrgDirectory(client, config) };
+}
+
+/**
+ * Build one McpServer. stdio builds one per process; HTTP builds one per
+ * request and passes the shared upstream state, so no caller state lives in it.
+ */
+export function createServer(config: Config, shared: Shared = createShared(config)): CreatedServer {
   const server = new McpServer(
     { name: SERVER_NAME, title: SERVER_TITLE, version: SERVER_VERSION },
     { instructions: INSTRUCTIONS },
   );
-  const client = new ApiClient(config);
-  const ctx: ToolContext = { config, client, orgs: new OrgDirectory(client, config), tools: new Map(), readers: new Map() };
+  const ctx: ToolContext = { config, client: shared.client, orgs: shared.orgs, tools: new Map(), readers: new Map() };
   const on = config.toolsets;
   registerDiagnosticTools(server, ctx);
   registerRoutes(server, ctx, ALL_ROUTES);
