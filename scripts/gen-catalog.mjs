@@ -26,6 +26,7 @@ const HANDWRITTEN = {
   ninjaone_get_device_profile: 'devices',
   ninjaone_list_board_tickets: 'ticketing',
   ninjaone_add_ticket_comment: 'ticketing',
+  ninjaone_send_ticket_reply: 'ticketing',
   ninjaone_api_get: 'api',
   ninjaone_api_write: 'api',
   ninjaone_view_fleet: 'views',

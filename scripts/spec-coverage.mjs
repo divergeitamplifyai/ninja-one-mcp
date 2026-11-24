@@ -23,7 +23,7 @@ const { ALL_ROUTES } = await import(pathToFileURL(join(ROOT, 'dist/routes/index.
 
 const HANDWRITTEN = {
   getTicketsByBoard: 'ninjaone_list_board_tickets',
-  createComment: 'ninjaone_add_ticket_comment',
+  createComment: 'ninjaone_add_ticket_comment, ninjaone_send_ticket_reply',
 };
 
 const ops = [];
