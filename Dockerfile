@@ -6,7 +6,7 @@
 # Stage 2 is distroless: no shell, no package manager, runs as non-root.
 # Both base images are pinned by digest; Dependabot keeps them current.
 
-FROM node:22-bookworm-slim@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee AS build
+FROM node:25-bookworm-slim@sha256:81db02c4b671288a03915da9534dbd54f96d0e7c24d80ccc54f5b36b2e684370 AS build
 WORKDIR /src
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund --ignore-scripts
