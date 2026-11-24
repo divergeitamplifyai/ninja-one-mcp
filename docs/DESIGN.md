@@ -75,7 +75,7 @@ OAuth 2.0 client credentials against `https://{region}/ws/oauth/token`, with the
 
 ## Toolsets
 
-The full surface is about 300 tools. VS Code with Copilot accepts 128 per request, Cursor warns past roughly 40, and smaller lists plan better anyway. Toolsets only decide what is listed: annotations never change with configuration (STANDARD.md A5), and the gate applies to whatever is listed. Hidden read tools stay callable internally, so views and composed tools keep working when their building blocks are not listed.
+The full surface is 315 tools. VS Code with Copilot accepts 128 per request, Cursor warns past roughly 40, and smaller lists plan better anyway. Toolsets only decide what is listed: annotations never change with configuration (STANDARD.md A5), and the gate applies to whatever is listed. Hidden read tools stay callable internally, so views and composed tools keep working when their building blocks are not listed.
 
 ## Remote lane
 
