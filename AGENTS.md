@@ -40,12 +40,14 @@ src/
   envfile.ts       Optional credentials file
   gate.ts spec.ts  Gates, confirm, annotations; defineTool is the only registration path
   toolsets.ts      Listing groups
+  http/            Streamable HTTP transport: config, inbound auth, server
   generated/       Generated files: body docs and the views runtime. Do not edit.
 spec/              NinjaOne OpenAPI spec (source of truth)
 scripts/           conformance, coverage, catalog, generators, bundle, pack
 plugins/ninjaone/  The NinjaOne plugin (Claude Code and Codex) and the committed bundle
 site/              GitHub Pages site
-test/              harness.mjs (loopback NinjaOne mock), server.test.mjs, unit.test.mjs
+test/              harness.mjs (loopback NinjaOne mock), server, unit and http tests
+infra/, azure.yaml Azure Container Apps deployment (Bicep, azd); Dockerfile builds the image
 ```
 
 ## Rules that outrank everything else
