@@ -21,7 +21,8 @@ async function main(): Promise<void> {
   const envFile = applyEnvFile();
   const config = loadConfig();
   config.envFile = envFile;
-  config.envFilePath = defaultEnvFilePath();
+  // NINJAONE_ENV_FILE=none turns the file off, so there is no path to suggest.
+  config.envFilePath = process.env.NINJAONE_ENV_FILE?.trim().toLowerCase() === 'none' ? undefined : defaultEnvFilePath();
   if (envFile?.problem) config.problems.push(envFile.problem);
   // Before anything can log.
   registerSecret(config.clientSecret);

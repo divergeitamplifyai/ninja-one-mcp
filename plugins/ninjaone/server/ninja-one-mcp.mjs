@@ -41893,7 +41893,7 @@ async function main() {
   const envFile = applyEnvFile();
   const config2 = loadConfig();
   config2.envFile = envFile;
-  config2.envFilePath = defaultEnvFilePath();
+  config2.envFilePath = process.env.NINJAONE_ENV_FILE?.trim().toLowerCase() === "none" ? void 0 : defaultEnvFilePath();
   if (envFile?.problem)
     config2.problems.push(envFile.problem);
   registerSecret(config2.clientSecret);
