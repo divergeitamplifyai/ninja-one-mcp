@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.png binary
+*.mcpb binary
+plugins/ninjaone/server/ninja-one-mcp.mjs linguist-generated=true
+src/generated/** linguist-generated=true
+docs/TOOLS.md linguist-generated=true
+docs/api-coverage.md linguist-generated=true
+site/catalog.json linguist-generated=true
+spec/** linguist-vendored=true

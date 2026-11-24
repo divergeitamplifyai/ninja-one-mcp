@@ -1,0 +1,18 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.mcpb
+
+# Local configuration and secrets. Only the example file is tracked.
+.env
+.env.*
+!.env.example
+
+# Agent and editor local files
+CLAUDE.local.md
+.claude/settings.local.json
+.DS_Store
+*.log
+build/
