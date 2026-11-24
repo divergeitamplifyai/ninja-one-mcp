@@ -1,12 +1,15 @@
 name: CI
 
+# Every pull request and every push to main: install from the lockfile, build,
+# test, conformance and the lane checks (npm run check), then the remote lanes:
+# the Worker bundles, the image builds and fails closed, the Bicep compiles.
+# Tests reach nothing beyond loopback, so no secret is used or granted.
+
 on:
   push:
     branches: [main]
   pull_request:
 
-# Least privilege. Tests never reach the network beyond loopback, so no secrets
-# are used and none are granted.
 permissions:
   contents: read
 
@@ -15,20 +18,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
-    name: Check (Node ${{ matrix.node }}, ${{ matrix.os }})
+  check:
+    # Node from .nvmrc (22, the engines floor and the container's runtime), plus 24.
+    # macOS and Windows run the stdio lanes the way desktop users do.
+    name: Build, test, conformance (Node ${{ matrix.node || '.nvmrc' }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        node: [22, 24]
+        node: ['', '24']
         include:
           - os: macos-latest
-            node: 24
+            node: ''
           - os: windows-latest
-            node: 24
+            node: ''
+    defaults:
+      run:
+        shell: bash
     steps:
       # Actions are pinned to a full commit SHA; the comment names the release.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -38,43 +46,40 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
+          node-version-file: ${{ matrix.node == '' && '.nvmrc' || '' }}
           cache: npm
 
-      - name: Install
-        run: npm ci --no-audit --no-fund
+      # Install scripts stay off: nothing in the build needs one.
+      - name: Install from the lockfile
+        run: npm ci --no-audit --no-fund --ignore-scripts
 
-      - name: Check (typecheck, drift, tests, conformance, coverage, catalog, bundle)
+      - name: Typecheck, test, conformance, lane checks
         run: npm run check
 
-      - name: Bundle starts with plain node
-        shell: bash
+      - name: Plugin bundle starts with plain node
         run: |
           printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' \
             | NINJAONE_ENV_FILE=none node plugins/ninjaone/server/ninja-one-mcp.mjs | grep -q '"serverInfo"'
 
+      - name: Worker bundles (no upload)
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker" --env staging
+          npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker" --env production
+
+      - name: Production dependencies have no known advisories
+        run: npm audit --omit=dev --audit-level=moderate
+
       - name: No uncommitted drift
-        shell: bash
         run: |
           if ! git diff --exit-code --stat; then
             echo "::error::Build or test changed tracked files. Run npm run gen and commit."
             exit 1
           fi
 
-  audit:
-    name: Dependency audit
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-      - run: npm audit --omit=dev --audit-level=moderate
-
   container:
-    name: Container image and infrastructure
+    name: Image and infrastructure
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -85,22 +90,22 @@ jobs:
       - name: Build the image
         run: docker build -t ninja-one-mcp:ci .
 
-      - name: Image serves health and refuses unauthenticated MCP
-        run: |
-          docker run -d --name mcp -p 8080:8080 \
-            -e NINJAONE_HTTP_AUTH=bearer \
-            -e NINJAONE_HTTP_BEARER_TOKENS=ci-only-token-not-a-secret-0123456789 \
-            -e NINJAONE_REGION=us ninja-one-mcp:ci
-          for _ in $(seq 1 20); do curl -fsS localhost:8080/healthz && break; sleep 1; done
-          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8080/mcp -H 'content-type: application/json' -d '{}')" = 401
-          docker rm -f mcp
-
       - name: Image refuses to start without inbound auth
         run: |
-          if docker run --rm -e NINJAONE_REGION=us ninja-one-mcp:ci; then
+          if docker run --rm ninja-one-mcp:ci; then
             echo "::error::The image started without inbound authentication."
             exit 1
           fi
+
+      - name: Image serves health and refuses unauthenticated MCP
+        run: |
+          docker run -d --name mcp -p 8080:8080 \
+            -e MCP_HTTP_AUTH=bearer \
+            -e MCP_BEARER_TOKEN=ci-only-token-not-a-secret-0123456789abcdef ninja-one-mcp:ci
+          for _ in $(seq 1 20); do curl -fsS localhost:8080/healthz && break; sleep 1; done
+          code="$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8080/mcp -H 'content-type: application/json' -d '{}')"
+          docker rm -f mcp
+          test "$code" = 401
 
       - name: Bicep builds without warnings
         run: |
@@ -110,27 +115,3 @@ jobs:
 
       - name: Shell scripts pass shellcheck
         run: shellcheck infra/scripts/*.sh
-
-  cloudflare:
-    name: Cloudflare Worker
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: deploy/cloudflare
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: deploy/cloudflare/package-lock.json
-      - run: npm ci --no-audit --no-fund
-      - name: Typecheck and test the front door
-        run: npm test
-      - name: Wrangler bundles the Worker and builds the container image
-        env:
-          WRANGLER_SEND_METRICS: 'false'
-        run: npx wrangler deploy --dry-run --outdir build

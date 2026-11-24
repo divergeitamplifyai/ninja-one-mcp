@@ -9,7 +9,6 @@
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ENV, REGIONS, SERVER_NAME, SERVER_VERSION, TOOL_PREFIX } from '../constants.js';
-import { defaultEnvFilePath } from '../envfile.js';
 import { gateStatus } from '../gate.js';
 import { DEFAULT_TOOLSETS, TOOLSETS } from '../toolsets.js';
 import { defineTool, type ToolContext } from '../spec.js';
@@ -23,13 +22,19 @@ export function registerDiagnosticTools(server: McpServer, ctx: ToolContext): vo
       '(never their values), requested OAuth scopes and what they allow, missing environment variables, unusable settings, the organization ' +
       `default and boundary, and the write gate. Call this first when tools fail or seem missing, then ${TOOL_PREFIX}_test_connection.`,
     inputSchema: {},
-    async handler(_args, { config }) {
+    async handler(_args, { config, transport }) {
       const ready = config.missing.length === 0;
+      const where =
+        transport === 'stdio'
+          ? `in the MCP client configuration${config.envFilePath ? ` (or in ${config.envFilePath} with chmod 600)` : ''} and restart the client`
+          : transport === 'worker'
+            ? 'as wrangler secrets (wrangler secret put) and redeploy'
+            : 'in the deployment (Key Vault secrets on Azure) and restart the container';
       const scopes = config.scopes;
       return {
         server: SERVER_NAME,
         version: SERVER_VERSION,
-        transport: 'stdio',
+        transport,
         region: config.region ?? null,
         base_url: config.baseUrl ?? null,
         known_regions: REGIONS,
@@ -58,7 +63,7 @@ export function registerDiagnosticTools(server: McpServer, ctx: ToolContext): vo
         ready,
         next_step: ready
           ? `Call ${TOOL_PREFIX}_test_connection to prove the credential works.`
-          : `Set ${config.missing.join(', ')} in the MCP client configuration (or in ${defaultEnvFilePath()} with chmod 600) and restart the client. Create the API client in NinjaOne under Administration > Apps > API (client credentials grant).`,
+          : `Set ${config.missing.join(', ')} ${where}. Create the API client in NinjaOne under Administration > Apps > API (client credentials grant).`,
       };
     },
   });

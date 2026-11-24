@@ -17,5 +17,10 @@ CLAUDE.local.md
 *.log
 build/
 
-# Azure Developer CLI environments (settings and Key Vault references)
+# Remote lanes: local Cloudflare settings and build output
+.dev.vars
+.dev.vars.*
+wrangler.local.jsonc
+.wrangler/
+# Azure Developer CLI environments (hold subscription and tenant ids)
 .azure/

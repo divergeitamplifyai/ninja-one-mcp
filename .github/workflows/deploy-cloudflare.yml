@@ -1,106 +1,129 @@
 name: Deploy to Cloudflare
 
-# Manual deployment of the remote lane to Cloudflare Workers and Containers
-# (docs/CLOUDFLARE.md). Runs in the GitHub environment "cloudflare", so
-# reviewers and branch rules on that environment gate every run.
+# Manual deploy of the Cloudflare Workers lane (docs/deploy-cloudflare.md).
 #
-# Environment secrets (Settings > Environments > cloudflare > Secrets):
-#   CLOUDFLARE_API_TOKEN          Workers Scripts:Edit, Containers:Edit (and Workers Routes:Edit for a custom domain)
-#   NINJAONE_CLIENT_ID, NINJAONE_CLIENT_SECRET, NINJAONE_HTTP_BEARER_TOKENS (bearer mode)
-#                                 optional: pushed to the Worker when set, left alone when not
+# Does nothing unless the repository variable DEPLOY_CLOUDFLARE_ENABLED is "true".
+# Runs in the GitHub environment named like the target (staging or production),
+# so each has its own settings and production can require a reviewer.
+#
+# Environment secrets: CLOUDFLARE_API_TOKEN (Workers Scripts: Edit), CLOUDFLARE_ACCOUNT_ID.
 # Environment variables:
-#   CLOUDFLARE_ACCOUNT_ID         required
-#   NINJAONE_* settings           optional overrides of the vars in deploy/cloudflare/wrangler.jsonc,
-#                                 e.g. NINJAONE_HTTP_ENTRA_TENANT_ID, NINJAONE_HTTP_ENTRA_CLIENT_ID,
-#                                 NINJAONE_HTTP_PUBLIC_URL, NINJAONE_REGION, NINJAONE_ALLOWED_ORG_IDS
+#   MCP_HTTP_AUTH            access (default) or bearer
+#   MCP_ACCESS_TEAM_DOMAIN   access mode: <team>.cloudflareaccess.com
+#   MCP_ACCESS_AUD           access mode: the Access application's AUD tag
+#   MCP_URL                  optional: the /mcp URL to smoke test when it is not workers.dev
+# Worker secrets (NINJAONE_CLIENT_ID, NINJAONE_CLIENT_SECRET, and MCP_BEARER_TOKEN in
+# bearer mode) are set once with `npx wrangler secret put <NAME> --env <env>`;
+# this workflow never sees them.
+# Rollback: npx wrangler rollback --env <env>
 
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: Tag or branch to deploy, e.g. v0.1.0
-        required: true
-        default: main
+      environment:
+        description: Target environment
+        type: choice
+        options: [staging, production]
+        default: staging
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-cloudflare
+  group: deploy-cloudflare-${{ inputs.environment }}
   cancel-in-progress: false
-
-defaults:
-  run:
-    working-directory: deploy/cloudflare
 
 jobs:
   deploy:
+    if: vars.DEPLOY_CLOUDFLARE_ENABLED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: cloudflare
+    timeout-minutes: 20
+    environment: ${{ inputs.environment }}
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      TARGET_ENV: ${{ inputs.environment }}
       WRANGLER_SEND_METRICS: 'false'
+      AUTH_MODE: ${{ vars.MCP_HTTP_AUTH || 'access' }}
+      ACCESS_TEAM_DOMAIN: ${{ vars.MCP_ACCESS_TEAM_DOMAIN }}
+      ACCESS_AUD: ${{ vars.MCP_ACCESS_AUD }}
     steps:
+      - name: Production deploys run from main only
+        if: inputs.environment == 'production' && github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Production deploys run from main only (this run is on $GITHUB_REF)."
+          exit 1
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.ref }}
           persist-credentials: false
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: deploy/cloudflare/package-lock.json
 
-      - name: Check required settings
+      - name: Check settings
+        env:
+          HAS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+          HAS_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
         run: |
-          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "::error::Set the CLOUDFLARE_API_TOKEN secret and the CLOUDFLARE_ACCOUNT_ID variable on the cloudflare environment."
+          missing=()
+          [ "$HAS_TOKEN" = true ] || missing+=("CLOUDFLARE_API_TOKEN (secret)")
+          [ "$HAS_ACCOUNT" = true ] || missing+=("CLOUDFLARE_ACCOUNT_ID (secret)")
+          case "$AUTH_MODE" in
+            access)
+              [ -n "$ACCESS_TEAM_DOMAIN" ] || missing+=("MCP_ACCESS_TEAM_DOMAIN")
+              [ -n "$ACCESS_AUD" ] || missing+=("MCP_ACCESS_AUD") ;;
+            bearer) ;;
+            *) echo "::error::MCP_HTTP_AUTH must be access or bearer, got $AUTH_MODE."; exit 1 ;;
+          esac
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Set these on the $TARGET_ENV environment: ${missing[*]}"
             exit 1
           fi
 
-      - run: npm ci --no-audit --no-fund
+      # No Cloudflare secret is in this step's environment, and install scripts are off.
+      - name: Install from the lockfile
+        run: npm ci --no-audit --no-fund --ignore-scripts
 
-      - name: Test the Worker
-        run: npm test
+      - name: Everything CI checks
+        run: npm run check
 
-      - name: Push secrets that are set
+      - name: Deploy
+        id: deploy
         env:
-          NINJAONE_CLIENT_ID: ${{ secrets.NINJAONE_CLIENT_ID }}
-          NINJAONE_CLIENT_SECRET: ${{ secrets.NINJAONE_CLIENT_SECRET }}
-          NINJAONE_HTTP_BEARER_TOKENS: ${{ secrets.NINJAONE_HTTP_BEARER_TOKENS }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          # Values go through stdin, never the command line or the log.
-          for name in NINJAONE_CLIENT_ID NINJAONE_CLIENT_SECRET NINJAONE_HTTP_BEARER_TOKENS; do
-            if [ -n "${!name}" ]; then printf '%s' "${!name}" | npx wrangler secret put "$name" > /dev/null; echo "set $name"; fi
-          done
-
-      - name: Deploy the Worker and container
-        env:
-          VARS_JSON: ${{ toJSON(vars) }}
-        run: |
-          # Every NINJAONE_* environment variable overrides the default in wrangler.jsonc.
-          args=()
-          while IFS=$'\t' read -r key value; do
-            args+=(--var "$key:$value")
-          done < <(jq -r 'to_entries[] | select((.key | startswith("NINJAONE_")) and .value != "") | "\(.key)\t\(.value)"' <<< "$VARS_JSON")
-          npx wrangler deploy "${args[@]}"
+          args=(--env "$TARGET_ENV" --var "MCP_HTTP_AUTH:$AUTH_MODE")
+          if [ "$AUTH_MODE" = access ]; then
+            args+=(--var "MCP_ACCESS_TEAM_DOMAIN:$ACCESS_TEAM_DOMAIN" --var "MCP_ACCESS_AUD:$ACCESS_AUD")
+          fi
+          npx wrangler deploy "${args[@]}" 2>&1 | tee deploy.log
+          url="$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' deploy.log | head -n 1 || true)"
+          echo "workers_dev=$url" >> "$GITHUB_OUTPUT"
 
       - name: Smoke test
         env:
-          PUBLIC_URL: ${{ vars.NINJAONE_HTTP_PUBLIC_URL }}
+          CONFIGURED_URL: ${{ vars.MCP_URL }}
+          WORKERS_DEV: ${{ steps.deploy.outputs.workers_dev }}
         run: |
-          if [ -z "$PUBLIC_URL" ]; then
-            echo "NINJAONE_HTTP_PUBLIC_URL is not set; skipping the smoke test." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          # The first request starts a container, so allow a cold start.
-          for _ in $(seq 1 30); do curl -fsS "$PUBLIC_URL/healthz" && break; sleep 5; done
-          code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$PUBLIC_URL/mcp" -H 'content-type: application/json' -d '{}')"
-          if [ "$code" != 401 ]; then
-            echo "::error::POST /mcp without a token answered $code, expected 401."
+          url="$CONFIGURED_URL"
+          if [ -z "$url" ] && [ -n "$WORKERS_DEV" ]; then url="$WORKERS_DEV/mcp"; fi
+          if [ -z "$url" ]; then
+            echo "::error::No URL to test. Set MCP_URL on the $TARGET_ENV environment."
             exit 1
           fi
-          echo "Deployed: $PUBLIC_URL/mcp" >> "$GITHUB_STEP_SUMMARY"
+          base="${url%/mcp}"
+          ok=""
+          for _ in $(seq 1 12); do
+            if curl -fsS "$base/healthz"; then ok=1; break; fi
+            sleep 5
+          done
+          [ -n "$ok" ] || { echo "::error::Health check failed. Roll back with: npx wrangler rollback --env $TARGET_ENV"; exit 1; }
+          # 401 means auth is configured and enforced; 503 means it is not configured.
+          code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$url" -H 'content-type: application/json' -d '{}')"
+          if [ "$code" != 401 ]; then
+            echo "::error::POST /mcp without credentials answered $code, expected 401."
+            exit 1
+          fi
+          echo "Deployed: $url" >> "$GITHUB_STEP_SUMMARY"

@@ -34,110 +34,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// node_modules/content-type/index.js
-var require_content_type = __commonJS({
-  "node_modules/content-type/index.js"(exports) {
-    "use strict";
-    var PARAM_REGEXP = /; *([!#$%&'*+.^_`|~0-9A-Za-z-]+) *= *("(?:[\u000b\u0020\u0021\u0023-\u005b\u005d-\u007e\u0080-\u00ff]|\\[\u000b\u0020-\u00ff])*"|[!#$%&'*+.^_`|~0-9A-Za-z-]+) */g;
-    var TEXT_REGEXP = /^[\u000b\u0020-\u007e\u0080-\u00ff]+$/;
-    var TOKEN_REGEXP = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/;
-    var QESC_REGEXP = /\\([\u000b\u0020-\u00ff])/g;
-    var QUOTE_REGEXP = /([\\"])/g;
-    var TYPE_REGEXP = /^[!#$%&'*+.^_`|~0-9A-Za-z-]+\/[!#$%&'*+.^_`|~0-9A-Za-z-]+$/;
-    exports.format = format;
-    exports.parse = parse3;
-    function format(obj) {
-      if (!obj || typeof obj !== "object") {
-        throw new TypeError("argument obj is required");
-      }
-      var parameters = obj.parameters;
-      var type = obj.type;
-      if (!type || !TYPE_REGEXP.test(type)) {
-        throw new TypeError("invalid type");
-      }
-      var string4 = type;
-      if (parameters && typeof parameters === "object") {
-        var param;
-        var params = Object.keys(parameters).sort();
-        for (var i = 0; i < params.length; i++) {
-          param = params[i];
-          if (!TOKEN_REGEXP.test(param)) {
-            throw new TypeError("invalid parameter name");
-          }
-          string4 += "; " + param + "=" + qstring(parameters[param]);
-        }
-      }
-      return string4;
-    }
-    function parse3(string4) {
-      if (!string4) {
-        throw new TypeError("argument string is required");
-      }
-      var header = typeof string4 === "object" ? getcontenttype(string4) : string4;
-      if (typeof header !== "string") {
-        throw new TypeError("argument string is required to be a string");
-      }
-      var index = header.indexOf(";");
-      var type = index !== -1 ? header.slice(0, index).trim() : header.trim();
-      if (!TYPE_REGEXP.test(type)) {
-        throw new TypeError("invalid media type");
-      }
-      var obj = new ContentType(type.toLowerCase());
-      if (index !== -1) {
-        var key;
-        var match;
-        var value3;
-        PARAM_REGEXP.lastIndex = index;
-        while (match = PARAM_REGEXP.exec(header)) {
-          if (match.index !== index) {
-            throw new TypeError("invalid parameter format");
-          }
-          index += match[0].length;
-          key = match[1].toLowerCase();
-          value3 = match[2];
-          if (value3.charCodeAt(0) === 34) {
-            value3 = value3.slice(1, -1);
-            if (value3.indexOf("\\") !== -1) {
-              value3 = value3.replace(QESC_REGEXP, "$1");
-            }
-          }
-          obj.parameters[key] = value3;
-        }
-        if (index !== header.length) {
-          throw new TypeError("invalid parameter format");
-        }
-      }
-      return obj;
-    }
-    function getcontenttype(obj) {
-      var header;
-      if (typeof obj.getHeader === "function") {
-        header = obj.getHeader("content-type");
-      } else if (typeof obj.headers === "object") {
-        header = obj.headers && obj.headers["content-type"];
-      }
-      if (typeof header !== "string") {
-        throw new TypeError("content-type header is missing from object");
-      }
-      return header;
-    }
-    function qstring(val) {
-      var str = String(val);
-      if (TOKEN_REGEXP.test(str)) {
-        return str;
-      }
-      if (str.length > 0 && !TEXT_REGEXP.test(str)) {
-        throw new TypeError("invalid parameter value");
-      }
-      return '"' + str.replace(QUOTE_REGEXP, "\\$1") + '"';
-    }
-    function ContentType(type) {
-      this.parameters = /* @__PURE__ */ Object.create(null);
-      this.type = type;
-    }
-  }
-});
-
 // node_modules/ajv/dist/compile/codegen/code.js
 var require_code = __commonJS({
   "node_modules/ajv/dist/compile/codegen/code.js"(exports) {
@@ -345,8 +241,8 @@ var require_scope = __commonJS({
         super(nameStr);
         this.prefix = prefix;
       }
-      setValue(value3, { property, itemIndex }) {
-        this.value = value3;
+      setValue(value2, { property, itemIndex }) {
+        this.value = value2;
         this.scopePath = (0, code_1._)`.${new code_1.Name(property)}[${itemIndex}]`;
       }
     };
@@ -365,13 +261,13 @@ var require_scope = __commonJS({
       name(prefix) {
         return new ValueScopeName(prefix, this._newName(prefix));
       }
-      value(nameOrPrefix, value3) {
+      value(nameOrPrefix, value2) {
         var _a3;
-        if (value3.ref === void 0)
+        if (value2.ref === void 0)
           throw new Error("CodeGen: ref must be passed in value");
         const name = this.toName(nameOrPrefix);
         const { prefix } = name;
-        const valueKey = (_a3 = value3.key) !== null && _a3 !== void 0 ? _a3 : value3.ref;
+        const valueKey = (_a3 = value2.key) !== null && _a3 !== void 0 ? _a3 : value2.ref;
         let vs = this._values[prefix];
         if (vs) {
           const _name = vs.get(valueKey);
@@ -383,8 +279,8 @@ var require_scope = __commonJS({
         vs.set(valueKey, name);
         const s = this._scope[prefix] || (this._scope[prefix] = []);
         const itemIndex = s.length;
-        s[itemIndex] = value3.ref;
-        name.setValue(value3, { property: prefix, itemIndex });
+        s[itemIndex] = value2.ref;
+        name.setValue(value2, { property: prefix, itemIndex });
         return name;
       }
       getValue(prefix, keyOrRef) {
@@ -515,11 +411,11 @@ var require_codegen = __commonJS({
         const rhs = this.rhs === void 0 ? "" : ` = ${this.rhs}`;
         return `${varKind} ${this.name}${rhs};` + _n;
       }
-      optimizeNames(names, constants2) {
+      optimizeNames(names, constants) {
         if (!names[this.name.str])
           return;
         if (this.rhs)
-          this.rhs = optimizeExpr(this.rhs, names, constants2);
+          this.rhs = optimizeExpr(this.rhs, names, constants);
         return this;
       }
       get names() {
@@ -536,10 +432,10 @@ var require_codegen = __commonJS({
       render({ _n }) {
         return `${this.lhs} = ${this.rhs};` + _n;
       }
-      optimizeNames(names, constants2) {
+      optimizeNames(names, constants) {
         if (this.lhs instanceof code_1.Name && !names[this.lhs.str] && !this.sideEffects)
           return;
-        this.rhs = optimizeExpr(this.rhs, names, constants2);
+        this.rhs = optimizeExpr(this.rhs, names, constants);
         return this;
       }
       get names() {
@@ -600,8 +496,8 @@ var require_codegen = __commonJS({
       optimizeNodes() {
         return `${this.code}` ? this : void 0;
       }
-      optimizeNames(names, constants2) {
-        this.code = optimizeExpr(this.code, names, constants2);
+      optimizeNames(names, constants) {
+        this.code = optimizeExpr(this.code, names, constants);
         return this;
       }
       get names() {
@@ -630,12 +526,12 @@ var require_codegen = __commonJS({
         }
         return nodes.length > 0 ? this : void 0;
       }
-      optimizeNames(names, constants2) {
+      optimizeNames(names, constants) {
         const { nodes } = this;
         let i = nodes.length;
         while (i--) {
           const n = nodes[i];
-          if (n.optimizeNames(names, constants2))
+          if (n.optimizeNames(names, constants))
             continue;
           subtractNames(names, n.names);
           nodes.splice(i, 1);
@@ -688,12 +584,12 @@ var require_codegen = __commonJS({
           return void 0;
         return this;
       }
-      optimizeNames(names, constants2) {
+      optimizeNames(names, constants) {
         var _a3;
-        this.else = (_a3 = this.else) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants2);
-        if (!(super.optimizeNames(names, constants2) || this.else))
+        this.else = (_a3 = this.else) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants);
+        if (!(super.optimizeNames(names, constants) || this.else))
           return;
-        this.condition = optimizeExpr(this.condition, names, constants2);
+        this.condition = optimizeExpr(this.condition, names, constants);
         return this;
       }
       get names() {
@@ -716,10 +612,10 @@ var require_codegen = __commonJS({
       render(opts) {
         return `for(${this.iteration})` + super.render(opts);
       }
-      optimizeNames(names, constants2) {
-        if (!super.optimizeNames(names, constants2))
+      optimizeNames(names, constants) {
+        if (!super.optimizeNames(names, constants))
           return;
-        this.iteration = optimizeExpr(this.iteration, names, constants2);
+        this.iteration = optimizeExpr(this.iteration, names, constants);
         return this;
       }
       get names() {
@@ -755,10 +651,10 @@ var require_codegen = __commonJS({
       render(opts) {
         return `for(${this.varKind} ${this.name} ${this.loop} ${this.iterable})` + super.render(opts);
       }
-      optimizeNames(names, constants2) {
-        if (!super.optimizeNames(names, constants2))
+      optimizeNames(names, constants) {
+        if (!super.optimizeNames(names, constants))
           return;
-        this.iterable = optimizeExpr(this.iterable, names, constants2);
+        this.iterable = optimizeExpr(this.iterable, names, constants);
         return this;
       }
       get names() {
@@ -800,11 +696,11 @@ var require_codegen = __commonJS({
         (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNodes();
         return this;
       }
-      optimizeNames(names, constants2) {
+      optimizeNames(names, constants) {
         var _a3, _b;
-        super.optimizeNames(names, constants2);
-        (_a3 = this.catch) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants2);
-        (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants2);
+        super.optimizeNames(names, constants);
+        (_a3 = this.catch) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants);
+        (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants);
         return this;
       }
       get names() {
@@ -854,8 +750,8 @@ var require_codegen = __commonJS({
         return this._extScope.name(prefix);
       }
       // reserves unique name in the external scope and assigns value to it
-      scopeValue(prefixOrName, value3) {
-        const name = this._extScope.value(prefixOrName, value3);
+      scopeValue(prefixOrName, value2) {
+        const name = this._extScope.value(prefixOrName, value2);
         const vs = this._values[name.prefix] || (this._values[name.prefix] = /* @__PURE__ */ new Set());
         vs.add(name);
         return name;
@@ -909,13 +805,13 @@ var require_codegen = __commonJS({
       // returns code for object literal for the passed argument list of key-value pairs
       object(...keyValues) {
         const code = ["{"];
-        for (const [key, value3] of keyValues) {
+        for (const [key, value2] of keyValues) {
           if (code.length > 1)
             code.push(",");
           code.push(key);
-          if (key !== value3 || this.opts.es5) {
+          if (key !== value2 || this.opts.es5) {
             code.push(":");
-            (0, code_1.addCodeArg)(code, value3);
+            (0, code_1.addCodeArg)(code, value2);
           }
         }
         code.push("}");
@@ -994,10 +890,10 @@ var require_codegen = __commonJS({
         return this._leafNode(new Break(label));
       }
       // `return` statement
-      return(value3) {
+      return(value2) {
         const node2 = new Return();
         this._blockNode(node2);
-        this.code(value3);
+        this.code(value2);
         if (node2.nodes.length !== 1)
           throw new Error('CodeGen: "return" should have one node');
         return this._endBlockNode(Return);
@@ -1105,7 +1001,7 @@ var require_codegen = __commonJS({
     function addExprNames(names, from) {
       return from instanceof code_1._CodeOrName ? addNames(names, from.names) : names;
     }
-    function optimizeExpr(expr, names, constants2) {
+    function optimizeExpr(expr, names, constants) {
       if (expr instanceof code_1.Name)
         return replaceName(expr);
       if (!canOptimize(expr))
@@ -1120,14 +1016,14 @@ var require_codegen = __commonJS({
         return items;
       }, []));
       function replaceName(n) {
-        const c = constants2[n.str];
+        const c = constants[n.str];
         if (c === void 0 || names[n.str] !== 1)
           return n;
         delete names[n.str];
         return c;
       }
       function canOptimize(e) {
-        return e instanceof code_1._Code && e._items.some((c) => c instanceof code_1.Name && names[c.str] === 1 && constants2[c.str] !== void 0);
+        return e instanceof code_1._Code && e._items.some((c) => c instanceof code_1.Name && names[c.str] === 1 && constants[c.str] !== void 0);
       }
     }
     function subtractNames(names, from) {
@@ -4359,13 +4255,13 @@ var require_fast_uri = __commonJS({
       if (typeof uri !== "string" && typeof uri !== "object") {
         return void 0;
       }
-      let value3;
+      let value2;
       try {
-        value3 = typeof uri === "string" ? uri : serialize(uri, opts);
+        value2 = typeof uri === "string" ? uri : serialize(uri, opts);
       } catch {
         return void 0;
       }
-      const { normalized, malformedAuthorityOrPort, malformedPercentEncoding, malformedSchemeSpecific, malformedHost, malformedScheme } = normalizeStringWithStatus(value3, opts);
+      const { normalized, malformedAuthorityOrPort, malformedPercentEncoding, malformedSchemeSpecific, malformedHost, malformedScheme } = normalizeStringWithStatus(value2, opts);
       return malformedAuthorityOrPort || malformedPercentEncoding || malformedSchemeSpecific || malformedHost || malformedScheme ? void 0 : normalized;
     }
     var fastUri = {
@@ -4709,8 +4605,8 @@ var require_core = __commonJS({
             return this;
           }
           case "object": {
-            const cacheKey2 = schemaKeyRef;
-            this._cache.delete(cacheKey2);
+            const cacheKey = schemaKeyRef;
+            this._cache.delete(cacheKey);
             let id = schemaKeyRef[this.opts.schemaId];
             if (id) {
               id = (0, resolve_1.normalizeId)(id);
@@ -5232,13 +5128,13 @@ var require_ucs2length = __commonJS({
       const len = str.length;
       let length = 0;
       let pos = 0;
-      let value3;
+      let value2;
       while (pos < len) {
         length++;
-        value3 = str.charCodeAt(pos++);
-        if (value3 >= 55296 && value3 <= 56319 && pos < len) {
-          value3 = str.charCodeAt(pos);
-          if ((value3 & 64512) === 56320)
+        value2 = str.charCodeAt(pos++);
+        if (value2 >= 55296 && value2 <= 56319 && pos < len) {
+          value2 = str.charCodeAt(pos);
+          if ((value2 & 64512) === 56320)
             pos++;
         }
       }
@@ -7223,11 +7119,11 @@ var require_formats = __commonJS({
     }
     var MIN_INT32 = -(2 ** 31);
     var MAX_INT32 = 2 ** 31 - 1;
-    function validateInt32(value3) {
-      return Number.isInteger(value3) && value3 <= MAX_INT32 && value3 >= MIN_INT32;
+    function validateInt32(value2) {
+      return Number.isInteger(value2) && value2 <= MAX_INT32 && value2 >= MIN_INT32;
     }
-    function validateInt64(value3) {
-      return Number.isInteger(value3);
+    function validateInt64(value2) {
+      return Number.isInteger(value2);
     }
     function validateNumber() {
       return true;
@@ -7334,8 +7230,8 @@ var require_dist = __commonJS({
         return ajv;
       }
       const [formats, exportName] = opts.mode === "fast" ? [formats_1.fastFormats, fastName] : [formats_1.fullFormats, fullName];
-      const list3 = opts.formats || formats_1.formatNames;
-      addFormats(ajv, list3, formats, exportName);
+      const list2 = opts.formats || formats_1.formatNames;
+      addFormats(ajv, list2, formats, exportName);
       if (opts.keywords)
         (0, limit_1.default)(ajv);
       return ajv;
@@ -7347,11 +7243,11 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f;
     };
-    function addFormats(ajv, list3, fs, exportName) {
+    function addFormats(ajv, list2, fs, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
-      for (const f of list3)
+      for (const f of list2)
         ajv.addFormat(f, fs[f]);
     }
     module.exports = exports = formatsPlugin;
@@ -8047,10 +7943,10 @@ function getEnumValues(entries) {
 function joinValues(array2, separator = "|") {
   return array2.map((val) => stringifyPrimitive(val)).join(separator);
 }
-function jsonStringifyReplacer(_, value3) {
-  if (typeof value3 === "bigint")
-    return value3.toString();
-  return value3;
+function jsonStringifyReplacer(_, value2) {
+  if (typeof value2 === "bigint")
+    return value2.toString();
+  return value2;
 }
 var Cached = class {
   constructor(getter) {
@@ -8087,17 +7983,17 @@ function floatSafeRemainder(val, step) {
 }
 var EVALUATING = /* @__PURE__ */ Symbol("evaluating");
 function defineLazy(object3, key, getter) {
-  let value3 = void 0;
+  let value2 = void 0;
   Object.defineProperty(object3, key, {
     get() {
-      if (value3 === EVALUATING) {
+      if (value2 === EVALUATING) {
         return void 0;
       }
-      if (value3 === void 0) {
-        value3 = EVALUATING;
-        value3 = getter();
+      if (value2 === void 0) {
+        value2 = EVALUATING;
+        value2 = getter();
       }
-      return value3;
+      return value2;
     },
     set(v) {
       Object.defineProperty(object3, key, {
@@ -8111,9 +8007,9 @@ function defineLazy(object3, key, getter) {
 function objectClone(obj) {
   return Object.create(Object.getPrototypeOf(obj), Object.getOwnPropertyDescriptors(obj));
 }
-function assignProp(target, prop, value3) {
+function assignProp(target, prop, value2) {
   Object.defineProperty(target, prop, {
-    value: value3,
+    value: value2,
     writable: true,
     enumerable: true,
     configurable: true
@@ -8129,19 +8025,19 @@ function sourceShape(schema) {
 function deferProp(target, key, getter) {
   Object.defineProperty(target, key, {
     get() {
-      const value3 = getter();
-      assignProp(this, key, value3);
-      return value3;
+      const value2 = getter();
+      assignProp(this, key, value2);
+      return value2;
     },
     enumerable: true,
     configurable: true
   });
 }
-function putProp(target, key, value3) {
+function putProp(target, key, value2) {
   if (key in target)
-    assignProp(target, key, value3);
+    assignProp(target, key, value2);
   else
-    target[key] = value3;
+    target[key] = value2;
 }
 function mirrorShape(target, source, keys, wrap) {
   const raw = sourceShape(source);
@@ -8151,8 +8047,8 @@ function mirrorShape(target, source, keys, wrap) {
       continue;
     if (desc.get) {
       deferProp(target, key, () => {
-        const value3 = source._zod.def.shape[key];
-        return wrap ? wrap(value3, key) : value3;
+        const value2 = source._zod.def.shape[key];
+        return wrap ? wrap(value2, key) : value2;
       });
     } else
       putProp(target, key, wrap ? wrap(desc.value, key) : desc.value);
@@ -8351,9 +8247,9 @@ function createTransparentProxy(getter) {
       target ?? (target = getter());
       return Reflect.get(target, prop, receiver);
     },
-    set(_, prop, value3, receiver) {
+    set(_, prop, value2, receiver) {
       target ?? (target = getter());
-      return Reflect.set(target, prop, value3, receiver);
+      return Reflect.set(target, prop, value2, receiver);
     },
     has(_, prop) {
       target ?? (target = getter());
@@ -8377,12 +8273,12 @@ function createTransparentProxy(getter) {
     }
   });
 }
-function stringifyPrimitive(value3) {
-  if (typeof value3 === "bigint")
-    return value3.toString() + "n";
-  if (typeof value3 === "string")
-    return `"${value3}"`;
-  return `${value3}`;
+function stringifyPrimitive(value2) {
+  if (typeof value2 === "bigint")
+    return value2.toString() + "n";
+  if (typeof value2 === "string")
+    return `"${value2}"`;
+  return `${value2}`;
 }
 function optionalKeys(shape) {
   return Object.keys(shape).filter((k) => {
@@ -8491,15 +8387,15 @@ function partial(Class2, schema, mask, name = "partial") {
   }
   const selected = mask ? new Set(maskedKeys(schema, mask)) : void 0;
   const newShape = {};
-  mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), Class2 && ((value3, key) => selected && !selected.has(key) ? value3 : new Class2({ type: "optional", innerType: value3 })));
+  mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), Class2 && ((value2, key) => selected && !selected.has(key) ? value2 : new Class2({ type: "optional", innerType: value2 })));
   return clone(schema, mergeDefs(schema._zod.def, { shape: newShape, checks: [] }));
 }
 function required(Class2, schema, mask) {
   const selected = mask ? new Set(maskedKeys(schema, mask)) : void 0;
   const newShape = {};
-  mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), (value3, key) => (
+  mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), (value2, key) => (
     // overwrite with non-optional
-    selected && !selected.has(key) ? value3 : new Class2({ type: "nonoptional", innerType: value3 })
+    selected && !selected.has(key) ? value2 : new Class2({ type: "nonoptional", innerType: value2 })
   ));
   return clone(schema, mergeDefs(schema._zod.def, { shape: newShape }));
 }
@@ -8694,12 +8590,12 @@ function members(proto, table) {
       defineBound(proto, key, desc.value);
   }
 }
-function own(inst, key, value3, enumerable = true) {
-  Object.defineProperty(inst, key, { configurable: true, writable: true, enumerable, value: value3 });
-  return value3;
+function own(inst, key, value2, enumerable = true) {
+  Object.defineProperty(inst, key, { configurable: true, writable: true, enumerable, value: value2 });
+  return value2;
 }
-function hide(inst, key, value3) {
-  return own(inst, key, value3, false);
+function hide(inst, key, value2) {
+  return own(inst, key, value2, false);
 }
 // @__NO_SIDE_EFFECTS__
 function derived(computes, table) {
@@ -8711,8 +8607,8 @@ function derived(computes, table) {
       get() {
         return own(this, key, compute(this));
       },
-      set(value3) {
-        own(this, key, value3);
+      set(value2) {
+        own(this, key, value2);
       }
     });
   }
@@ -8724,8 +8620,8 @@ function defineBound(proto, key, fn) {
     get() {
       return this == null ? fn : own(this, key, fn.bind(this));
     },
-    set(value3) {
-      own(this, key, value3);
+    set(value2) {
+      own(this, key, value2);
     }
   });
 }
@@ -8756,21 +8652,21 @@ function defineLazyInternal(inst, key, compute) {
       const outer = broke;
       broke = false;
       try {
-        const value3 = compute(this);
+        const value2 = compute(this);
         if (broke)
           delete this[key];
         else
-          Object.defineProperty(this, key, { configurable: true, writable: true, value: value3 });
+          Object.defineProperty(this, key, { configurable: true, writable: true, value: value2 });
         broke = broke || outer;
-        return value3;
+        return value2;
       } catch (err) {
         delete this[key];
         broke = broke || outer;
         throw err;
       }
     },
-    set(value3) {
-      Object.defineProperty(this, key, { configurable: true, writable: true, value: value3 });
+    set(value2) {
+      Object.defineProperty(this, key, { configurable: true, writable: true, value: value2 });
     }
   });
 }
@@ -8787,14 +8683,14 @@ function installLazyProp(inst, key, make, enumerable) {
       Object.defineProperty(this, key, desc);
       return desc.value;
     },
-    set(value3) {
-      Object.defineProperty(this, key, { configurable: true, writable: true, enumerable, value: value3 });
+    set(value2) {
+      Object.defineProperty(this, key, { configurable: true, writable: true, enumerable, value: value2 });
     }
   });
 }
 var CONSTANT_CATCH = "~constantCatch";
-function constantCatch(value3) {
-  const fn = () => value3;
+function constantCatch(value2) {
+  const fn = () => value2;
   fn[CONSTANT_CATCH] = true;
   return fn;
 }
@@ -8927,8 +8823,8 @@ function _getMessage() {
   internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
   return internals.message;
 }
-function _setMessage(value3) {
-  this._zod.message = value3;
+function _setMessage(value2) {
+  this._zod.message = value2;
 }
 var _messageDesc = {
   get: _getMessage,
@@ -8951,12 +8847,12 @@ var initializer = (inst, def) => {
       configurable: true,
       enumerable: false,
       get() {
-        const value3 = () => this.message;
-        Object.defineProperty(this, "toString", { value: value3, configurable: true, writable: true });
-        return value3;
+        const value2 = () => this.message;
+        Object.defineProperty(this, "toString", { value: value2, configurable: true, writable: true });
+        return value2;
       },
-      set(value3) {
-        Object.defineProperty(this, "toString", { value: value3, configurable: true, writable: true });
+      set(value2) {
+        Object.defineProperty(this, "toString", { value: value2, configurable: true, writable: true });
       }
     });
   }
@@ -9118,9 +9014,9 @@ function finalizeParams(callee, params) {
   return { callee: params?.callee ?? callee, Err: params?.Err };
 }
 var _parse = (_Err) => {
-  const fn = (schema, value3, _ctx, _params) => {
+  const fn = (schema, value2, _ctx, _params) => {
     const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
-    const result = schema._zod.run({ value: value3, issues: [] }, ctx);
+    const result = schema._zod.run({ value: value2, issues: [] }, ctx);
     if (result instanceof Promise) {
       throw new $ZodAsyncError();
     }
@@ -9135,9 +9031,9 @@ var _parse = (_Err) => {
 };
 var parse = /* @__PURE__ */ _parse($ZodRealError);
 var _parseAsync = (_Err) => {
-  const fn = async (schema, value3, _ctx, params) => {
+  const fn = async (schema, value2, _ctx, params) => {
     const ctx = _ctx ? { ..._ctx, async: true } : { async: true };
-    let result = schema._zod.run({ value: value3, issues: [] }, ctx);
+    let result = schema._zod.run({ value: value2, issues: [] }, ctx);
     if (result instanceof Promise)
       result = await result;
     if (result.issues.length) {
@@ -9150,9 +9046,9 @@ var _parseAsync = (_Err) => {
   return fn;
 };
 var parseAsync = /* @__PURE__ */ _parseAsync($ZodRealError);
-var _safeParse = (_Err) => (schema, value3, _ctx) => {
+var _safeParse = (_Err) => (schema, value2, _ctx) => {
   const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
-  const result = schema._zod.run({ value: value3, issues: [] }, ctx);
+  const result = schema._zod.run({ value: value2, issues: [] }, ctx);
   if (result instanceof Promise) {
     throw new $ZodAsyncError();
   }
@@ -9178,9 +9074,9 @@ function failure(Err, issues, ctx) {
     }
   };
 }
-var _safeParseAsync = (_Err) => async (schema, value3, _ctx) => {
+var _safeParseAsync = (_Err) => async (schema, value2, _ctx) => {
   const ctx = _ctx ? { ..._ctx, async: true } : { async: true };
-  let result = schema._zod.run({ value: value3, issues: [] }, ctx);
+  let result = schema._zod.run({ value: value2, issues: [] }, ctx);
   if (result instanceof Promise)
     result = await result;
   return result.issues.length ? failure(_Err, result.issues, ctx) : { success: true, data: result.value };
@@ -9188,88 +9084,88 @@ var _safeParseAsync = (_Err) => async (schema, value3, _ctx) => {
 var safeParseAsync = /* @__PURE__ */ _safeParseAsync($ZodRealError);
 var COMPILE_INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
 var COMPILE_FALLBACK = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
-var validate = ((schema, value3, _ctx) => {
+var validate = ((schema, value2, _ctx) => {
   const validator = schema._zod.bag.validator;
   if (validator !== void 0) {
-    if (validator(value3) !== COMPILE_INVALID)
+    if (validator(value2) !== COMPILE_INVALID)
       return true;
     if (validator.definite === true && _ctx === void 0)
       return false;
   }
-  return validateFallback(schema, value3, _ctx);
+  return validateFallback(schema, value2, _ctx);
 });
-function validateFallback(schema, value3, _ctx) {
+function validateFallback(schema, value2, _ctx) {
   const ctx = _ctx ? { ..._ctx, async: false, abortEarly: true } : { async: false, abortEarly: true };
   const fallbackRun = schema._zod.bag.fallbackRun;
   let result;
   if (fallbackRun) {
     ctx[COMPILE_FALLBACK] = true;
-    result = fallbackRun({ value: value3, issues: [] }, ctx);
+    result = fallbackRun({ value: value2, issues: [] }, ctx);
   } else {
-    result = schema._zod.run({ value: value3, issues: [] }, ctx);
+    result = schema._zod.run({ value: value2, issues: [] }, ctx);
   }
   if (result instanceof Promise) {
     throw new $ZodAsyncError();
   }
   return result.issues.length === 0;
 }
-var validateAsync = async (schema, value3, _ctx) => {
+var validateAsync = async (schema, value2, _ctx) => {
   const ctx = _ctx ? { ..._ctx, async: true, abortEarly: true } : { async: true, abortEarly: true };
-  let result = schema._zod.run({ value: value3, issues: [] }, ctx);
+  let result = schema._zod.run({ value: value2, issues: [] }, ctx);
   if (result instanceof Promise)
     result = await result;
   return result.issues.length === 0;
 };
 var _encode = (_Err) => {
   const parse3 = _parse(_Err);
-  const fn = (schema, value3, _ctx, _params) => {
+  const fn = (schema, value2, _ctx, _params) => {
     const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
-    return parse3(schema, value3, ctx, finalizeParams(fn, _params));
+    return parse3(schema, value2, ctx, finalizeParams(fn, _params));
   };
   return fn;
 };
 var encode = /* @__PURE__ */ _encode($ZodRealError);
 var _decode = (_Err) => {
   const parse3 = _parse(_Err);
-  const fn = (schema, value3, _ctx, _params) => {
-    return parse3(schema, value3, _ctx, finalizeParams(fn, _params));
+  const fn = (schema, value2, _ctx, _params) => {
+    return parse3(schema, value2, _ctx, finalizeParams(fn, _params));
   };
   return fn;
 };
 var decode = /* @__PURE__ */ _decode($ZodRealError);
 var _encodeAsync = (_Err) => {
   const parseAsync3 = _parseAsync(_Err);
-  const fn = async (schema, value3, _ctx, _params) => {
+  const fn = async (schema, value2, _ctx, _params) => {
     const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
-    return await parseAsync3(schema, value3, ctx, finalizeParams(fn, _params));
+    return await parseAsync3(schema, value2, ctx, finalizeParams(fn, _params));
   };
   return fn;
 };
 var encodeAsync = /* @__PURE__ */ _encodeAsync($ZodRealError);
 var _decodeAsync = (_Err) => {
   const parseAsync3 = _parseAsync(_Err);
-  const fn = async (schema, value3, _ctx, _params) => {
-    return await parseAsync3(schema, value3, _ctx, finalizeParams(fn, _params));
+  const fn = async (schema, value2, _ctx, _params) => {
+    return await parseAsync3(schema, value2, _ctx, finalizeParams(fn, _params));
   };
   return fn;
 };
 var decodeAsync = /* @__PURE__ */ _decodeAsync($ZodRealError);
-var _safeEncode = (_Err) => (schema, value3, _ctx) => {
+var _safeEncode = (_Err) => (schema, value2, _ctx) => {
   const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
-  return _safeParse(_Err)(schema, value3, ctx);
+  return _safeParse(_Err)(schema, value2, ctx);
 };
 var safeEncode = /* @__PURE__ */ _safeEncode($ZodRealError);
-var _safeDecode = (_Err) => (schema, value3, _ctx) => {
-  return _safeParse(_Err)(schema, value3, _ctx);
+var _safeDecode = (_Err) => (schema, value2, _ctx) => {
+  return _safeParse(_Err)(schema, value2, _ctx);
 };
 var safeDecode = /* @__PURE__ */ _safeDecode($ZodRealError);
-var _safeEncodeAsync = (_Err) => async (schema, value3, _ctx) => {
+var _safeEncodeAsync = (_Err) => async (schema, value2, _ctx) => {
   const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
-  return _safeParseAsync(_Err)(schema, value3, ctx);
+  return _safeParseAsync(_Err)(schema, value2, ctx);
 };
 var safeEncodeAsync = /* @__PURE__ */ _safeEncodeAsync($ZodRealError);
-var _safeDecodeAsync = (_Err) => async (schema, value3, _ctx) => {
-  return _safeParseAsync(_Err)(schema, value3, _ctx);
+var _safeDecodeAsync = (_Err) => async (schema, value2, _ctx) => {
+  return _safeParseAsync(_Err)(schema, value2, _ctx);
 };
 var safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync($ZodRealError);
 
@@ -10075,26 +9971,26 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
   get "~standard"() {
     return hide(this, "~standard", standardProps(this));
   },
-  set "~standard"(value3) {
-    own(this, "~standard", value3);
+  set "~standard"(value2) {
+    own(this, "~standard", value2);
   }
 });
 var toStandardResult = (r, ctx) => r.issues.length ? { issues: r.issues.map((iss) => finalizeIssue(iss, ctx, config())) } : { value: r.value };
-async function validateAsync2(inst, value3) {
+async function validateAsync2(inst, value2) {
   const ctx = { async: true };
-  return toStandardResult(await inst._zod.run({ value: value3, issues: [] }, ctx), ctx);
+  return toStandardResult(await inst._zod.run({ value: value2, issues: [] }, ctx), ctx);
 }
 function standardProps(inst) {
   return {
-    validate: (value3) => {
+    validate: (value2) => {
       const ctx = { async: false };
       try {
-        const r = inst._zod.run({ value: value3, issues: [] }, ctx);
+        const r = inst._zod.run({ value: value2, issues: [] }, ctx);
         if (!(r instanceof Promise))
           return toStandardResult(r, ctx);
       } catch (_) {
       }
-      return validateAsync2(inst, value3);
+      return validateAsync2(inst, value2);
     },
     vendor: "zod",
     version: 1
@@ -10186,8 +10082,8 @@ function parseURLObject(trimmed, def) {
   }
 }
 var asciiTabOrNewline = /[\t\n\r]/g;
-function stripTabAndNewline(value3) {
-  return value3.replace(asciiTabOrNewline, "");
+function stripTabAndNewline(value2) {
+  return value2.replace(asciiTabOrNewline, "");
 }
 function urlHostnameOk(url2, hostname3) {
   hostname3.lastIndex = 0;
@@ -10314,10 +10210,10 @@ var $ZodIPv4 = /* @__PURE__ */ $constructor("$ZodIPv4", (inst, def) => {
   $ZodStringFormat.init(inst, def);
 });
 var ipv6Alphabet = /^[0-9a-fA-F:.]+$/;
-function isValidIPv6(value3) {
-  if (!ipv6Alphabet.test(value3))
+function isValidIPv6(value2) {
+  if (!ipv6Alphabet.test(value2))
     return false;
-  return canParseURL(`http://[${value3}]`);
+  return canParseURL(`http://[${value2}]`);
 }
 var $ZodIPv6 = /* @__PURE__ */ $constructor("$ZodIPv6", (inst, def) => {
   def.pattern ?? (def.pattern = ipv6);
@@ -10342,8 +10238,8 @@ var $ZodCIDRv4 = /* @__PURE__ */ $constructor("$ZodCIDRv4", (inst, def) => {
   def.pattern ?? (def.pattern = cidrv4);
   $ZodStringFormat.init(inst, def);
 });
-function isValidCIDRv6(value3) {
-  const parts = value3.split("/");
+function isValidCIDRv6(value2) {
+  const parts = value2.split("/");
   if (parts.length !== 2)
     return false;
   const [address, prefix] = parts;
@@ -10434,9 +10330,9 @@ function isLuhnAlgo(digits) {
   let bit = 1;
   let sum = 0;
   while (length) {
-    const value3 = digits.charCodeAt(--length) - 48;
+    const value2 = digits.charCodeAt(--length) - 48;
     bit ^= 1;
-    sum += bit ? [0, 2, 4, 6, 8, 1, 3, 5, 7, 9][value3] : value3;
+    sum += bit ? [0, 2, 4, 6, 8, 1, 3, 5, 7, 9][value2] : value2;
   }
   return sum % 10 === 0;
 }
@@ -10927,11 +10823,11 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
   });
   const isObject2 = isObject;
   const catchall = def.catchall;
-  let value3;
+  let value2;
   const memo2 = globalConfig.memoizer;
   memo2?.attach(inst);
   inst._zod.parse = (payload, ctx) => {
-    value3 ?? (value3 = _normalized.value);
+    value2 ?? (value2 = _normalized.value);
     const input2 = payload.value;
     if (!isObject2(input2)) {
       payload.issues.push({
@@ -10944,10 +10840,10 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     }
     payload.value = memo2 ? memo2.alloc(inst, payload, {}, ctx) : {};
     const proms = [];
-    const shape = value3.shape;
+    const shape = value2.shape;
     const abortEarly = ctx?.abortEarly;
     let seen = payload.issues.length;
-    for (const key of value3.allKeys) {
+    for (const key of value2.allKeys) {
       if (abortEarly && payload.issues.length !== seen) {
         if (aborted(payload, seen))
           break;
@@ -11074,9 +10970,9 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
   const allowsEval2 = allowsEval;
   const fastEnabled = jit && allowsEval2.value;
   const catchall = def.catchall;
-  let value3;
+  let value2;
   inst._zod.parse = (payload, ctx) => {
-    value3 ?? (value3 = _normalized.value);
+    value2 ?? (value2 = _normalized.value);
     const input2 = payload.value;
     if (!isObject2(input2)) {
       payload.issues.push({
@@ -11093,7 +10989,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
       payload = fastpass(payload, ctx);
       if (!catchall)
         return payload;
-      return handleCatchall([], input2, payload, ctx, value3, inst, ctx?.abortEarly === true);
+      return handleCatchall([], input2, payload, ctx, value2, inst, ctx?.abortEarly === true);
     }
     return superParse(payload, ctx);
   };
@@ -11221,16 +11117,16 @@ var $ZodXor = /* @__PURE__ */ $constructor("$ZodXor", (inst, def) => {
     });
   };
 });
-function getDiscriminatedOption(union2, value3) {
+function getDiscriminatedOption(union2, value2) {
   const internals = union2._zod;
   let map2 = internals.bag.optionsMap;
   if (!map2) {
     map2 = discriminatorMap(internals.def);
     internals.bag.optionsMap = map2;
   }
-  const option = map2.get(value3);
+  const option = map2.get(value2);
   if (option === null)
-    throw new Error(`Ambiguous discriminator value "${String(value3)}"`);
+    throw new Error(`Ambiguous discriminator value "${String(value2)}"`);
   return option;
 }
 function discriminatorMap(def) {
@@ -11239,13 +11135,13 @@ function discriminatorMap(def) {
     const values = option._zod.propValues?.[def.discriminator];
     if (!values || values.size === 0)
       throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(option)}"`);
-    for (const value3 of values) {
-      if (map2.has(value3)) {
-        if (value3 !== void 0)
-          throw new Error(`Duplicate discriminator value "${String(value3)}"`);
-        map2.set(value3, null);
+    for (const value2 of values) {
+      if (map2.has(value2)) {
+        if (value2 !== void 0)
+          throw new Error(`Duplicate discriminator value "${String(value2)}"`);
+        map2.set(value2, null);
       } else {
-        map2.set(value3, option);
+        map2.set(value2, option);
       }
     }
   }
@@ -11295,9 +11191,9 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
       });
       return payload;
     }
-    const value3 = input2?.[def.discriminator];
-    const opt = disc.value.get(value3);
-    if (opt && (value3 !== void 0 || ctx.direction !== "backward")) {
+    const value2 = input2?.[def.discriminator];
+    const opt = disc.value.get(value2);
+    if (opt && (value2 !== void 0 || ctx.direction !== "backward")) {
       return opt._zod.run(payload, ctx);
     }
     if (def.unionFallback || ctx.direction === "backward") {
@@ -11308,7 +11204,7 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
       errors: [],
       note: "No matching discriminator",
       discriminator: def.discriminator,
-      options: Array.from(disc.value.keys()).filter((value4) => disc.value.get(value4) !== null),
+      options: Array.from(disc.value.keys()).filter((value3) => disc.value.get(value3) !== null),
       input: input2,
       path: [def.discriminator],
       inst
@@ -11727,14 +11623,14 @@ var $ZodMap = /* @__PURE__ */ $constructor("$ZodMap", (inst, def) => {
     payload.value = memo2 ? memo2.alloc(inst, payload, /* @__PURE__ */ new Map(), ctx) : /* @__PURE__ */ new Map();
     const abortEarly = ctx?.abortEarly;
     let seen = payload.issues.length;
-    for (const [key, value3] of input2) {
+    for (const [key, value2] of input2) {
       if (abortEarly && payload.issues.length !== seen) {
         if (aborted(payload, seen))
           break;
         seen = payload.issues.length;
       }
       const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
-      const valueResult = def.valueType._zod.run({ value: value3, issues: [] }, ctx);
+      const valueResult = def.valueType._zod.run({ value: value2, issues: [] }, ctx);
       if (keyResult instanceof Promise || valueResult instanceof Promise) {
         proms.push(Promise.all([keyResult, valueResult]).then(([keyResult2, valueResult2]) => {
           handleMapResult(keyResult2, valueResult2, payload, key, input2, inst, ctx);
@@ -12147,23 +12043,23 @@ function handleCodecAResult(result, def, ctx) {
   if (direction === "forward") {
     const transformed = def.transform(result.value, result);
     if (transformed instanceof Promise) {
-      return transformed.then((value3) => handleCodecTxResult(result, value3, def.out, ctx));
+      return transformed.then((value2) => handleCodecTxResult(result, value2, def.out, ctx));
     }
     return handleCodecTxResult(result, transformed, def.out, ctx);
   } else {
     const transformed = def.reverseTransform(result.value, result);
     if (transformed instanceof Promise) {
-      return transformed.then((value3) => handleCodecTxResult(result, value3, def.in, ctx));
+      return transformed.then((value2) => handleCodecTxResult(result, value2, def.in, ctx));
     }
     return handleCodecTxResult(result, transformed, def.in, ctx);
   }
 }
-function handleCodecTxResult(left, value3, nextSchema, ctx) {
+function handleCodecTxResult(left, value2, nextSchema, ctx) {
   if (left.issues.length) {
     left.aborted = true;
     return left;
   }
-  return nextSchema._zod.run({ value: value3, issues: left.issues }, ctx);
+  return nextSchema._zod.run({ value: value2, issues: left.issues }, ctx);
 }
 var $ZodPreprocess = /* @__PURE__ */ $constructor("$ZodPreprocess", (inst, def) => {
   $ZodPipe.init(inst, def);
@@ -12420,8 +12316,8 @@ var $ZodCyclicError = class extends Error {
 };
 var STATE = "~memo";
 var NO_ISSUES = [];
-function isRef(value3) {
-  return value3 !== null && typeof value3 === "object";
+function isRef(value2) {
+  return value2 !== null && typeof value2 === "object";
 }
 function cloneIssues(issues) {
   return issues.map((iss) => iss.path ? { ...iss, path: iss.path.slice() } : { ...iss });
@@ -12548,13 +12444,13 @@ function isRecursive(inst, stack, resolve) {
         const desc = Object.getOwnPropertyDescriptor(def, key);
         if (!desc || desc.get)
           continue;
-        const value3 = desc.value;
-        if (!value3 || typeof value3 !== "object")
+        const value2 = desc.value;
+        if (!value2 || typeof value2 !== "object")
           continue;
-        if (value3._zod)
-          check2(value3);
-        else if (Array.isArray(value3))
-          for (const el of value3)
+        if (value2._zod)
+          check2(value2);
+        else if (Array.isArray(value2))
+          for (const el of value2)
             check2(el);
       }
     }
@@ -12683,9 +12579,9 @@ var memo = {
 function memoizer() {
   return memo;
 }
-function isBackEdge(ctx, value3) {
+function isBackEdge(ctx, value2) {
   const backEdges = ctx[STATE]?.backEdges;
-  return backEdges !== void 0 && isRef(value3) && backEdges.has(value3);
+  return backEdges !== void 0 && isRef(value2) && backEdges.has(value2);
 }
 
 // node_modules/zod/v4/locales/index.js
@@ -20435,13 +20331,13 @@ ${code}
   fn.definite = ctx.definite;
   return fn;
 }
-function addConstant(ctx, value3) {
+function addConstant(ctx, value2) {
   for (const [name2, v] of ctx.constants) {
-    if (v === value3)
+    if (v === value2)
       return name2;
   }
   const name = `c${ctx.constantCounter++}`;
-  ctx.constants.set(name, value3);
+  ctx.constants.set(name, value2);
   return name;
 }
 function addUserConstant(ctx, fn) {
@@ -20451,8 +20347,8 @@ function addUserConstant(ctx, fn) {
 function newVar(ctx) {
   return `v${ctx.varCounter++}`;
 }
-function runtimeRun(schema, value3) {
-  const result = schema._zod.run({ value: value3, issues: [] }, {});
+function runtimeRun(schema, value2) {
+  const result = schema._zod.run({ value: value2, issues: [] }, {});
   if (result && typeof result.then === "function")
     return INVALID;
   const r = result;
@@ -20584,27 +20480,27 @@ function codePointLengthVar(doc, ctx, accessor, inDoubt) {
   doc.write(`const ${v} = typeof ${accessor} === "string" && ${inDoubt} ? ${cpLen}(${accessor}) : ${accessor}.length;`);
   return v;
 }
-function numericOperand(value3, label) {
-  if (typeof value3 !== "number" || !Number.isFinite(value3)) {
-    throw new ZodCompileUnsupportedError(`${label} bound of type ${typeof value3}`);
+function numericOperand(value2, label) {
+  if (typeof value2 !== "number" || !Number.isFinite(value2)) {
+    throw new ZodCompileUnsupportedError(`${label} bound of type ${typeof value2}`);
   }
-  return `${value3}`;
+  return `${value2}`;
 }
-function comparisonOperand(ctx, value3) {
-  if (typeof value3 === "bigint")
-    return `${value3}n`;
-  if (typeof value3 === "number") {
-    if (Number.isNaN(value3))
+function comparisonOperand(ctx, value2) {
+  if (typeof value2 === "bigint")
+    return `${value2}n`;
+  if (typeof value2 === "number") {
+    if (Number.isNaN(value2))
       throw new ZodCompileUnsupportedError("comparison check with NaN bound");
-    return `${value3}`;
+    return `${value2}`;
   }
-  if (value3 instanceof Date) {
-    if (Number.isNaN(value3.getTime())) {
+  if (value2 instanceof Date) {
+    if (Number.isNaN(value2.getTime())) {
       throw new ZodCompileUnsupportedError("comparison check with Invalid Date bound");
     }
-    return addConstant(ctx, value3);
+    return addConstant(ctx, value2);
   }
-  throw new ZodCompileUnsupportedError(`comparison check bound of type ${typeof value3}`);
+  throw new ZodCompileUnsupportedError(`comparison check bound of type ${typeof value2}`);
 }
 function generateGreaterThanCheck(doc, ctx, def, accessor) {
   const op = def.inclusive ? "<" : "<=";
@@ -20725,8 +20621,8 @@ function generateCustomRefineCheck(doc, ctx, check2, accessor) {
       throw new ZodCompileAsyncError("z.compile: async .superRefine() / check functions are not supported");
     }
     const checkFn = check2._zod.check;
-    const helperFn = (value3) => {
-      const fakePayload = { value: value3, issues: [], addIssue: pushIssue };
+    const helperFn = (value2) => {
+      const fakePayload = { value: value2, issues: [], addIssue: pushIssue };
       const result = checkFn(fakePayload);
       if (result instanceof Promise)
         throwAsync();
@@ -21377,24 +21273,24 @@ function generateLiteralCheck(doc, ctx, schema, accessor) {
     doc.write(`if (!${literalSet}.has(${accessor})) return INVALID;`);
     return accessor;
   }
-  const value3 = values[0];
-  if (typeof value3 === "number" && Number.isNaN(value3)) {
+  const value2 = values[0];
+  if (typeof value2 === "number" && Number.isNaN(value2)) {
     const literalSet = addConstant(ctx, new Set(values));
     doc.write(`if (!${literalSet}.has(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (typeof value3 === "string") {
-    doc.write(`if (${accessor} !== ${esc(value3)}) return INVALID;`);
-  } else if (typeof value3 === "number" || typeof value3 === "boolean") {
-    doc.write(`if (${accessor} !== ${value3}) return INVALID;`);
-  } else if (value3 === null) {
+  if (typeof value2 === "string") {
+    doc.write(`if (${accessor} !== ${esc(value2)}) return INVALID;`);
+  } else if (typeof value2 === "number" || typeof value2 === "boolean") {
+    doc.write(`if (${accessor} !== ${value2}) return INVALID;`);
+  } else if (value2 === null) {
     doc.write(`if (${accessor} !== null) return INVALID;`);
-  } else if (value3 === void 0) {
+  } else if (value2 === void 0) {
     doc.write(`if (${accessor} !== undefined) return INVALID;`);
-  } else if (typeof value3 === "bigint") {
-    doc.write(`if (${accessor} !== ${value3}n) return INVALID;`);
+  } else if (typeof value2 === "bigint") {
+    doc.write(`if (${accessor} !== ${value2}n) return INVALID;`);
   } else {
-    throw new ZodCompileUnsupportedError(`literal type ${typeof value3}`);
+    throw new ZodCompileUnsupportedError(`literal type ${typeof value2}`);
   }
   return accessor;
 }
@@ -21594,13 +21490,13 @@ function generateDiscriminatedUnionCheck(doc, ctx, def, accessor) {
     if (!values || values.size === 0) {
       throw new ZodCompileUnsupportedError("discriminated union option without static discriminator values");
     }
-    for (const value3 of values) {
-      if (claimed.has(value3)) {
-        throw new ZodCompileUnsupportedError(`duplicate discriminator value ${String(value3)}`);
+    for (const value2 of values) {
+      if (claimed.has(value2)) {
+        throw new ZodCompileUnsupportedError(`duplicate discriminator value ${String(value2)}`);
       }
-      claimed.add(value3);
+      claimed.add(value2);
     }
-    const conditions = Array.from(values, (value3) => literalEquality(ctx, discVar, value3));
+    const conditions = Array.from(values, (value2) => literalEquality(ctx, discVar, value2));
     const prefix = firstBranch ? "if" : "else if";
     doc.write(`${prefix} (${conditions.join(" || ")}) {`);
     doc.indented((d) => {
@@ -21613,27 +21509,27 @@ function generateDiscriminatedUnionCheck(doc, ctx, def, accessor) {
   doc.write(`else { return INVALID; }`);
   return outputVar;
 }
-function literalEquality(ctx, accessor, value3) {
-  if (typeof value3 === "string")
-    return `${accessor} === ${esc(value3)}`;
-  if (typeof value3 === "number") {
-    if (Number.isNaN(value3))
+function literalEquality(ctx, accessor, value2) {
+  if (typeof value2 === "string")
+    return `${accessor} === ${esc(value2)}`;
+  if (typeof value2 === "number") {
+    if (Number.isNaN(value2))
       return `Number.isNaN(${accessor})`;
-    return `${accessor} === ${value3}`;
+    return `${accessor} === ${value2}`;
   }
-  if (typeof value3 === "boolean")
-    return `${accessor} === ${value3}`;
-  if (value3 === null)
+  if (typeof value2 === "boolean")
+    return `${accessor} === ${value2}`;
+  if (value2 === null)
     return `${accessor} === null`;
-  if (value3 === void 0)
+  if (value2 === void 0)
     return `${accessor} === undefined`;
-  if (typeof value3 === "bigint")
-    return `${accessor} === ${value3}n`;
-  if (typeof value3 === "symbol") {
-    const symbolConst = addConstant(ctx, value3);
+  if (typeof value2 === "bigint")
+    return `${accessor} === ${value2}n`;
+  if (typeof value2 === "symbol") {
+    const symbolConst = addConstant(ctx, value2);
     return `${accessor} === ${symbolConst}`;
   }
-  throw new ZodCompileUnsupportedError(`literal discriminator value ${String(value3)}`);
+  throw new ZodCompileUnsupportedError(`literal discriminator value ${String(value2)}`);
 }
 function generateIntersectionCheck(doc, ctx, schema, accessor) {
   const def = schema._zod.def;
@@ -21824,9 +21720,9 @@ function generatePipeCheck(doc, ctx, schema, accessor) {
       throw new ZodCompileAsyncError("z.compile: async transforms in pipes are not supported");
     }
     const transformFn = def.transform;
-    const helperFn = (value3) => {
-      const fakePayload = { value: value3, issues: [], addIssue: pushIssue };
-      const result = transformFn(value3, fakePayload);
+    const helperFn = (value2) => {
+      const fakePayload = { value: value2, issues: [], addIssue: pushIssue };
+      const result = transformFn(value2, fakePayload);
       if (result instanceof Promise)
         return INVALID;
       return fakePayload.issues.length === 0 ? result : INVALID;
@@ -21860,8 +21756,8 @@ function generateCustomCheck(doc, ctx, schema, accessor) {
   }
   return accessor;
 }
-function runtimeCatch(innerSchema, catchValue, value3) {
-  const result = innerSchema._zod.run({ value: value3, issues: [] }, {});
+function runtimeCatch(innerSchema, catchValue, value2) {
+  const result = innerSchema._zod.run({ value: value2, issues: [] }, {});
   if (result && typeof result.then === "function")
     return INVALID;
   const r = result;
@@ -21899,9 +21795,9 @@ function generateTransformCheck(doc, ctx, schema, accessor) {
       throw new ZodCompileAsyncError("z.compile: async transforms are not supported");
     }
     const transformFn = def.transform;
-    const helperFn = (value3) => {
-      const fakePayload = { value: value3, issues: [], addIssue: pushIssue };
-      const result = transformFn(value3, fakePayload);
+    const helperFn = (value2) => {
+      const fakePayload = { value: value2, issues: [], addIssue: pushIssue };
+      const result = transformFn(value2, fakePayload);
       if (result instanceof Promise)
         return INVALID;
       return fakePayload.issues.length === 0 ? result : INVALID;
@@ -22407,38 +22303,38 @@ function _nan(Class2, params) {
   });
 }
 // @__NO_SIDE_EFFECTS__
-function _lt(value3, params) {
+function _lt(value2, params) {
   return new $ZodCheckLessThan({
     check: "less_than",
     ...normalizeParams(params),
-    value: value3,
+    value: value2,
     inclusive: false
   });
 }
 // @__NO_SIDE_EFFECTS__
-function _lte(value3, params) {
+function _lte(value2, params) {
   return new $ZodCheckLessThan({
     check: "less_than",
     ...normalizeParams(params),
-    value: value3,
+    value: value2,
     inclusive: true
   });
 }
 // @__NO_SIDE_EFFECTS__
-function _gt(value3, params) {
+function _gt(value2, params) {
   return new $ZodCheckGreaterThan({
     check: "greater_than",
     ...normalizeParams(params),
-    value: value3,
+    value: value2,
     inclusive: false
   });
 }
 // @__NO_SIDE_EFFECTS__
-function _gte(value3, params) {
+function _gte(value2, params) {
   return new $ZodCheckGreaterThan({
     check: "greater_than",
     ...normalizeParams(params),
-    value: value3,
+    value: value2,
     inclusive: true
   });
 }
@@ -22459,11 +22355,11 @@ function _nonnegative(params) {
   return /* @__PURE__ */ _gte(0, params);
 }
 // @__NO_SIDE_EFFECTS__
-function _multipleOf(value3, params) {
+function _multipleOf(value2, params) {
   return new $ZodCheckMultipleOf({
     check: "multiple_of",
     ...normalizeParams(params),
-    value: value3
+    value: value2
   });
 }
 // @__NO_SIDE_EFFECTS__
@@ -22719,10 +22615,10 @@ function _nativeEnum(Class2, entries, params) {
   });
 }
 // @__NO_SIDE_EFFECTS__
-function _literal(Class2, value3, params) {
+function _literal(Class2, value2, params) {
   return new Class2({
     type: "literal",
-    values: Array.isArray(value3) ? value3 : [value3],
+    values: Array.isArray(value2) ? value2 : [value2],
     ...normalizeParams(params)
   });
 }
@@ -23010,13 +22906,13 @@ function initializeContext(params) {
     external: params?.external ?? void 0
   };
 }
-function handleUnrepresentable(schema, ctx, json3, params, message) {
+function handleUnrepresentable(schema, ctx, json2, params, message) {
   const result = typeof ctx.unrepresentable === "function" ? ctx.unrepresentable({ zodSchema: schema, path: params.path, message }) : ctx.unrepresentable;
   if (result === "any")
     return false;
   if (result === void 0 || result === "throw")
     throw new Error(message);
-  Object.assign(json3, result);
+  Object.assign(json2, result);
   return true;
 }
 function processSchema(schema, ctx, _params = { path: [], schemaPath: [] }) {
@@ -23252,12 +23148,12 @@ function foldObjects(members2) {
   }
   return folded;
 }
-function foldIntersection(json3) {
-  const allOf = json3.allOf;
+function foldIntersection(json2) {
+  const allOf = json2.allOf;
   if (!Array.isArray(allOf) || allOf.length < 2)
     return;
   for (const key of FOLDABLE_KEYS)
-    if (key in json3)
+    if (key in json2)
       return;
   const unions = allOf.filter((m) => UNION_KEYS.some((k) => Array.isArray(m[k])));
   let folded = null;
@@ -23276,8 +23172,8 @@ function foldIntersection(json3) {
   }
   if (!folded)
     return;
-  delete json3.allOf;
-  assignProps(json3, folded);
+  delete json2.allOf;
+  assignProps(json2, folded);
 }
 function finalize(ctx, schema) {
   const root = ctx.seen.get(schema);
@@ -23359,20 +23255,20 @@ function finalize(ctx, schema) {
     if (ctx.intersections.length) {
       const carriers = /* @__PURE__ */ new Map();
       for (const seen of ctx.seen.values()) {
-        for (const json3 of [seen.schema, seen.def]) {
-          const allOf = json3?.allOf;
+        for (const json2 of [seen.schema, seen.def]) {
+          const allOf = json2?.allOf;
           if (!Array.isArray(allOf))
             continue;
           const existing = carriers.get(allOf);
           if (existing)
-            existing.push(json3);
+            existing.push(json2);
           else
-            carriers.set(allOf, [json3]);
+            carriers.set(allOf, [json2]);
         }
       }
       for (const allOf of ctx.intersections) {
-        for (const json3 of carriers.get(allOf) ?? [])
-          foldIntersection(json3);
+        for (const json2 of carriers.get(allOf) ?? [])
+          foldIntersection(json2);
       }
     }
   }
@@ -23505,22 +23401,22 @@ var createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) =
 };
 
 // node_modules/zod/v4/core/json-schema-processors.js
-var narrowMin = (agg, key, value3) => {
-  if (agg[key] === void 0 || value3 > agg[key])
-    agg[key] = value3;
+var narrowMin = (agg, key, value2) => {
+  if (agg[key] === void 0 || value2 > agg[key])
+    agg[key] = value2;
 };
-var narrowMax = (agg, key, value3) => {
-  if (agg[key] === void 0 || value3 < agg[key])
-    agg[key] = value3;
+var narrowMax = (agg, key, value2) => {
+  if (agg[key] === void 0 || value2 < agg[key])
+    agg[key] = value2;
 };
-var narrowBoth = (agg, value3) => {
-  narrowMin(agg, "minimum", value3);
-  narrowMax(agg, "maximum", value3);
+var narrowBoth = (agg, value2) => {
+  narrowMin(agg, "minimum", value2);
+  narrowMax(agg, "maximum", value2);
 };
-var addDivisor = (agg, value3) => {
+var addDivisor = (agg, value2) => {
   agg.multipleOf ?? (agg.multipleOf = []);
-  if (!agg.multipleOf.includes(value3))
-    agg.multipleOf.push(value3);
+  if (!agg.multipleOf.includes(value2))
+    agg.multipleOf.push(value2);
 };
 var addPattern = (agg, pattern) => {
   agg.patterns ?? (agg.patterns = /* @__PURE__ */ new Set());
@@ -23568,8 +23464,8 @@ var contributors = {
 function aggregateChecks(schema) {
   const agg = {};
   const def = schema._zod.def;
-  const list3 = schema._zod.traits.has("$ZodCheck") ? [schema, ...def.checks ?? []] : def.checks ?? [];
-  for (const ch of list3)
+  const list2 = schema._zod.traits.has("$ZodCheck") ? [schema, ...def.checks ?? []] : def.checks ?? [];
+  for (const ch of list2)
     contributors[ch._zod.def.check]?.(agg, ch._zod.def);
   const bag = schema._zod.bag;
   if (bag.minimum !== void 0)
@@ -23607,29 +23503,29 @@ var exactPatterns = /* @__PURE__ */ new Map([
 ]);
 var exactPattern = (p2) => exactPatterns.get(p2) ?? p2;
 var stringProcessor = (schema, ctx, _json, _params) => {
-  const json3 = _json;
-  json3.type = "string";
+  const json2 = _json;
+  json2.type = "string";
   const { minimum, maximum, format, patterns, contentEncoding, laxFormat } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minLength = minimum;
+    json2.minLength = minimum;
   if (typeof maximum === "number")
-    json3.maxLength = maximum;
+    json2.maxLength = maximum;
   if (format) {
-    json3.format = formatMap[format] ?? format;
-    if (json3.format === "")
-      delete json3.format;
+    json2.format = formatMap[format] ?? format;
+    if (json2.format === "")
+      delete json2.format;
     if (format === "time" || laxFormat) {
-      delete json3.format;
+      delete json2.format;
     }
   }
   if (contentEncoding)
-    json3.contentEncoding = contentEncoding;
+    json2.contentEncoding = contentEncoding;
   if (patterns && patterns.size > 0) {
     const patternList = [...patterns].map(exactPattern);
     if (patternList.length === 1)
-      json3.pattern = patternList[0].source;
+      json2.pattern = patternList[0].source;
     else if (patternList.length > 1) {
-      json3.allOf = [
+      json2.allOf = [
         ...patternList.map((regex) => ({
           ...ctx.target === "draft-07" || ctx.target === "draft-04" || ctx.target === "openapi-3.0" ? { type: "string" } : {},
           pattern: regex.source
@@ -23639,31 +23535,31 @@ var stringProcessor = (schema, ctx, _json, _params) => {
   }
 };
 var numberProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json2 = _json;
   const { minimum, maximum, multipleOf, exclusiveMaximum, exclusiveMinimum, isInt } = aggregateChecks(schema);
-  json3.type = isInt ? "integer" : "number";
+  json2.type = isInt ? "integer" : "number";
   const exMin = typeof exclusiveMinimum === "number" && exclusiveMinimum >= (minimum ?? Number.NEGATIVE_INFINITY);
   const exMax = typeof exclusiveMaximum === "number" && exclusiveMaximum <= (maximum ?? Number.POSITIVE_INFINITY);
   const legacy = ctx.target === "draft-04" || ctx.target === "openapi-3.0";
   if (exMin) {
     if (legacy) {
-      json3.minimum = exclusiveMinimum;
-      json3.exclusiveMinimum = true;
+      json2.minimum = exclusiveMinimum;
+      json2.exclusiveMinimum = true;
     } else {
-      json3.exclusiveMinimum = exclusiveMinimum;
+      json2.exclusiveMinimum = exclusiveMinimum;
     }
   } else if (typeof minimum === "number") {
-    json3.minimum = minimum;
+    json2.minimum = minimum;
   }
   if (exMax) {
     if (legacy) {
-      json3.maximum = exclusiveMaximum;
-      json3.exclusiveMaximum = true;
+      json2.maximum = exclusiveMaximum;
+      json2.exclusiveMaximum = true;
     } else {
-      json3.exclusiveMaximum = exclusiveMaximum;
+      json2.exclusiveMaximum = exclusiveMaximum;
     }
   } else if (typeof maximum === "number") {
-    json3.maximum = maximum;
+    json2.maximum = maximum;
   }
   if (multipleOf) {
     const divisors = /* @__PURE__ */ new Set();
@@ -23671,75 +23567,75 @@ var numberProcessor = (schema, ctx, _json, params) => {
       if (Number.isFinite(divisor) && divisor !== 0)
         divisors.add(Math.abs(divisor));
       else
-        handleUnrepresentable(schema, ctx, json3, params, `A multipleOf divisor of ${divisor} cannot be represented in JSON Schema`);
+        handleUnrepresentable(schema, ctx, json2, params, `A multipleOf divisor of ${divisor} cannot be represented in JSON Schema`);
     }
     const [first, ...rest] = divisors;
     if (first !== void 0)
-      json3.multipleOf = first;
+      json2.multipleOf = first;
     if (rest.length)
-      json3.allOf = [...json3.allOf ?? [], ...rest.map((m) => ({ multipleOf: m }))];
+      json2.allOf = [...json2.allOf ?? [], ...rest.map((m) => ({ multipleOf: m }))];
   }
 };
-var booleanProcessor = (_schema, _ctx, json3, _params) => {
-  json3.type = "boolean";
+var booleanProcessor = (_schema, _ctx, json2, _params) => {
+  json2.type = "boolean";
 };
-var bigintProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "BigInt cannot be represented in JSON Schema");
+var bigintProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "BigInt cannot be represented in JSON Schema");
 };
-var symbolProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Symbols cannot be represented in JSON Schema");
+var symbolProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Symbols cannot be represented in JSON Schema");
 };
-var nullProcessor = (_schema, ctx, json3, _params) => {
+var nullProcessor = (_schema, ctx, json2, _params) => {
   if (ctx.target === "openapi-3.0") {
-    json3.type = "string";
-    json3.nullable = true;
-    json3.enum = [null];
+    json2.type = "string";
+    json2.nullable = true;
+    json2.enum = [null];
   } else {
-    json3.type = "null";
+    json2.type = "null";
   }
 };
-var undefinedProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Undefined cannot be represented in JSON Schema");
+var undefinedProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Undefined cannot be represented in JSON Schema");
 };
-var voidProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Void cannot be represented in JSON Schema");
+var voidProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Void cannot be represented in JSON Schema");
 };
-var neverProcessor = (_schema, _ctx, json3, _params) => {
-  json3.not = {};
+var neverProcessor = (_schema, _ctx, json2, _params) => {
+  json2.not = {};
 };
 var anyProcessor = (_schema, _ctx, _json, _params) => {
 };
 var unknownProcessor = (_schema, _ctx, _json, _params) => {
 };
-var dateProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Date cannot be represented in JSON Schema");
+var dateProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Date cannot be represented in JSON Schema");
 };
-var enumProcessor = (schema, _ctx, json3, _params) => {
+var enumProcessor = (schema, _ctx, json2, _params) => {
   const def = schema._zod.def;
   const values = getEnumValues(def.entries);
   if (values.length === 0) {
-    json3.not = {};
+    json2.not = {};
     return;
   }
   if (values.every((v) => typeof v === "number"))
-    json3.type = "number";
+    json2.type = "number";
   if (values.every((v) => typeof v === "string"))
-    json3.type = "string";
-  json3.enum = values;
+    json2.type = "string";
+  json2.enum = values;
 };
-var literalProcessor = (schema, ctx, json3, params) => {
+var literalProcessor = (schema, ctx, json2, params) => {
   const def = schema._zod.def;
   if (def.values.length === 0) {
-    json3.not = {};
+    json2.not = {};
     return;
   }
   const vals = [];
   for (const val of def.values) {
     if (val === void 0) {
-      if (handleUnrepresentable(schema, ctx, json3, params, "Literal `undefined` cannot be represented in JSON Schema"))
+      if (handleUnrepresentable(schema, ctx, json2, params, "Literal `undefined` cannot be represented in JSON Schema"))
         return;
     } else if (typeof val === "bigint") {
-      if (handleUnrepresentable(schema, ctx, json3, params, "BigInt literals cannot be represented in JSON Schema"))
+      if (handleUnrepresentable(schema, ctx, json2, params, "BigInt literals cannot be represented in JSON Schema"))
         return;
       vals.push(Number(val));
     } else {
@@ -23749,37 +23645,37 @@ var literalProcessor = (schema, ctx, json3, params) => {
   if (vals.length === 0) {
   } else if (vals.length === 1) {
     const val = vals[0];
-    json3.type = val === null ? "null" : typeof val;
+    json2.type = val === null ? "null" : typeof val;
     if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
-      json3.enum = [val];
+      json2.enum = [val];
     } else {
-      json3.const = val;
+      json2.const = val;
     }
   } else {
     if (vals.every((v) => typeof v === "number"))
-      json3.type = "number";
+      json2.type = "number";
     if (vals.every((v) => typeof v === "string"))
-      json3.type = "string";
+      json2.type = "string";
     if (vals.every((v) => typeof v === "boolean"))
-      json3.type = "boolean";
+      json2.type = "boolean";
     if (vals.every((v) => v === null))
-      json3.type = "null";
-    json3.enum = vals;
+      json2.type = "null";
+    json2.enum = vals;
   }
 };
-var nanProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "NaN cannot be represented in JSON Schema");
+var nanProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "NaN cannot be represented in JSON Schema");
 };
-var templateLiteralProcessor = (schema, _ctx, json3, _params) => {
-  const _json = json3;
+var templateLiteralProcessor = (schema, _ctx, json2, _params) => {
+  const _json = json2;
   const pattern = schema._zod.pattern;
   if (!pattern)
     throw new Error("Pattern not found in template literal");
   _json.type = "string";
   _json.pattern = pattern.source;
 };
-var fileProcessor = (schema, _ctx, json3, _params) => {
-  const _json = json3;
+var fileProcessor = (schema, _ctx, json2, _params) => {
+  const _json = json2;
   _json.type = "string";
   _json.format = "binary";
   _json.contentEncoding = "binary";
@@ -23797,34 +23693,34 @@ var fileProcessor = (schema, _ctx, json3, _params) => {
   else
     _json.anyOf = mime.map((m) => ({ contentMediaType: m }));
 };
-var successProcessor = (_schema, _ctx, json3, _params) => {
-  json3.type = "boolean";
+var successProcessor = (_schema, _ctx, json2, _params) => {
+  json2.type = "boolean";
 };
-var customProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Custom types cannot be represented in JSON Schema");
+var customProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Custom types cannot be represented in JSON Schema");
 };
-var functionProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Function types cannot be represented in JSON Schema");
+var functionProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Function types cannot be represented in JSON Schema");
 };
-var transformProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Transforms cannot be represented in JSON Schema");
+var transformProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Transforms cannot be represented in JSON Schema");
 };
-var mapProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Map cannot be represented in JSON Schema");
+var mapProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Map cannot be represented in JSON Schema");
 };
-var setProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Set cannot be represented in JSON Schema");
+var setProcessor = (schema, ctx, json2, params) => {
+  handleUnrepresentable(schema, ctx, json2, params, "Set cannot be represented in JSON Schema");
 };
 var arrayProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json2 = _json;
   const def = schema._zod.def;
   const { minimum, maximum } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minItems = minimum;
+    json2.minItems = minimum;
   if (typeof maximum === "number")
-    json3.maxItems = maximum;
-  json3.type = "array";
-  json3.items = processSchema(def.element, ctx, {
+    json2.maxItems = maximum;
+  json2.type = "array";
+  json2.items = processSchema(def.element, ctx, {
     ...params,
     path: [...params.path, "items"]
   });
@@ -23840,17 +23736,17 @@ function inputOptin(schema) {
   return schema._zod.optin;
 }
 var objectProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json2 = _json;
   const def = schema._zod.def;
   const shape = def.shape;
   const symbolKeys = Object.getOwnPropertySymbols(shape);
-  if (symbolKeys.length && handleUnrepresentable(schema, ctx, json3, params, "Symbol keys cannot be represented in JSON Schema")) {
+  if (symbolKeys.length && handleUnrepresentable(schema, ctx, json2, params, "Symbol keys cannot be represented in JSON Schema")) {
     return;
   }
-  json3.type = "object";
-  json3.properties = {};
+  json2.type = "object";
+  json2.properties = {};
   for (const key in shape) {
-    assignProp(json3.properties, key, processSchema(shape[key], ctx, {
+    assignProp(json2.properties, key, processSchema(shape[key], ctx, {
       ...params,
       path: [...params.path, "properties", key]
     }));
@@ -23863,21 +23759,21 @@ var objectProcessor = (schema, ctx, _json, params) => {
     }
   }
   if (requiredKeys.length > 0) {
-    json3.required = requiredKeys;
+    json2.required = requiredKeys;
   }
   if (def.catchall?._zod.def.type === "never") {
-    json3.additionalProperties = false;
+    json2.additionalProperties = false;
   } else if (!def.catchall) {
     if (ctx.io === "output")
-      json3.additionalProperties = false;
+      json2.additionalProperties = false;
   } else if (def.catchall) {
-    json3.additionalProperties = processSchema(def.catchall, ctx, {
+    json2.additionalProperties = processSchema(def.catchall, ctx, {
       ...params,
       path: [...params.path, "additionalProperties"]
     });
   }
 };
-var unionProcessor = (schema, ctx, json3, params) => {
+var unionProcessor = (schema, ctx, json2, params) => {
   const def = schema._zod.def;
   const isExclusive = def.inclusive === false;
   const options = def.options.map((x, i) => processSchema(x, ctx, {
@@ -23885,12 +23781,12 @@ var unionProcessor = (schema, ctx, json3, params) => {
     path: [...params.path, isExclusive ? "oneOf" : "anyOf", i]
   }));
   if (isExclusive) {
-    json3.oneOf = options;
+    json2.oneOf = options;
   } else {
-    json3.anyOf = options;
+    json2.anyOf = options;
   }
 };
-var intersectionProcessor = (schema, ctx, json3, params) => {
+var intersectionProcessor = (schema, ctx, json2, params) => {
   const def = schema._zod.def;
   const a = processSchema(def.left, ctx, {
     ...params,
@@ -23905,13 +23801,13 @@ var intersectionProcessor = (schema, ctx, json3, params) => {
     ...isSimpleIntersection(a) ? a.allOf : [a],
     ...isSimpleIntersection(b) ? b.allOf : [b]
   ];
-  json3.allOf = allOf;
+  json2.allOf = allOf;
   ctx.intersections.push(allOf);
 };
 var tupleProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json2 = _json;
   const def = schema._zod.def;
-  json3.type = "array";
+  json2.type = "array";
   const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
   const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
   const prefixItems = def.items.map((x, i) => processSchema(x, ctx, {
@@ -23933,70 +23829,70 @@ var tupleProcessor = (schema, ctx, _json, params) => {
   const maxItems = def.items.length;
   const isClosed = !def.rest;
   if (ctx.target === "draft-2020-12") {
-    json3.prefixItems = prefixItems;
+    json2.prefixItems = prefixItems;
     if (isClosed) {
-      json3.items = false;
+      json2.items = false;
     } else if (rest) {
-      json3.items = rest;
+      json2.items = rest;
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json2.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json2.maxItems = maxItems;
   } else if (ctx.target === "openapi-3.0") {
-    json3.items = {
+    json2.items = {
       anyOf: prefixItems
     };
     if (rest) {
-      json3.items.anyOf.push(rest);
+      json2.items.anyOf.push(rest);
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json2.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json2.maxItems = maxItems;
   } else {
-    json3.items = prefixItems;
+    json2.items = prefixItems;
     if (isClosed) {
-      json3.additionalItems = false;
+      json2.additionalItems = false;
     } else if (rest) {
-      json3.additionalItems = rest;
+      json2.additionalItems = rest;
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json2.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json2.maxItems = maxItems;
   }
   const { minimum, maximum } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minItems = minimum;
+    json2.minItems = minimum;
   if (typeof maximum === "number")
-    json3.maxItems = maximum;
+    json2.maxItems = maximum;
 };
-function stringifyKeyNames(bySchema, json3, visited) {
-  if (json3.$ref) {
-    if (visited.has(json3))
-      return json3;
-    visited.add(json3);
-    const def = bySchema.get(json3)?.def;
+function stringifyKeyNames(bySchema, json2, visited) {
+  if (json2.$ref) {
+    if (visited.has(json2))
+      return json2;
+    visited.add(json2);
+    const def = bySchema.get(json2)?.def;
     if (!def)
-      return json3;
+      return json2;
     const inlined = stringifyKeyNames(bySchema, def, visited);
-    return inlined === def ? json3 : inlined;
+    return inlined === def ? json2 : inlined;
   }
   for (const keyword of ["anyOf", "oneOf"]) {
-    const branches = json3[keyword];
+    const branches = json2[keyword];
     if (!Array.isArray(branches))
       continue;
     const mapped = branches.map((branch) => stringifyKeyNames(bySchema, branch, visited));
     if (mapped.some((branch, i) => branch !== branches[i]))
-      json3 = { ...json3, [keyword]: mapped };
+      json2 = { ...json2, [keyword]: mapped };
   }
-  const types = Array.isArray(json3.type) ? json3.type : [json3.type];
+  const types = Array.isArray(json2.type) ? json2.type : [json2.type];
   const numericType = !types.includes("string") && types.some((t) => t === "number" || t === "integer");
-  const values = json3.enum ?? (json3.const !== void 0 ? [json3.const] : void 0);
+  const values = json2.enum ?? (json2.const !== void 0 ? [json2.const] : void 0);
   if (!numericType && !values?.some((v) => typeof v === "number"))
-    return json3;
-  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format, id, ...rest } = json3;
+    return json2;
+  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format, id, ...rest } = json2;
   if (rest.enum)
     rest.enum = rest.enum.map((v) => typeof v === "number" ? String(v) : v);
   else if (typeof rest.const === "number")
@@ -24036,9 +23932,9 @@ function rewriteKeyNames(ctx) {
   }
 }
 var recordProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json2 = _json;
   const def = schema._zod.def;
-  json3.type = "object";
+  json2.type = "object";
   const keyType = def.keyType;
   const patterns = aggregateChecks(keyType).patterns;
   if (def.mode === "loose" && patterns && patterns.size > 0) {
@@ -24046,13 +23942,13 @@ var recordProcessor = (schema, ctx, _json, params) => {
       ...params,
       path: [...params.path, "patternProperties", "*"]
     });
-    json3.patternProperties = {};
+    json2.patternProperties = {};
     for (const pattern of patterns) {
-      assignProp(json3.patternProperties, exactPattern(pattern).source, valueSchema);
+      assignProp(json2.patternProperties, exactPattern(pattern).source, valueSchema);
     }
   } else {
     if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
-      json3.propertyNames = processSchema(def.keyType, ctx, {
+      json2.propertyNames = processSchema(def.keyType, ctx, {
         ...params,
         path: [...params.path, "propertyNames"]
       });
@@ -24064,7 +23960,7 @@ var recordProcessor = (schema, ctx, _json, params) => {
       }
       pending.push(schema);
     }
-    json3.additionalProperties = processSchema(def.valueType, ctx, {
+    json2.additionalProperties = processSchema(def.valueType, ctx, {
       ...params,
       path: [...params.path, "additionalProperties"]
     });
@@ -24074,19 +23970,19 @@ var recordProcessor = (schema, ctx, _json, params) => {
   if (keyValues && !def.partial && !omittableOnInput) {
     const validKeyValues = [...keyValues].filter((v) => typeof v === "string" || typeof v === "number");
     if (validKeyValues.length > 0) {
-      json3.required = validKeyValues.map(String);
+      json2.required = validKeyValues.map(String);
     }
   }
 };
-var nullableProcessor = (schema, ctx, json3, params) => {
+var nullableProcessor = (schema, ctx, json2, params) => {
   const def = schema._zod.def;
   const inner = processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   if (ctx.target === "openapi-3.0") {
     seen.ref = def.innerType;
-    json3.nullable = true;
+    json2.nullable = true;
   } else {
-    json3.anyOf = [inner, { type: "null" }];
+    json2.anyOf = [inner, { type: "null" }];
   }
 };
 var nonoptionalProcessor = (schema, ctx, _json, params) => {
@@ -24096,9 +23992,9 @@ var nonoptionalProcessor = (schema, ctx, _json, params) => {
   seen.ref = def.innerType;
 };
 var UNREPRESENTABLE_DEFAULT = /* @__PURE__ */ Symbol();
-function serializeDefaultValue(value3, schema, ctx, json3, params) {
+function serializeDefaultValue(value2, schema, ctx, json2, params) {
   let unrepresentable = false;
-  const serialized = JSON.stringify(value3, (_, val) => {
+  const serialized = JSON.stringify(value2, (_, val) => {
     if (typeof val !== "bigint")
       return val;
     unrepresentable = true;
@@ -24106,30 +24002,30 @@ function serializeDefaultValue(value3, schema, ctx, json3, params) {
   });
   if (!unrepresentable)
     return JSON.parse(serialized);
-  handleUnrepresentable(schema, ctx, json3, params, "BigInt defaults cannot be represented in JSON Schema");
+  handleUnrepresentable(schema, ctx, json2, params, "BigInt defaults cannot be represented in JSON Schema");
   return UNREPRESENTABLE_DEFAULT;
 }
-var defaultProcessor = (schema, ctx, json3, params) => {
+var defaultProcessor = (schema, ctx, json2, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   seen.ref = def.innerType;
-  const value3 = serializeDefaultValue(def.defaultValue, schema, ctx, json3, params);
-  if (value3 !== UNREPRESENTABLE_DEFAULT)
-    json3.default = value3;
+  const value2 = serializeDefaultValue(def.defaultValue, schema, ctx, json2, params);
+  if (value2 !== UNREPRESENTABLE_DEFAULT)
+    json2.default = value2;
 };
-var prefaultProcessor = (schema, ctx, json3, params) => {
+var prefaultProcessor = (schema, ctx, json2, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   seen.ref = def.innerType;
   if (ctx.io !== "input")
     return;
-  const value3 = serializeDefaultValue(def.defaultValue, schema, ctx, json3, params);
-  if (value3 !== UNREPRESENTABLE_DEFAULT)
-    json3._prefault = value3;
+  const value2 = serializeDefaultValue(def.defaultValue, schema, ctx, json2, params);
+  if (value2 !== UNREPRESENTABLE_DEFAULT)
+    json2._prefault = value2;
 };
-var catchProcessor = (schema, ctx, json3, params) => {
+var catchProcessor = (schema, ctx, json2, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
@@ -24138,10 +24034,10 @@ var catchProcessor = (schema, ctx, json3, params) => {
   try {
     catchValue = def.catchValue(void 0);
   } catch {
-    handleUnrepresentable(schema, ctx, json3, params, "Dynamic catch values are not supported in JSON Schema");
+    handleUnrepresentable(schema, ctx, json2, params, "Dynamic catch values are not supported in JSON Schema");
     return;
   }
-  json3.default = catchValue;
+  json2.default = catchValue;
 };
 var pipeProcessor = (schema, ctx, _json, params) => {
   const def = schema._zod.def;
@@ -24151,12 +24047,12 @@ var pipeProcessor = (schema, ctx, _json, params) => {
   const seen = ctx.seen.get(schema);
   seen.ref = innerType;
 };
-var readonlyProcessor = (schema, ctx, json3, params) => {
+var readonlyProcessor = (schema, ctx, json2, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   seen.ref = def.innerType;
-  json3.readOnly = true;
+  json2.readOnly = true;
 };
 var promiseProcessor = (schema, ctx, _json, params) => {
   const def = schema._zod.def;
@@ -24279,8 +24175,8 @@ var JSONSchemaGenerator = class {
   get counter() {
     return this.ctx.counter;
   }
-  set counter(value3) {
-    this.ctx.counter = value3;
+  set counter(value2) {
+    this.ctx.counter = value2;
   }
   /** @deprecated Access via ctx instead */
   get seen() {
@@ -24556,12 +24452,12 @@ function _lazyMethod(proto, key, make) {
     configurable: true,
     enumerable: false,
     get() {
-      const value3 = make(this);
-      Object.defineProperty(this, key, { value: value3, configurable: true, writable: true });
-      return value3;
+      const value2 = make(this);
+      Object.defineProperty(this, key, { value: value2, configurable: true, writable: true });
+      return value2;
     },
-    set(value3) {
-      Object.defineProperty(this, key, { value: value3, configurable: true, writable: true });
+    set(value2) {
+      Object.defineProperty(this, key, { value: value2, configurable: true, writable: true });
     }
   });
 }
@@ -24729,8 +24625,8 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
       }
     });
   },
-  set "~standard"(value3) {
-    util_exports.own(this, "~standard", value3);
+  set "~standard"(value2) {
+    util_exports.own(this, "~standard", value2);
   },
   parse: function _parse2(data, params) {
     return parse2(this, data, params, { callee: _parse2 });
@@ -24748,8 +24644,8 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
   get spa() {
     return this?.safeParseAsync;
   },
-  set spa(value3) {
-    util_exports.own(this, "spa", value3);
+  set spa(value2) {
+    util_exports.own(this, "spa", value2);
   },
   validate(data, params) {
     return validate(this, data, params);
@@ -24798,7 +24694,7 @@ var _ZodString = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodString.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => stringProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json2, params) => stringProcessor(inst, ctx, json2, params);
   },
   /* @__PURE__ */ util_exports.derived({
     format: (inst) => aggregateChecks(inst).format ?? null,
@@ -25157,7 +25053,7 @@ var ZodNumber = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodNumber.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => numberProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json2, params) => numberProcessor(inst, ctx, json2, params);
     inst.isFinite = true;
   },
   /* @__PURE__ */ util_exports.derived({
@@ -25175,23 +25071,23 @@ var ZodNumber = /* @__PURE__ */ $constructor(
     },
     format: (inst) => aggregateChecks(inst).format ?? null
   }, {
-    gt(value3, params) {
-      return this.check(_gt(value3, params));
+    gt(value2, params) {
+      return this.check(_gt(value2, params));
     },
-    gte(value3, params) {
-      return this.check(_gte(value3, params));
+    gte(value2, params) {
+      return this.check(_gte(value2, params));
     },
-    min(value3, params) {
-      return this.check(_gte(value3, params));
+    min(value2, params) {
+      return this.check(_gte(value2, params));
     },
-    lt(value3, params) {
-      return this.check(_lt(value3, params));
+    lt(value2, params) {
+      return this.check(_lt(value2, params));
     },
-    lte(value3, params) {
-      return this.check(_lte(value3, params));
+    lte(value2, params) {
+      return this.check(_lte(value2, params));
     },
-    max(value3, params) {
-      return this.check(_lte(value3, params));
+    max(value2, params) {
+      return this.check(_lte(value2, params));
     },
     int(params) {
       return this.check(int(params));
@@ -25211,11 +25107,11 @@ var ZodNumber = /* @__PURE__ */ $constructor(
     nonpositive(params) {
       return this.check(_lte(0, params));
     },
-    multipleOf(value3, params) {
-      return this.check(_multipleOf(value3, params));
+    multipleOf(value2, params) {
+      return this.check(_multipleOf(value2, params));
     },
-    step(value3, params) {
-      return this.check(_multipleOf(value3, params));
+    step(value2, params) {
+      return this.check(_multipleOf(value2, params));
     },
     finite() {
       return this;
@@ -25247,7 +25143,7 @@ function uint32(params) {
 var ZodBoolean = /* @__PURE__ */ $constructor("ZodBoolean", (inst, def) => {
   $ZodBoolean.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => booleanProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => booleanProcessor(inst, ctx, json2, params);
 });
 function boolean2(params) {
   return _boolean(ZodBoolean, params);
@@ -25257,30 +25153,30 @@ var ZodBigInt = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodBigInt.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => bigintProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json2, params) => bigintProcessor(inst, ctx, json2, params);
   },
   /* @__PURE__ */ util_exports.derived({
     minValue: (inst) => aggregateChecks(inst).minimum ?? null,
     maxValue: (inst) => aggregateChecks(inst).maximum ?? null,
     format: (inst) => aggregateChecks(inst).format ?? null
   }, {
-    gte(value3, params) {
-      return this.check(_gte(value3, params));
+    gte(value2, params) {
+      return this.check(_gte(value2, params));
     },
-    min(value3, params) {
-      return this.check(_gte(value3, params));
+    min(value2, params) {
+      return this.check(_gte(value2, params));
     },
-    gt(value3, params) {
-      return this.check(_gt(value3, params));
+    gt(value2, params) {
+      return this.check(_gt(value2, params));
     },
-    lt(value3, params) {
-      return this.check(_lt(value3, params));
+    lt(value2, params) {
+      return this.check(_lt(value2, params));
     },
-    lte(value3, params) {
-      return this.check(_lte(value3, params));
+    lte(value2, params) {
+      return this.check(_lte(value2, params));
     },
-    max(value3, params) {
-      return this.check(_lte(value3, params));
+    max(value2, params) {
+      return this.check(_lte(value2, params));
     },
     positive(params) {
       return this.check(_gt(BigInt(0), params));
@@ -25294,8 +25190,8 @@ var ZodBigInt = /* @__PURE__ */ $constructor(
     nonnegative(params) {
       return this.check(_gte(BigInt(0), params));
     },
-    multipleOf(value3, params) {
-      return this.check(_multipleOf(value3, params));
+    multipleOf(value2, params) {
+      return this.check(_multipleOf(value2, params));
     }
   })
 );
@@ -25315,7 +25211,7 @@ function uint64(params) {
 var ZodSymbol = /* @__PURE__ */ $constructor("ZodSymbol", (inst, def) => {
   $ZodSymbol.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => symbolProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => symbolProcessor(inst, ctx, json2, params);
 });
 function symbol(params) {
   return _symbol(ZodSymbol, params);
@@ -25323,7 +25219,7 @@ function symbol(params) {
 var ZodUndefined = /* @__PURE__ */ $constructor("ZodUndefined", (inst, def) => {
   $ZodUndefined.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => undefinedProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => undefinedProcessor(inst, ctx, json2, params);
 });
 function _undefined3(params) {
   return _undefined2(ZodUndefined, params);
@@ -25331,7 +25227,7 @@ function _undefined3(params) {
 var ZodNull = /* @__PURE__ */ $constructor("ZodNull", (inst, def) => {
   $ZodNull.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nullProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => nullProcessor(inst, ctx, json2, params);
 });
 function _null3(params) {
   return _null2(ZodNull, params);
@@ -25339,7 +25235,7 @@ function _null3(params) {
 var ZodAny = /* @__PURE__ */ $constructor("ZodAny", (inst, def) => {
   $ZodAny.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => anyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => anyProcessor(inst, ctx, json2, params);
 });
 function any() {
   return _any(ZodAny);
@@ -25347,7 +25243,7 @@ function any() {
 var ZodUnknown = /* @__PURE__ */ $constructor("ZodUnknown", (inst, def) => {
   $ZodUnknown.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unknownProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => unknownProcessor(inst, ctx, json2, params);
 });
 function unknown() {
   return _unknown(ZodUnknown);
@@ -25355,7 +25251,7 @@ function unknown() {
 var ZodNever = /* @__PURE__ */ $constructor("ZodNever", (inst, def) => {
   $ZodNever.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => neverProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => neverProcessor(inst, ctx, json2, params);
 });
 function never(params) {
   return _never(ZodNever, params);
@@ -25363,7 +25259,7 @@ function never(params) {
 var ZodVoid = /* @__PURE__ */ $constructor("ZodVoid", (inst, def) => {
   $ZodVoid.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => voidProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => voidProcessor(inst, ctx, json2, params);
 });
 function _void2(params) {
   return _void(ZodVoid, params);
@@ -25373,9 +25269,9 @@ var ZodDate = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodDate.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => dateProcessor(inst, ctx, json3, params);
-    inst.min = (value3, params) => inst.check(_gte(value3, params));
-    inst.max = (value3, params) => inst.check(_lte(value3, params));
+    inst._zod.processJSONSchema = (ctx, json2, params) => dateProcessor(inst, ctx, json2, params);
+    inst.min = (value2, params) => inst.check(_gte(value2, params));
+    inst.max = (value2, params) => inst.check(_lte(value2, params));
   },
   /* @__PURE__ */ util_exports.derived({
     minDate: (inst) => {
@@ -25395,7 +25291,7 @@ var ZodArray = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodArray.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => arrayProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => arrayProcessor(inst, ctx, json2, params);
   inst.element = def.element;
 }, {
   min(n, params) {
@@ -25425,7 +25321,7 @@ var ZodObject = /* @__PURE__ */ $constructor("ZodObject", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodObjectJIT.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => objectProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => objectProcessor(inst, ctx, json2, params);
   util_exports.installLazyProp(inst, "shape", (self) => self._zod.def.shape, false);
 }, {
   keyof() {
@@ -25498,7 +25394,7 @@ function looseObject(shape, params) {
 var ZodUnion = /* @__PURE__ */ $constructor("ZodUnion", (inst, def) => {
   $ZodUnion.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => unionProcessor(inst, ctx, json2, params);
   inst.options = def.options;
 });
 function union(options, params) {
@@ -25511,7 +25407,7 @@ function union(options, params) {
 var ZodXor = /* @__PURE__ */ $constructor("ZodXor", (inst, def) => {
   ZodUnion.init(inst, def);
   $ZodXor.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => unionProcessor(inst, ctx, json2, params);
   inst.options = def.options;
 });
 function xor(options, params) {
@@ -25537,7 +25433,7 @@ function discriminatedUnion(discriminator, options, params) {
 var ZodIntersection = /* @__PURE__ */ $constructor("ZodIntersection", (inst, def) => {
   $ZodIntersection.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => intersectionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => intersectionProcessor(inst, ctx, json2, params);
 });
 function intersection(left, right) {
   return new ZodIntersection({
@@ -25550,7 +25446,7 @@ var ZodTuple = /* @__PURE__ */ $constructor("ZodTuple", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodTuple.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => tupleProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => tupleProcessor(inst, ctx, json2, params);
 }, {
   rest(rest) {
     return this.clone({
@@ -25583,7 +25479,7 @@ var ZodRecord = /* @__PURE__ */ $constructor("ZodRecord", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodRecord.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => recordProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => recordProcessor(inst, ctx, json2, params);
   inst.keyType = def.keyType;
   inst.valueType = def.valueType;
 });
@@ -25625,7 +25521,7 @@ var ZodMap = /* @__PURE__ */ $constructor("ZodMap", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodMap.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => mapProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => mapProcessor(inst, ctx, json2, params);
   inst.keyType = def.keyType;
   inst.valueType = def.valueType;
   inst.min = (...args) => inst.check(_minSize(...args));
@@ -25645,7 +25541,7 @@ var ZodSet = /* @__PURE__ */ $constructor("ZodSet", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodSet.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => setProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => setProcessor(inst, ctx, json2, params);
   inst.min = (...args) => inst.check(_minSize(...args));
   inst.nonempty = (params) => inst.check(_minSize(1, params));
   inst.max = (...args) => inst.check(_maxSize(...args));
@@ -25661,17 +25557,17 @@ function set(valueType, params) {
 var ZodEnum = /* @__PURE__ */ $constructor("ZodEnum", (inst, def) => {
   $ZodEnum.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => enumProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => enumProcessor(inst, ctx, json2, params);
   inst.enum = def.entries;
   inst.options = [...inst._zod.values];
   const keys = new Set(Object.keys(def.entries));
   inst.extract = (values, params) => {
     const newEntries = {};
-    for (const value3 of values) {
-      if (keys.has(value3)) {
-        newEntries[value3] = def.entries[value3];
+    for (const value2 of values) {
+      if (keys.has(value2)) {
+        newEntries[value2] = def.entries[value2];
       } else
-        throw new Error(`Key ${value3} not found in enum`);
+        throw new Error(`Key ${value2} not found in enum`);
     }
     return new ZodEnum({
       ...def,
@@ -25682,11 +25578,11 @@ var ZodEnum = /* @__PURE__ */ $constructor("ZodEnum", (inst, def) => {
   };
   inst.exclude = (values, params) => {
     const newEntries = { ...def.entries };
-    for (const value3 of values) {
-      if (keys.has(value3)) {
-        delete newEntries[value3];
+    for (const value2 of values) {
+      if (keys.has(value2)) {
+        delete newEntries[value2];
       } else
-        throw new Error(`Key ${value3} not found in enum`);
+        throw new Error(`Key ${value2} not found in enum`);
     }
     return new ZodEnum({
       ...def,
@@ -25714,7 +25610,7 @@ function nativeEnum(entries, params) {
 var ZodLiteral = /* @__PURE__ */ $constructor("ZodLiteral", (inst, def) => {
   $ZodLiteral.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => literalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => literalProcessor(inst, ctx, json2, params);
   inst.values = new Set(def.values);
   Object.defineProperty(inst, "value", {
     get() {
@@ -25725,17 +25621,17 @@ var ZodLiteral = /* @__PURE__ */ $constructor("ZodLiteral", (inst, def) => {
     }
   });
 });
-function literal(value3, params) {
+function literal(value2, params) {
   return new ZodLiteral({
     type: "literal",
-    values: Array.isArray(value3) ? value3 : [value3],
+    values: Array.isArray(value2) ? value2 : [value2],
     ...util_exports.normalizeParams(params)
   });
 }
 var ZodFile = /* @__PURE__ */ $constructor("ZodFile", (inst, def) => {
   $ZodFile.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => fileProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => fileProcessor(inst, ctx, json2, params);
   inst.min = (size, params) => inst.check(_minSize(size, params));
   inst.max = (size, params) => inst.check(_maxSize(size, params));
   inst.mime = (types, params) => inst.check(_mime(Array.isArray(types) ? types : [types], params));
@@ -25747,7 +25643,7 @@ var ZodTransform = /* @__PURE__ */ $constructor("ZodTransform", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodTransform.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => transformProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => transformProcessor(inst, ctx, json2, params);
   inst._zod.parse = (payload, _ctx) => {
     if (_ctx.direction === "backward") {
       throw new $ZodEncodeError(inst.constructor.name);
@@ -25786,7 +25682,7 @@ function transform(fn) {
 var ZodOptional = /* @__PURE__ */ $constructor("ZodOptional", (inst, def) => {
   $ZodOptional.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => optionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => optionalProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function optional(innerType) {
@@ -25798,7 +25694,7 @@ function optional(innerType) {
 var ZodExactOptional = /* @__PURE__ */ $constructor("ZodExactOptional", (inst, def) => {
   $ZodExactOptional.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => optionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => optionalProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function exactOptional(innerType) {
@@ -25810,7 +25706,7 @@ function exactOptional(innerType) {
 var ZodNullable = /* @__PURE__ */ $constructor("ZodNullable", (inst, def) => {
   $ZodNullable.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nullableProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => nullableProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function nullable(innerType) {
@@ -25825,7 +25721,7 @@ function nullish2(innerType) {
 var ZodDefault = /* @__PURE__ */ $constructor("ZodDefault", (inst, def) => {
   $ZodDefault.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => defaultProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => defaultProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
   inst.removeDefault = inst.unwrap;
 });
@@ -25841,7 +25737,7 @@ function _default2(innerType, defaultValue) {
 var ZodPrefault = /* @__PURE__ */ $constructor("ZodPrefault", (inst, def) => {
   $ZodPrefault.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => prefaultProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => prefaultProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function prefault(innerType, defaultValue) {
@@ -25856,7 +25752,7 @@ function prefault(innerType, defaultValue) {
 var ZodNonOptional = /* @__PURE__ */ $constructor("ZodNonOptional", (inst, def) => {
   $ZodNonOptional.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nonoptionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => nonoptionalProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function nonoptional(innerType, params) {
@@ -25869,7 +25765,7 @@ function nonoptional(innerType, params) {
 var ZodSuccess = /* @__PURE__ */ $constructor("ZodSuccess", (inst, def) => {
   $ZodSuccess.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => successProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => successProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function success(innerType) {
@@ -25881,7 +25777,7 @@ function success(innerType) {
 var ZodCatch = /* @__PURE__ */ $constructor("ZodCatch", (inst, def) => {
   $ZodCatch.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => catchProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => catchProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
   inst.removeCatch = inst.unwrap;
 });
@@ -25895,7 +25791,7 @@ function _catch2(innerType, catchValue) {
 var ZodNaN = /* @__PURE__ */ $constructor("ZodNaN", (inst, def) => {
   $ZodNaN.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nanProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => nanProcessor(inst, ctx, json2, params);
 });
 function nan(params) {
   return _nan(ZodNaN, params);
@@ -25903,7 +25799,7 @@ function nan(params) {
 var ZodPipe = /* @__PURE__ */ $constructor("ZodPipe", (inst, def) => {
   $ZodPipe.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => pipeProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => pipeProcessor(inst, ctx, json2, params);
   inst.in = def.in;
   inst.out = def.out;
 });
@@ -25945,7 +25841,7 @@ var ZodPreprocess = /* @__PURE__ */ $constructor("ZodPreprocess", (inst, def) =>
 var ZodReadonly = /* @__PURE__ */ $constructor("ZodReadonly", (inst, def) => {
   $ZodReadonly.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => readonlyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => readonlyProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function readonly(innerType) {
@@ -25957,7 +25853,7 @@ function readonly(innerType) {
 var ZodTemplateLiteral = /* @__PURE__ */ $constructor("ZodTemplateLiteral", (inst, def) => {
   $ZodTemplateLiteral.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => templateLiteralProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => templateLiteralProcessor(inst, ctx, json2, params);
 });
 function templateLiteral(parts, params) {
   return new ZodTemplateLiteral({
@@ -25969,7 +25865,7 @@ function templateLiteral(parts, params) {
 var ZodLazy = /* @__PURE__ */ $constructor("ZodLazy", (inst, def) => {
   $ZodLazy.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => lazyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => lazyProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.getter();
 });
 function lazy(getter) {
@@ -25981,7 +25877,7 @@ function lazy(getter) {
 var ZodPromise = /* @__PURE__ */ $constructor("ZodPromise", (inst, def) => {
   $ZodPromise.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => promiseProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => promiseProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function promise(innerType) {
@@ -25993,7 +25889,7 @@ function promise(innerType) {
 var ZodFunction = /* @__PURE__ */ $constructor("ZodFunction", (inst, def) => {
   $ZodFunction.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => functionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => functionProcessor(inst, ctx, json2, params);
 });
 function _function(params) {
   return new ZodFunction({
@@ -26005,7 +25901,7 @@ function _function(params) {
 var ZodCustom = /* @__PURE__ */ $constructor("ZodCustom", (inst, def) => {
   $ZodCustom.init(inst, def);
   ZodType.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => customProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json2, params) => customProcessor(inst, ctx, json2, params);
 });
 function check(fn) {
   const ch = new $ZodCheck({
@@ -26240,11 +26136,11 @@ function resolveRef(ref, ctx) {
   throw new Error(`Reference not found: ${ref}`);
 }
 function checkObjectGuards(objectSchema, guards) {
-  const guard = z.transform((value3) => value3).check((payload) => {
-    const value3 = payload.value;
-    if (typeof value3 !== "object" || value3 === null || Array.isArray(value3))
+  const guard = z.transform((value2) => value2).check((payload) => {
+    const value2 = payload.value;
+    if (typeof value2 !== "object" || value2 === null || Array.isArray(value2))
       return;
-    const keys = Object.getOwnPropertyNames(value3);
+    const keys = Object.getOwnPropertyNames(value2);
     if (guards.minProperties !== void 0 && keys.length < guards.minProperties) {
       payload.issues.push({
         origin: "object",
@@ -26252,7 +26148,7 @@ function checkObjectGuards(objectSchema, guards) {
         minimum: guards.minProperties,
         inclusive: true,
         message: `Too small: expected object to have >=${guards.minProperties} properties`,
-        input: value3,
+        input: value2,
         inst: objectSchema,
         continue: true
       });
@@ -26264,7 +26160,7 @@ function checkObjectGuards(objectSchema, guards) {
         maximum: guards.maxProperties,
         inclusive: true,
         message: `Too big: expected object to have <=${guards.maxProperties} properties`,
-        input: value3,
+        input: value2,
         inst: objectSchema,
         continue: true
       });
@@ -26287,23 +26183,23 @@ function checkObjectGuards(objectSchema, guards) {
   });
   return guard.pipe(objectSchema);
 }
-function canonicalKey(value3, seen) {
-  if (value3 === null)
+function canonicalKey(value2, seen) {
+  if (value2 === null)
     return "z";
-  const type = typeof value3;
+  const type = typeof value2;
   if (type !== "object") {
-    if (type === "number" && Number.isNaN(value3))
+    if (type === "number" && Number.isNaN(value2))
       return null;
-    const raw = String(value3);
+    const raw = String(value2);
     return `${type[0]}${raw.length}:${raw}`;
   }
-  if (seen.has(value3))
+  if (seen.has(value2))
     return null;
-  seen.add(value3);
+  seen.add(value2);
   try {
-    if (Array.isArray(value3)) {
+    if (Array.isArray(value2)) {
       const parts2 = [];
-      for (const item of value3) {
+      for (const item of value2) {
         const key = canonicalKey(item, seen);
         if (key === null)
           return null;
@@ -26311,17 +26207,17 @@ function canonicalKey(value3, seen) {
       }
       return `a${parts2.length}:[${parts2.join(",")}]`;
     }
-    const keys = Object.keys(value3).sort();
+    const keys = Object.keys(value2).sort();
     const parts = [];
     for (const k of keys) {
-      const key = canonicalKey(value3[k], seen);
+      const key = canonicalKey(value2[k], seen);
       if (key === null)
         return null;
       parts.push(`${k.length}:${k}=${key}`);
     }
     return `o${parts.length}:{${parts.join(",")}}`;
   } finally {
-    seen.delete(value3);
+    seen.delete(value2);
   }
 }
 var SCHEMA_KEYWORDS = /* @__PURE__ */ new Set([
@@ -26350,14 +26246,14 @@ var SCHEMA_MAP_KEYWORDS = /* @__PURE__ */ new Set([
   "$defs",
   "definitions"
 ]);
-function containsRef(value3) {
-  if (typeof value3 !== "object" || value3 === null)
+function containsRef(value2) {
+  if (typeof value2 !== "object" || value2 === null)
     return false;
-  if (Array.isArray(value3))
-    return value3.some(containsRef);
-  if (typeof value3.$ref === "string")
+  if (Array.isArray(value2))
+    return value2.some(containsRef);
+  if (typeof value2.$ref === "string")
     return true;
-  return Object.entries(value3).some(([key, sub]) => {
+  return Object.entries(value2).some(([key, sub]) => {
     if (SCHEMA_KEYWORDS.has(key))
       return containsRef(sub);
     if (!SCHEMA_MAP_KEYWORDS.has(key) || typeof sub !== "object" || sub === null)
@@ -26369,7 +26265,7 @@ function plural(n) {
   return n === 1 ? "element" : "elements";
 }
 function checkArrayGuards(arraySchema, guards) {
-  const guard = z.transform((value3) => value3).check((payload) => {
+  const guard = z.transform((value2) => value2).check((payload) => {
     const items = payload.value;
     if (!Array.isArray(items))
       return;
@@ -27082,7 +26978,6 @@ function date4(params) {
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/types.js
 var LATEST_PROTOCOL_VERSION = "2025-11-25";
-var DEFAULT_NEGOTIATED_PROTOCOL_VERSION = "2025-03-26";
 var SUPPORTED_PROTOCOL_VERSIONS = [LATEST_PROTOCOL_VERSION, "2025-06-18", "2025-03-26", "2024-11-05", "2024-10-07"];
 var RELATED_TASK_META_KEY = "io.modelcontextprotocol/related-task";
 var JSONRPC_VERSION = "2.0";
@@ -27132,7 +27027,7 @@ var TaskAugmentedRequestParamsSchema = BaseRequestParamsSchema.extend({
    */
   task: TaskMetadataSchema.optional()
 });
-var isTaskAugmentedRequestParams = (value3) => TaskAugmentedRequestParamsSchema.safeParse(value3).success;
+var isTaskAugmentedRequestParams = (value2) => TaskAugmentedRequestParamsSchema.safeParse(value2).success;
 var RequestSchema = object({
   method: string2(),
   params: BaseRequestParamsSchema.loose().optional()
@@ -27161,18 +27056,18 @@ var JSONRPCRequestSchema = object({
   id: RequestIdSchema,
   ...RequestSchema.shape
 }).strict();
-var isJSONRPCRequest = (value3) => JSONRPCRequestSchema.safeParse(value3).success;
+var isJSONRPCRequest = (value2) => JSONRPCRequestSchema.safeParse(value2).success;
 var JSONRPCNotificationSchema = object({
   jsonrpc: literal(JSONRPC_VERSION),
   ...NotificationSchema.shape
 }).strict();
-var isJSONRPCNotification = (value3) => JSONRPCNotificationSchema.safeParse(value3).success;
+var isJSONRPCNotification = (value2) => JSONRPCNotificationSchema.safeParse(value2).success;
 var JSONRPCResultResponseSchema = object({
   jsonrpc: literal(JSONRPC_VERSION),
   id: RequestIdSchema,
   result: ResultSchema
 }).strict();
-var isJSONRPCResultResponse = (value3) => JSONRPCResultResponseSchema.safeParse(value3).success;
+var isJSONRPCResultResponse = (value2) => JSONRPCResultResponseSchema.safeParse(value2).success;
 var ErrorCode;
 (function(ErrorCode2) {
   ErrorCode2[ErrorCode2["ConnectionClosed"] = -32e3] = "ConnectionClosed";
@@ -27202,7 +27097,7 @@ var JSONRPCErrorResponseSchema = object({
     data: unknown().optional()
   })
 }).strict();
-var isJSONRPCErrorResponse = (value3) => JSONRPCErrorResponseSchema.safeParse(value3).success;
+var isJSONRPCErrorResponse = (value2) => JSONRPCErrorResponseSchema.safeParse(value2).success;
 var JSONRPCMessageSchema = union([
   JSONRPCRequestSchema,
   JSONRPCNotificationSchema,
@@ -27299,13 +27194,13 @@ var ImplementationSchema = BaseMetadataSchema.extend({
 var FormElicitationCapabilitySchema = intersection(object({
   applyDefaults: boolean2().optional()
 }), record(string2(), unknown()));
-var ElicitationCapabilitySchema = preprocess((value3) => {
-  if (value3 && typeof value3 === "object" && !Array.isArray(value3)) {
-    if (Object.keys(value3).length === 0) {
+var ElicitationCapabilitySchema = preprocess((value2) => {
+  if (value2 && typeof value2 === "object" && !Array.isArray(value2)) {
+    if (Object.keys(value2).length === 0) {
       return { form: {} };
     }
   }
-  return value3;
+  return value2;
 }, intersection(object({
   form: FormElicitationCapabilitySchema.optional(),
   url: AssertObjectSchema.optional()
@@ -27411,7 +27306,6 @@ var InitializeRequestSchema = RequestSchema.extend({
   method: literal("initialize"),
   params: InitializeRequestParamsSchema
 });
-var isInitializeRequest = (value3) => InitializeRequestSchema.safeParse(value3).success;
 var ServerCapabilitiesSchema = object({
   /**
    * Experimental, non-standard capabilities that the server supports.
@@ -28707,8 +28601,8 @@ var StdioServerTransport = class {
   }
   send(message) {
     return new Promise((resolve) => {
-      const json3 = serializeMessage(message);
-      if (this._stdout.write(json3)) {
+      const json2 = serializeMessage(message);
+      if (this._stdout.write(json2)) {
         resolve();
       } else {
         this._stdout.once("drain", resolve);
@@ -28978,10 +28872,10 @@ function parseEnvFile(text) {
     const m = /^(?:export\s+)?([A-Z0-9_]+)\s*=\s*(.*)$/.exec(line);
     if (!m || !m[1]?.startsWith(`${ENV_PREFIX}_`))
       continue;
-    let value3 = (m[2] ?? "").trim();
-    if (value3.startsWith('"') && value3.endsWith('"') || value3.startsWith("'") && value3.endsWith("'"))
-      value3 = value3.slice(1, -1);
-    out[m[1]] = value3;
+    let value2 = (m[2] ?? "").trim();
+    if (value2.startsWith('"') && value2.endsWith('"') || value2.startsWith("'") && value2.endsWith("'"))
+      value2 = value2.slice(1, -1);
+    out[m[1]] = value2;
   }
   return out;
 }
@@ -29001,9 +28895,9 @@ function applyEnvFile(env = process.env) {
   try {
     const values = parseEnvFile(readFileSync(path, "utf8"));
     const loaded = [];
-    for (const [key, value3] of Object.entries(values)) {
+    for (const [key, value2] of Object.entries(values)) {
       if (env[key] === void 0 || env[key] === "") {
-        env[key] = value3;
+        env[key] = value2;
         loaded.push(key);
       }
     }
@@ -29013,2241 +28907,13 @@ function applyEnvFile(env = process.env) {
   }
 }
 
-// dist/http/config.js
-var HTTP_ENV = {
-  transport: `${ENV_PREFIX}_TRANSPORT`,
-  host: `${ENV_PREFIX}_HTTP_HOST`,
-  port: `${ENV_PREFIX}_HTTP_PORT`,
-  publicUrl: `${ENV_PREFIX}_HTTP_PUBLIC_URL`,
-  auth: `${ENV_PREFIX}_HTTP_AUTH`,
-  tokens: `${ENV_PREFIX}_HTTP_BEARER_TOKENS`,
-  tenantId: `${ENV_PREFIX}_HTTP_ENTRA_TENANT_ID`,
-  clientId: `${ENV_PREFIX}_HTTP_ENTRA_CLIENT_ID`,
-  appIdUri: `${ENV_PREFIX}_HTTP_ENTRA_APP_ID_URI`,
-  scope: `${ENV_PREFIX}_HTTP_ENTRA_SCOPE`,
-  role: `${ENV_PREFIX}_HTTP_ENTRA_ROLE`,
-  jwksUrl: `${ENV_PREFIX}_HTTP_ENTRA_JWKS_URL`,
-  origins: `${ENV_PREFIX}_HTTP_ALLOWED_ORIGINS`
-};
-var MIN_TOKEN_LENGTH = 32;
-function value2(env, key) {
-  const raw = env[key]?.trim();
-  return raw ? raw : void 0;
-}
-function list2(raw) {
-  return (raw ?? "").split(/[\s,]+/).map((s) => s.trim()).filter(Boolean);
-}
-function wantsHttp(argv, env) {
-  return argv.includes("--http") || value2(env, HTTP_ENV.transport)?.toLowerCase() === "http";
-}
-function loadHttpConfig(env = process.env) {
-  const problems = [];
-  const fatal = [];
-  const host = value2(env, HTTP_ENV.host) ?? "127.0.0.1";
-  const port = Number(value2(env, HTTP_ENV.port) ?? env.PORT ?? 8080);
-  if (!Number.isInteger(port) || port < 0 || port > 65535)
-    fatal.push(`${HTTP_ENV.port} must be a port number.`);
-  let publicUrl = value2(env, HTTP_ENV.publicUrl)?.replace(/\/+$/, "");
-  if (publicUrl) {
-    try {
-      const u = new URL(publicUrl);
-      if (u.protocol !== "https:" && !isLoopback(u.hostname))
-        fatal.push(`${HTTP_ENV.publicUrl} must be https.`);
-    } catch {
-      fatal.push(`${HTTP_ENV.publicUrl} is not a URL.`);
-      publicUrl = void 0;
-    }
-  }
-  const mode = (value2(env, HTTP_ENV.auth) ?? "none").toLowerCase();
-  let auth = { mode: "none" };
-  if (mode === "bearer") {
-    const tokens = list2(value2(env, HTTP_ENV.tokens));
-    const short = tokens.filter((t) => t.length < MIN_TOKEN_LENGTH);
-    if (tokens.length === 0)
-      fatal.push(`${HTTP_ENV.auth}=bearer needs ${HTTP_ENV.tokens} (one or more tokens, comma separated).`);
-    if (short.length > 0)
-      fatal.push(`Every token in ${HTTP_ENV.tokens} must be at least ${MIN_TOKEN_LENGTH} characters.`);
-    auth = { mode: "bearer", tokens: tokens.filter((t) => t.length >= MIN_TOKEN_LENGTH) };
-  } else if (mode === "entra") {
-    const tenantId = value2(env, HTTP_ENV.tenantId);
-    const clientId = value2(env, HTTP_ENV.clientId);
-    if (!tenantId || !/^[0-9a-f-]{36}$/i.test(tenantId))
-      fatal.push(`${HTTP_ENV.auth}=entra needs ${HTTP_ENV.tenantId} (the directory tenant id, a GUID).`);
-    if (!clientId)
-      fatal.push(`${HTTP_ENV.auth}=entra needs ${HTTP_ENV.clientId} (the MCP server's app registration client id).`);
-    const appIdUri = value2(env, HTTP_ENV.appIdUri) ?? (clientId ? `api://${clientId}` : void 0);
-    const requiredScope = value2(env, HTTP_ENV.scope) ?? "mcp.access";
-    const requiredRole = value2(env, HTTP_ENV.role);
-    const jwksUrl = value2(env, HTTP_ENV.jwksUrl) ?? `https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`;
-    try {
-      const u = new URL(jwksUrl);
-      if (u.protocol !== "https:" && !isLoopback(u.hostname))
-        fatal.push(`${HTTP_ENV.jwksUrl} must be https.`);
-    } catch {
-      fatal.push(`${HTTP_ENV.jwksUrl} is not a URL.`);
-    }
-    auth = {
-      mode: "entra",
-      tenantId: tenantId ?? "",
-      audiences: [clientId, appIdUri].filter((a) => Boolean(a)),
-      requiredScope: requiredScope === "none" ? void 0 : requiredScope,
-      requiredRole,
-      advertisedScope: requiredScope === "none" || !appIdUri ? void 0 : `${appIdUri}/${requiredScope}`,
-      jwksUrl,
-      issuers: [`https://login.microsoftonline.com/${tenantId}/v2.0`, `https://sts.windows.net/${tenantId}/`]
-    };
-  } else if (mode !== "none") {
-    fatal.push(`${HTTP_ENV.auth} is "${mode}", which is not none, bearer or entra.`);
-  }
-  if (auth.mode === "none" && !isLoopback(host)) {
-    fatal.push(`Refusing to listen on ${host} without inbound authentication. Set ${HTTP_ENV.auth}=entra or bearer, or bind ${HTTP_ENV.host}=127.0.0.1.`);
-  }
-  return { host, port, publicUrl, auth, allowedOrigins: list2(value2(env, HTTP_ENV.origins)), problems, fatal };
-}
-
-// dist/http/server.js
-import { createServer as createHttpServer } from "node:http";
-import { randomUUID } from "node:crypto";
-
-// node_modules/@hono/node-server/dist/constants-BLSFu_RU.mjs
-var X_ALREADY_SENT = "x-hono-already-sent";
-
-// node_modules/@hono/node-server/dist/index.mjs
-import { STATUS_CODES, ServerResponse, createServer } from "node:http";
-import { Http2ServerRequest, constants } from "node:http2";
-import { Readable } from "node:stream";
-
-// node_modules/hono/dist/helper/websocket/index.js
-var defineWebSocketHelper = (handler) => {
-  return ((...args) => {
-    if (typeof args[0] === "function") {
-      const [createEvents, options] = args;
-      return async function upgradeWebSocket2(c, next) {
-        const result = await handler(c, await createEvents(c), options);
-        if (result) return result;
-        await next();
-      };
-    } else {
-      const [c, events, options] = args;
-      return (async () => {
-        const upgraded = await handler(c, events, options);
-        if (!upgraded) throw new Error("Failed to upgrade WebSocket");
-        return upgraded;
-      })();
-    }
-  });
-};
-
-// node_modules/@hono/node-server/dist/index.mjs
-var RequestError = class extends Error {
-  constructor(message, options) {
-    super(message, options);
-    this.name = "RequestError";
-  }
-};
-var nonJoinedHeaders = /* @__PURE__ */ new Set([
-  "age",
-  "authorization",
-  "content-length",
-  "content-type",
-  "etag",
-  "expires",
-  "from",
-  "host",
-  "if-modified-since",
-  "if-unmodified-since",
-  "last-modified",
-  "location",
-  "max-forwards",
-  "proxy-authorization",
-  "referer",
-  "retry-after",
-  "server",
-  "user-agent"
-]);
-var validHeaderName = /^[!#$%&'*+\-.^_`|~\dA-Za-z]+$/;
-var isHttpWhitespace = (code) => code === 9 || code === 10 || code === 13 || code === 32;
-var normalizeHeaderValue = (value3) => {
-  if (!isHttpWhitespace(value3.charCodeAt(0)) && !isHttpWhitespace(value3.charCodeAt(value3.length - 1))) return value3;
-  let start = 0;
-  let end = value3.length;
-  while (start < end && isHttpWhitespace(value3.charCodeAt(start))) start++;
-  while (end > start && isHttpWhitespace(value3.charCodeAt(end - 1))) end--;
-  return value3.slice(start, end);
-};
-var forbiddenHeaderValue = /[\0\r\n]/;
-var GlobalHeaders = globalThis.Headers;
-var materializeHeaders = (rawHeaders, HeadersCtor = GlobalHeaders) => {
-  const headers = new HeadersCtor();
-  for (let i = 0; i < rawHeaders.length; i += 2) {
-    const name = rawHeaders[i];
-    if (!name.startsWith(":")) headers.append(name, rawHeaders[i + 1]);
-  }
-  return headers;
-};
-var RequestHeaders = class {
-  #incoming;
-  #rawHeaders;
-  #headers;
-  #invalidValue;
-  constructor(incoming) {
-    this.#incoming = incoming;
-    if (incoming instanceof Http2ServerRequest) this.#rawHeaders = incoming.rawHeaders.slice();
-  }
-  get #lazyRawHeaders() {
-    return this.#rawHeaders ??= this.#incoming.rawHeaders.slice();
-  }
-  get #native() {
-    if (!this.#headers) {
-      this.#headers = materializeHeaders(this.#lazyRawHeaders);
-      this.#rawHeaders = void 0;
-    }
-    return this.#headers;
-  }
-  #normalizedName(name) {
-    if (typeof name !== "string") return;
-    if (!validHeaderName.test(name)) throw new TypeError(`Invalid header name: ${name}`);
-    return name.toLowerCase();
-  }
-  #lookupHttp1(lowerName) {
-    const headers = this.#incoming instanceof Http2ServerRequest ? void 0 : this.#incoming.headers;
-    if (!headers || nonJoinedHeaders.has(lowerName) || lowerName === "set-cookie" || lowerName === "__proto__") return;
-    if (!Object.hasOwn(headers, lowerName)) return null;
-    const rawValue = headers[lowerName];
-    if (typeof rawValue === "string") {
-      const value3 = normalizeHeaderValue(rawValue);
-      return forbiddenHeaderValue.test(value3) ? void 0 : value3;
-    }
-  }
-  #lookup(rawHeaders, lowerName) {
-    const separator = lowerName === "cookie" ? "; " : ", ";
-    let value3 = null;
-    for (let i = 0; i < rawHeaders.length; i += 2) {
-      const rawName = rawHeaders[i];
-      if (rawName.length === lowerName.length && rawName.toLowerCase() === lowerName) {
-        const rawValue = normalizeHeaderValue(rawHeaders[i + 1]);
-        if (forbiddenHeaderValue.test(rawValue)) {
-          this.#invalidValue = true;
-          return;
-        }
-        value3 = value3 === null ? rawValue : value3 + separator + rawValue;
-      }
-    }
-    return value3;
-  }
-  append(name, value3) {
-    this.#native.append(name, value3);
-  }
-  delete(name) {
-    this.#native.delete(name);
-  }
-  get(name) {
-    const lowerName = this.#normalizedName(name);
-    if (lowerName && !this.#headers && !this.#invalidValue) {
-      const http1Value = this.#lookupHttp1(lowerName);
-      if (http1Value !== void 0) return http1Value;
-      const value3 = this.#lookup(this.#lazyRawHeaders, lowerName);
-      if (value3 !== void 0) return value3;
-    }
-    return this.#native.get(name);
-  }
-  has(name) {
-    const lowerName = this.#normalizedName(name);
-    if (lowerName && !this.#headers && !this.#invalidValue) {
-      const http1Value = this.#lookupHttp1(lowerName);
-      if (http1Value !== void 0) return http1Value !== null;
-      const value3 = this.#lookup(this.#lazyRawHeaders, lowerName);
-      if (value3 !== void 0) return value3 !== null;
-    }
-    return this.#native.has(name);
-  }
-  set(name, value3) {
-    this.#native.set(name, value3);
-  }
-  getSetCookie() {
-    return this.#native.getSetCookie();
-  }
-  keys() {
-    return this.#native.keys();
-  }
-  values() {
-    return this.#native.values();
-  }
-  entries() {
-    return this.#native.entries();
-  }
-  forEach(callback, thisArg) {
-    this.#native.forEach((value3, key) => {
-      callback.call(thisArg, value3, key, this);
-    });
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-};
-Object.defineProperty(RequestHeaders.prototype, /* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom"), { value: function(depth, options, inspectFn) {
-  return `Headers (lightweight) ${inspectFn(Object.fromEntries(this), {
-    ...options,
-    depth: depth == null ? null : depth - 1
-  })}`;
-} });
-Object.setPrototypeOf(RequestHeaders.prototype, GlobalHeaders.prototype);
-var newHeadersFromIncoming = (incoming) => globalThis.Headers === GlobalHeaders ? new RequestHeaders(incoming) : materializeHeaders(incoming.rawHeaders, globalThis.Headers);
-var reValidRequestUrl = /^\/[!#$&-;=?-\[\]_a-z~]*$/;
-var reDotSegment = /\/\.\.?(?:[/?#]|$)/;
-var reValidHost = /^[a-z0-9._-]+(?::(?:[1-5]\d{3,4}|[6-9]\d{3}))?$/;
-var validateRequestTarget = (target) => {
-  const backslash = target.indexOf("\\");
-  if (backslash !== -1) {
-    const query = target.indexOf("?");
-    if (query === -1 || backslash < query) throw new RequestError("Backslash in request path");
-  }
-};
-var buildUrl = (scheme, host, incomingUrl) => {
-  const url2 = `${scheme}://${host}${incomingUrl}`;
-  if (!reValidHost.test(host)) {
-    validateRequestTarget(incomingUrl);
-    const urlObj = new URL(url2);
-    if (urlObj.hostname.length !== host.length && urlObj.hostname !== (host.includes(":") ? host.replace(/:\d+$/, "") : host).toLowerCase()) throw new RequestError("Invalid host header");
-    return urlObj.href;
-  } else if (incomingUrl.length === 0) return url2 + "/";
-  else {
-    if (incomingUrl.charCodeAt(0) !== 47) throw new RequestError("Invalid URL");
-    if (!reValidRequestUrl.test(incomingUrl) || reDotSegment.test(incomingUrl)) {
-      validateRequestTarget(incomingUrl);
-      return new URL(url2).href;
-    }
-    return url2;
-  }
-};
-var toRequestError = (e) => {
-  if (e instanceof RequestError) return e;
-  return new RequestError(e.message, { cause: e });
-};
-var GlobalRequest = global.Request;
-var Request$1 = class extends GlobalRequest {
-  constructor(input2, options) {
-    if (typeof input2 === "object" && getRequestCache in input2) {
-      const hasReplacementBody = options !== void 0 && "body" in options && options.body != null;
-      if (input2[bodyConsumedDirectlyKey] && !hasReplacementBody) throw new TypeError("Cannot construct a Request with a Request object that has already been used.");
-      input2 = input2[getRequestCache]();
-    }
-    if (typeof options?.body?.getReader !== "undefined") options.duplex ??= "half";
-    super(input2, options);
-  }
-};
-var wrapBodyStream = /* @__PURE__ */ Symbol("wrapBodyStream");
-var byteExactEncodings = /* @__PURE__ */ new Set([
-  "latin1",
-  "binary",
-  "hex",
-  "base64",
-  "base64url"
-]);
-var isByteExactEncoding = (encoding) => encoding === null || byteExactEncodings.has(encoding);
-var bodyBufferedBeforeDisconnectKey = /* @__PURE__ */ Symbol("bodyBufferedBeforeDisconnect");
-var bodyBufferedLengthBeforeDisconnectKey = /* @__PURE__ */ Symbol("bodyBufferedLengthBeforeDisconnect");
-var toBufferChunk = (chunk, encoding) => Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding ?? "utf8");
-var isRecoverableDisconnectedIncoming = (incoming) => !(incoming instanceof Http2ServerRequest) && !!incoming.complete && !!incoming.readableAborted && typeof incoming.read === "function" && isByteExactEncoding(incoming.readableEncoding);
-var recordBodyBufferedBeforeDisconnect = (incoming) => {
-  if (incoming.readableDidRead || !isRecoverableDisconnectedIncoming(incoming)) return;
-  const incomingWithRecovery = incoming;
-  incomingWithRecovery[bodyBufferedLengthBeforeDisconnectKey] ??= incoming.readableLength;
-};
-var readBodyBufferedBeforeDisconnect = (incoming, chunks) => {
-  if (incoming.readableDidRead && !chunks || !isRecoverableDisconnectedIncoming(incoming)) return;
-  const incomingWithRecovery = incoming;
-  if (incomingWithRecovery[bodyBufferedBeforeDisconnectKey] !== void 0) return incomingWithRecovery[bodyBufferedBeforeDisconnectKey];
-  let result;
-  const errored = incoming.errored;
-  if (errored && errored.code !== "ECONNRESET") result = errored;
-  else if (incomingWithRecovery[bodyBufferedLengthBeforeDisconnectKey] !== void 0 && incoming.readableLength !== incomingWithRecovery[bodyBufferedLengthBeforeDisconnectKey]) result = newBodyUnusableError();
-  else {
-    const bodyChunks = chunks ?? [];
-    const chunk = incoming.read();
-    if (chunk !== null) bodyChunks.push(toBufferChunk(chunk, incoming.readableEncoding));
-    const buffer = bodyChunks.length === 1 ? bodyChunks[0] : Buffer.concat(bodyChunks);
-    result = buffer;
-    const contentLength = incoming.headers["content-length"];
-    if (typeof contentLength === "string" && /^\d+$/.test(contentLength)) {
-      const expectedLength = Number(contentLength);
-      if (Number.isSafeInteger(expectedLength) && buffer.length !== expectedLength) result = newBodyUnusableError();
-    }
-  }
-  incomingWithRecovery[bodyBufferedBeforeDisconnectKey] = result;
-  return result;
-};
-var enqueueBufferedBody = (controller, buffered) => {
-  if (buffered instanceof Error) {
-    controller.error(buffered);
-    return;
-  }
-  if (buffered.length > 0) controller.enqueue(buffered);
-  controller.close();
-};
-var newRequestFromIncoming = (method, url2, headers, incoming, abortController) => {
-  const init = {
-    method,
-    headers,
-    signal: abortController.signal
-  };
-  if (method === "TRACE") {
-    init.method = "GET";
-    const req = new Request$1(url2, init);
-    Object.defineProperty(req, "method", { get() {
-      return "TRACE";
-    } });
-    return req;
-  }
-  if (!(method === "GET" || method === "HEAD")) if ("rawBody" in incoming && incoming.rawBody instanceof Buffer) init.body = new ReadableStream({ start(controller) {
-    controller.enqueue(incoming.rawBody);
-    controller.close();
-  } });
-  else if (incoming[wrapBodyStream]) {
-    let reader;
-    init.body = new ReadableStream({ async pull(controller) {
-      try {
-        if (!reader) {
-          const buffered = readBodyBufferedBeforeDisconnect(incoming);
-          if (buffered !== void 0) {
-            enqueueBufferedBody(controller, buffered);
-            return;
-          }
-        }
-        reader ||= Readable.toWeb(incoming).getReader();
-        const { done, value: value3 } = await reader.read();
-        if (done) controller.close();
-        else controller.enqueue(value3);
-      } catch (error62) {
-        controller.error(error62);
-      }
-    } });
-  } else {
-    const buffered = readBodyBufferedBeforeDisconnect(incoming);
-    if (buffered !== void 0) init.body = new ReadableStream({ start(controller) {
-      enqueueBufferedBody(controller, buffered);
-    } });
-    else init.body = Readable.toWeb(incoming);
-  }
-  return new Request$1(url2, init);
-};
-var getRequestCache = /* @__PURE__ */ Symbol("getRequestCache");
-var requestCache = /* @__PURE__ */ Symbol("requestCache");
-var incomingKey = /* @__PURE__ */ Symbol("incomingKey");
-var urlKey = /* @__PURE__ */ Symbol("urlKey");
-var methodKey = /* @__PURE__ */ Symbol("methodKey");
-var headersKey = /* @__PURE__ */ Symbol("headersKey");
-var abortControllerKey = /* @__PURE__ */ Symbol("abortControllerKey");
-var getAbortController = /* @__PURE__ */ Symbol("getAbortController");
-var abortRequest = /* @__PURE__ */ Symbol("abortRequest");
-var bodyBufferKey = /* @__PURE__ */ Symbol("bodyBuffer");
-var bodyReadPromiseKey = /* @__PURE__ */ Symbol("bodyReadPromise");
-var bodyConsumedDirectlyKey = /* @__PURE__ */ Symbol("bodyConsumedDirectly");
-var bodyLockReaderKey = /* @__PURE__ */ Symbol("bodyLockReader");
-var abortReasonKey = /* @__PURE__ */ Symbol("abortReason");
-var newBodyUnusableError = () => {
-  return /* @__PURE__ */ new TypeError("Body is unusable");
-};
-var rejectBodyUnusable = () => {
-  return Promise.reject(newBodyUnusableError());
-};
-var textDecoder = new TextDecoder();
-var consumeBodyDirectOnce = (request) => {
-  if (request[bodyConsumedDirectlyKey]) return rejectBodyUnusable();
-  request[bodyConsumedDirectlyKey] = true;
-};
-var toArrayBuffer = (buf) => {
-  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-};
-var contentType = (request) => {
-  return (request[headersKey] ||= newHeadersFromIncoming(request[incomingKey])).get("content-type") || "";
-};
-var methodTokenRegExp = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
-var normalizeIncomingMethod = (method) => {
-  if (typeof method !== "string" || method.length === 0) return "GET";
-  switch (method) {
-    case "DELETE":
-    case "GET":
-    case "HEAD":
-    case "OPTIONS":
-    case "PATCH":
-    case "POST":
-    case "PUT":
-    case "QUERY":
-      return method;
-  }
-  const upper = method.toUpperCase();
-  switch (upper) {
-    case "DELETE":
-    case "GET":
-    case "HEAD":
-    case "OPTIONS":
-    case "POST":
-    case "PUT":
-      return upper;
-    default:
-      return method;
-  }
-};
-var validateDirectReadMethod = (method) => {
-  if (!methodTokenRegExp.test(method)) return /* @__PURE__ */ new TypeError(`'${method}' is not a valid HTTP method.`);
-  const normalized = method.toUpperCase();
-  if (normalized === "CONNECT" || normalized === "TRACK" || normalized === "TRACE" && method !== "TRACE") return /* @__PURE__ */ new TypeError(`'${method}' HTTP method is unsupported.`);
-};
-var readBodyWithFastPath = (request, method, fromBuffer) => {
-  if (request[bodyConsumedDirectlyKey]) return rejectBodyUnusable();
-  const methodName = request.method;
-  if (methodName === "GET" || methodName === "HEAD") return request[getRequestCache]()[method]();
-  const methodValidationError = validateDirectReadMethod(methodName);
-  if (methodValidationError) return Promise.reject(methodValidationError);
-  if (request[requestCache]) {
-    if (methodName !== "TRACE") return request[requestCache][method]();
-  }
-  const alreadyUsedError = consumeBodyDirectOnce(request);
-  if (alreadyUsedError) return alreadyUsedError;
-  const raw = readRawBodyIfAvailable(request);
-  if (raw) {
-    const result = Promise.resolve(fromBuffer(raw, request));
-    request[bodyBufferKey] = void 0;
-    return result;
-  }
-  return readBodyDirect(request).then((buf) => {
-    const result = fromBuffer(buf, request);
-    request[bodyBufferKey] = void 0;
-    return result;
-  });
-};
-var readRawBodyIfAvailable = (request) => {
-  const incoming = request[incomingKey];
-  if ("rawBody" in incoming && incoming.rawBody instanceof Buffer) return incoming.rawBody;
-};
-var normalizeAbortError = (request, incoming) => {
-  if (incoming.errored) return incoming.errored;
-  const reason = request[abortReasonKey];
-  if (reason !== void 0) return reason instanceof Error ? reason : new Error(String(reason));
-  return /* @__PURE__ */ new Error("Client connection prematurely closed.");
-};
-var readBodyDirect = (request) => {
-  if (request[bodyBufferKey]) return Promise.resolve(request[bodyBufferKey]);
-  if (request[bodyReadPromiseKey]) return request[bodyReadPromiseKey];
-  const incoming = request[incomingKey];
-  if (incoming.readableDidRead) return rejectBodyUnusable();
-  const buffered = readBodyBufferedBeforeDisconnect(incoming);
-  if (buffered !== void 0) {
-    if (buffered instanceof Error) return Promise.reject(buffered);
-    request[bodyBufferKey] = buffered;
-    return Promise.resolve(buffered);
-  }
-  const promise2 = new Promise((resolve, reject) => {
-    const chunks = [];
-    let settled = false;
-    const finish = (callback) => {
-      if (settled) return;
-      settled = true;
-      cleanup();
-      callback();
-    };
-    const recoverCompleteBodyAfterDisconnect = (error62) => {
-      const streamError = incoming.errored ?? error62;
-      if (!isRecoverableDisconnectedIncoming(incoming) || streamError && streamError.code !== "ECONNRESET") return false;
-      finish(() => {
-        const recovered = readBodyBufferedBeforeDisconnect(incoming, chunks);
-        if (recovered instanceof Error) reject(recovered);
-        else if (recovered === void 0) reject(error62 ?? normalizeAbortError(request, incoming));
-        else {
-          request[bodyBufferKey] = recovered;
-          resolve(recovered);
-        }
-      });
-      return true;
-    };
-    const onData = (chunk) => {
-      chunks.push(toBufferChunk(chunk, incoming.readableEncoding));
-    };
-    const onEnd = () => {
-      finish(() => {
-        const buffer = chunks.length === 1 ? chunks[0] : Buffer.concat(chunks);
-        request[bodyBufferKey] = buffer;
-        resolve(buffer);
-      });
-    };
-    const onError = (error62) => {
-      if (recoverCompleteBodyAfterDisconnect(error62)) return;
-      finish(() => {
-        reject(error62);
-      });
-    };
-    const onClose = () => {
-      if (incoming.readableEnded) {
-        onEnd();
-        return;
-      }
-      if (recoverCompleteBodyAfterDisconnect()) return;
-      finish(() => {
-        reject(normalizeAbortError(request, incoming));
-      });
-    };
-    const cleanup = () => {
-      incoming.off("data", onData);
-      incoming.off("end", onEnd);
-      incoming.off("error", onError);
-      incoming.off("close", onClose);
-      request[bodyReadPromiseKey] = void 0;
-    };
-    incoming.on("data", onData);
-    incoming.on("end", onEnd);
-    incoming.on("error", onError);
-    incoming.on("close", onClose);
-    queueMicrotask(() => {
-      if (settled) return;
-      if (incoming.readableEnded) onEnd();
-      else if (incoming.errored) onError(incoming.errored);
-      else if (incoming.destroyed) onClose();
-    });
-  });
-  request[bodyReadPromiseKey] = promise2;
-  return promise2;
-};
-var requestPrototype = {
-  get method() {
-    return this[methodKey];
-  },
-  get url() {
-    return this[urlKey];
-  },
-  get headers() {
-    return this[headersKey] ||= newHeadersFromIncoming(this[incomingKey]);
-  },
-  [abortRequest](reason) {
-    if (this[abortReasonKey] === void 0) this[abortReasonKey] = reason;
-    const abortController = this[abortControllerKey];
-    if (abortController && !abortController.signal.aborted) abortController.abort(reason);
-  },
-  [getAbortController]() {
-    this[abortControllerKey] ||= new AbortController();
-    if (this[abortReasonKey] !== void 0 && !this[abortControllerKey].signal.aborted) this[abortControllerKey].abort(this[abortReasonKey]);
-    return this[abortControllerKey];
-  },
-  [getRequestCache]() {
-    const abortController = this[getAbortController]();
-    if (this[requestCache]) return this[requestCache];
-    const method = this.method;
-    if (this[bodyConsumedDirectlyKey] && !(method === "GET" || method === "HEAD")) {
-      this[bodyBufferKey] = void 0;
-      const init = {
-        method: method === "TRACE" ? "GET" : method,
-        headers: this.headers,
-        signal: abortController.signal
-      };
-      if (method !== "TRACE") {
-        init.body = new ReadableStream({ start(c) {
-          c.close();
-        } });
-        init.duplex = "half";
-      }
-      const req = new Request$1(this[urlKey], init);
-      if (method === "TRACE") Object.defineProperty(req, "method", { get() {
-        return "TRACE";
-      } });
-      return this[requestCache] = req;
-    }
-    return this[requestCache] = newRequestFromIncoming(this.method, this[urlKey], this.headers, this[incomingKey], abortController);
-  },
-  get body() {
-    if (!this[bodyConsumedDirectlyKey]) return this[getRequestCache]().body;
-    const request = this[getRequestCache]();
-    if (!this[bodyLockReaderKey] && request.body) this[bodyLockReaderKey] = request.body.getReader();
-    return request.body;
-  },
-  get bodyUsed() {
-    if (this[bodyConsumedDirectlyKey]) return true;
-    if (this[requestCache]) return this[requestCache].bodyUsed;
-    return false;
-  }
-};
-Object.defineProperty(requestPrototype, "signal", { get() {
-  return this[getAbortController]().signal;
-} });
-[
-  "cache",
-  "credentials",
-  "destination",
-  "integrity",
-  "mode",
-  "redirect",
-  "referrer",
-  "referrerPolicy",
-  "keepalive"
-].forEach((k) => {
-  Object.defineProperty(requestPrototype, k, { get() {
-    return this[getRequestCache]()[k];
-  } });
-});
-["clone", "formData"].forEach((k) => {
-  Object.defineProperty(requestPrototype, k, { value: function() {
-    if (this[bodyConsumedDirectlyKey]) {
-      if (k === "clone") throw newBodyUnusableError();
-      return rejectBodyUnusable();
-    }
-    return this[getRequestCache]()[k]();
-  } });
-});
-Object.defineProperty(requestPrototype, "text", { value: function() {
-  return readBodyWithFastPath(this, "text", (buf) => textDecoder.decode(buf));
-} });
-Object.defineProperty(requestPrototype, "arrayBuffer", { value: function() {
-  return readBodyWithFastPath(this, "arrayBuffer", (buf) => toArrayBuffer(buf));
-} });
-Object.defineProperty(requestPrototype, "blob", { value: function() {
-  return readBodyWithFastPath(this, "blob", (buf, request) => {
-    const type = contentType(request);
-    const init = type ? { headers: { "content-type": type } } : void 0;
-    return new Response(buf, init).blob();
-  });
-} });
-Object.defineProperty(requestPrototype, "json", { value: function() {
-  if (this[bodyConsumedDirectlyKey]) return rejectBodyUnusable();
-  return this.text().then(JSON.parse);
-} });
-Object.defineProperty(requestPrototype, /* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom"), { value: function(depth, options, inspectFn) {
-  return `Request (lightweight) ${inspectFn({
-    method: this.method,
-    url: this.url,
-    headers: this.headers,
-    nativeRequest: this[requestCache]
-  }, {
-    ...options,
-    depth: depth == null ? null : depth - 1
-  })}`;
-} });
-Object.setPrototypeOf(requestPrototype, Request$1.prototype);
-var newRequest = (incoming, defaultHostname) => {
-  const req = Object.create(requestPrototype);
-  req[incomingKey] = incoming;
-  req[methodKey] = normalizeIncomingMethod(incoming.method);
-  const incomingUrl = incoming.url || "";
-  if (incomingUrl[0] !== "/" && (incomingUrl.startsWith("http://") || incomingUrl.startsWith("https://"))) {
-    if (incoming instanceof Http2ServerRequest) throw new RequestError("Absolute URL for :path is not allowed in HTTP/2");
-    try {
-      validateRequestTarget(incomingUrl);
-      req[urlKey] = new URL(incomingUrl).href;
-    } catch (e) {
-      throw new RequestError("Invalid absolute URL", { cause: e });
-    }
-    return req;
-  }
-  const host = (incoming instanceof Http2ServerRequest ? incoming.authority : incoming.headers.host) || defaultHostname;
-  if (!host) throw new RequestError("Missing host header");
-  let scheme;
-  if (incoming instanceof Http2ServerRequest) {
-    scheme = incoming.scheme;
-    if (!(scheme === "http" || scheme === "https")) throw new RequestError("Unsupported scheme");
-  } else scheme = incoming.socket && incoming.socket.encrypted ? "https" : "http";
-  try {
-    req[urlKey] = buildUrl(scheme, host, incomingUrl);
-  } catch (e) {
-    if (e instanceof RequestError) throw e;
-    else throw new RequestError("Invalid URL", { cause: e });
-  }
-  return req;
-};
-var defaultContentType = "text/plain; charset=UTF-8";
-var responseCache = /* @__PURE__ */ Symbol("responseCache");
-var getResponseCache = /* @__PURE__ */ Symbol("getResponseCache");
-var cacheKey = /* @__PURE__ */ Symbol("cache");
-var GlobalResponse = global.Response;
-var Response$1 = class Response$12 {
-  #body;
-  #init;
-  [getResponseCache]() {
-    const cache = this[cacheKey];
-    const liveHeaders = cache && cache[2] instanceof Headers ? cache[2] : void 0;
-    delete this[cacheKey];
-    return this[responseCache] ||= new GlobalResponse(this.#body, liveHeaders ? {
-      status: this.#init?.status,
-      statusText: this.#init?.statusText,
-      headers: liveHeaders
-    } : this.#init);
-  }
-  constructor(body, init) {
-    let headers;
-    this.#body = body;
-    if (init instanceof GlobalResponse) {
-      const cachedGlobalResponse = init[responseCache];
-      if (cachedGlobalResponse) {
-        this.#init = cachedGlobalResponse;
-        this[getResponseCache]();
-        return;
-      }
-      this.#init = init instanceof Response$12 ? init.#init : init;
-      headers = new Headers(init.headers);
-    } else this.#init = init;
-    if (body == null || typeof body === "string" || typeof body?.getReader !== "undefined" || body instanceof Blob || body instanceof Uint8Array) this[cacheKey] = [
-      init?.status || 200,
-      body ?? null,
-      headers || init?.headers
-    ];
-  }
-  get headers() {
-    const cache = this[cacheKey];
-    if (cache) {
-      if (!(cache[2] instanceof Headers)) cache[2] = new Headers(cache[2] || (cache[1] === null ? void 0 : { "content-type": defaultContentType }));
-      return cache[2];
-    }
-    return this[getResponseCache]().headers;
-  }
-  get status() {
-    return this[cacheKey]?.[0] ?? this[getResponseCache]().status;
-  }
-  get ok() {
-    const status = this.status;
-    return status >= 200 && status < 300;
-  }
-};
-[
-  "body",
-  "bodyUsed",
-  "redirected",
-  "statusText",
-  "trailers",
-  "type",
-  "url"
-].forEach((k) => {
-  Object.defineProperty(Response$1.prototype, k, { get() {
-    return this[getResponseCache]()[k];
-  } });
-});
-[
-  "arrayBuffer",
-  "blob",
-  "clone",
-  "formData",
-  "json",
-  "text"
-].forEach((k) => {
-  Object.defineProperty(Response$1.prototype, k, { value: function() {
-    return this[getResponseCache]()[k]();
-  } });
-});
-Object.defineProperty(Response$1.prototype, /* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom"), { value: function(depth, options, inspectFn) {
-  return `Response (lightweight) ${inspectFn({
-    status: this.status,
-    headers: this.headers,
-    ok: this.ok,
-    nativeResponse: this[responseCache]
-  }, {
-    ...options,
-    depth: depth == null ? null : depth - 1
-  })}`;
-} });
-Object.setPrototypeOf(Response$1, GlobalResponse);
-Object.setPrototypeOf(Response$1.prototype, GlobalResponse.prototype);
-var validRedirectUrl = /^https?:\/\/[!#-;=?-[\]_a-z~A-Z]+$/;
-var parseRedirectUrl = (url2) => {
-  if (url2 instanceof URL) return url2.href;
-  if (validRedirectUrl.test(url2)) return url2;
-  return new URL(url2).href;
-};
-var validRedirectStatuses = /* @__PURE__ */ new Set([
-  301,
-  302,
-  303,
-  307,
-  308
-]);
-Object.defineProperty(Response$1, "redirect", {
-  value: function redirect(url2, status = 302) {
-    if (!validRedirectStatuses.has(status)) throw new RangeError("Invalid status code");
-    return new Response$1(null, {
-      status,
-      headers: { location: parseRedirectUrl(url2) }
-    });
-  },
-  writable: true,
-  configurable: true
-});
-Object.defineProperty(Response$1, "json", {
-  value: function json2(data, init) {
-    const body = JSON.stringify(data);
-    if (body === void 0) throw new TypeError("The data is not JSON serializable");
-    const initHeaders = init?.headers;
-    let headers;
-    if (initHeaders) {
-      headers = new Headers(initHeaders);
-      if (!headers.has("content-type")) headers.set("content-type", "application/json");
-    } else headers = { "content-type": "application/json" };
-    return new Response$1(body, {
-      status: init?.status ?? 200,
-      statusText: init?.statusText,
-      headers
-    });
-  },
-  writable: true,
-  configurable: true
-});
-async function readWithoutBlocking(readPromise) {
-  return Promise.race([readPromise, Promise.resolve().then(() => Promise.resolve(void 0))]);
-}
-function writeFromReadableStreamDefaultReader(reader, writable, currentReadPromise) {
-  const cancel = (error62) => {
-    reader.cancel(error62).catch(() => {
-    });
-  };
-  writable.on("close", cancel);
-  writable.on("error", cancel);
-  (currentReadPromise ?? reader.read()).then(flow, handleStreamError);
-  return reader.closed.finally(() => {
-    writable.off("close", cancel);
-    writable.off("error", cancel);
-  });
-  function handleStreamError(error62) {
-    if (error62) writable.destroy(error62);
-  }
-  function onDrain() {
-    reader.read().then(flow, handleStreamError);
-  }
-  function flow({ done, value: value3 }) {
-    try {
-      if (done) writable.end();
-      else if (!writable.write(value3)) writable.once("drain", onDrain);
-      else return reader.read().then(flow, handleStreamError);
-    } catch (e) {
-      handleStreamError(e);
-    }
-  }
-}
-function writeFromReadableStream(stream, writable) {
-  if (stream.locked) throw new TypeError("ReadableStream is locked.");
-  else if (writable.destroyed) return;
-  return writeFromReadableStreamDefaultReader(stream.getReader(), writable);
-}
-var buildOutgoingHttpHeaders = (headers, defaultContentType2) => {
-  const res = {};
-  if (!(headers instanceof Headers)) headers = new Headers(headers ?? void 0);
-  if (headers.has("set-cookie")) {
-    const cookies = [];
-    for (const [k, v] of headers) if (k === "set-cookie") cookies.push(v);
-    else res[k] = v;
-    if (cookies.length > 0) res["set-cookie"] = cookies;
-  } else for (const [k, v] of headers) res[k] = v;
-  if (defaultContentType2) res["content-type"] ??= defaultContentType2;
-  return res;
-};
-var outgoingEnded = /* @__PURE__ */ Symbol("outgoingEnded");
-var incomingDraining = /* @__PURE__ */ Symbol("incomingDraining");
-var DRAIN_TIMEOUT_MS = 500;
-var MAX_DRAIN_BYTES = 64 * 1024 * 1024;
-var drainIncoming = (incoming) => {
-  const incomingWithDrainState = incoming;
-  if (incoming.destroyed || incomingWithDrainState[incomingDraining]) return;
-  incomingWithDrainState[incomingDraining] = true;
-  if (incoming instanceof Http2ServerRequest) {
-    try {
-      incoming.stream?.close?.(constants.NGHTTP2_NO_ERROR);
-    } catch {
-    }
-    return;
-  }
-  let bytesRead = 0;
-  const cleanup = () => {
-    clearTimeout(timer);
-    incoming.off("data", onData);
-    incoming.off("end", cleanup);
-    incoming.off("error", cleanup);
-  };
-  const forceClose = () => {
-    cleanup();
-    const socket = incoming.socket;
-    if (socket && !socket.destroyed) {
-      if (typeof socket.destroySoon === "function") socket.destroySoon();
-      else if (typeof socket.destroy === "function") socket.destroy();
-    }
-  };
-  const timer = setTimeout(forceClose, DRAIN_TIMEOUT_MS);
-  timer.unref?.();
-  const onData = (chunk) => {
-    bytesRead += chunk.length;
-    if (bytesRead > MAX_DRAIN_BYTES) forceClose();
-  };
-  incoming.on("data", onData);
-  incoming.on("end", cleanup);
-  incoming.on("error", cleanup);
-  incoming.resume();
-};
-var makeCloseHandler = (req, incoming, outgoing, needsBodyCleanup) => () => {
-  if (incoming.errored) {
-    recordBodyBufferedBeforeDisconnect(incoming);
-    req[abortRequest](incoming.errored.toString());
-  } else if (!outgoing.writableFinished || incoming instanceof Http2ServerRequest && incoming.aborted) {
-    recordBodyBufferedBeforeDisconnect(incoming);
-    req[abortRequest]("Client connection prematurely closed.");
-  }
-  if (needsBodyCleanup && !incoming.readableEnded) setTimeout(() => {
-    if (!incoming.readableEnded) setTimeout(() => {
-      drainIncoming(incoming);
-    });
-  });
-};
-var isImmediateCacheableResponse = (res) => {
-  if (!(cacheKey in res)) return false;
-  const body = res[cacheKey][1];
-  return body === null || typeof body === "string" || body instanceof Uint8Array;
-};
-var handleRequestError = () => new Response(null, { status: 400 });
-var handleFetchError = (e) => new Response(null, { status: e instanceof Error && (e.name === "TimeoutError" || e.constructor.name === "TimeoutError") ? 504 : 500 });
-var handleResponseError = (e, outgoing) => {
-  const err = e instanceof Error ? e : new Error("unknown error", { cause: e });
-  if (err.code === "ERR_STREAM_PREMATURE_CLOSE") console.info("The user aborted a request.");
-  else {
-    console.error(e);
-    if (!outgoing.headersSent) {
-      if (outgoing instanceof ServerResponse) outgoing._contentLength = null;
-      outgoing.writeHead(500, { "Content-Type": "text/plain" });
-    }
-    outgoing.end(`Error: ${err.message}`);
-    outgoing.destroy(err);
-  }
-};
-var flushHeaders = (outgoing) => {
-  if ("flushHeaders" in outgoing && outgoing.writable) outgoing.flushHeaders();
-};
-var trySetContentLength = (outgoing, status, length) => {
-  const http1 = outgoing;
-  if (http1._contentLength === null && http1._hasBody && http1.useChunkedEncodingByDefault && !http1._removedContLen && status >= 200 && status !== 204 && status !== 304 && !outgoing.hasHeader("content-length") && !outgoing.hasHeader("transfer-encoding") && !outgoing.hasHeader("trailer")) {
-    http1._contentLength = length;
-    return true;
-  }
-  return false;
-};
-var writeDefaultHeaders = (outgoing, status, length) => {
-  if (trySetContentLength(outgoing, status, length)) outgoing.writeHead(status, { "Content-Type": defaultContentType });
-  else outgoing.writeHead(status, {
-    "Content-Type": defaultContentType,
-    "Content-Length": length
-  });
-};
-var responseViaCache = async (res, outgoing) => {
-  let [status, body, header] = res[cacheKey];
-  if (!header) {
-    if (body === null) {
-      outgoing.writeHead(status);
-      outgoing.end();
-    } else if (typeof body === "string") {
-      writeDefaultHeaders(outgoing, status, Buffer.byteLength(body));
-      outgoing.end(body);
-    } else if (body instanceof Uint8Array) {
-      writeDefaultHeaders(outgoing, status, body.byteLength);
-      outgoing.end(body);
-    } else if (body instanceof Blob) {
-      writeDefaultHeaders(outgoing, status, body.size);
-      outgoing.end(new Uint8Array(await body.arrayBuffer()));
-    } else {
-      outgoing.writeHead(status, { "Content-Type": defaultContentType });
-      flushHeaders(outgoing);
-      await writeFromReadableStream(body, outgoing)?.catch((e) => handleResponseError(e, outgoing));
-    }
-    outgoing[outgoingEnded]?.();
-    return;
-  }
-  let hasContentLength = false;
-  let plainHeaders = false;
-  let canAutoLength = true;
-  if (header instanceof Headers) {
-    hasContentLength = header.has("content-length");
-    header = buildOutgoingHttpHeaders(header, body === null ? void 0 : defaultContentType);
-  } else if (Array.isArray(header)) {
-    const headerObj = new Headers(header);
-    hasContentLength = headerObj.has("content-length");
-    header = buildOutgoingHttpHeaders(headerObj, body === null ? void 0 : defaultContentType);
-  } else {
-    plainHeaders = true;
-    for (const key in header) {
-      if (key.length === 14 && key.toLowerCase() === "content-length") {
-        hasContentLength = true;
-        break;
-      }
-      if (key.length === 17 && key.toLowerCase() === "transfer-encoding" || key.length === 7 && key.toLowerCase() === "trailer") canAutoLength = false;
-    }
-  }
-  if (!hasContentLength) {
-    let length;
-    if (typeof body === "string") length = Buffer.byteLength(body);
-    else if (body instanceof Uint8Array) length = body.byteLength;
-    else if (body instanceof Blob) length = body.size;
-    if (length !== void 0 && (!plainHeaders || !canAutoLength || !trySetContentLength(outgoing, status, length))) {
-      if (plainHeaders) header = { ...header };
-      header["Content-Length"] = length;
-    }
-  }
-  outgoing.writeHead(status, header);
-  if (body == null) outgoing.end();
-  else if (typeof body === "string" || body instanceof Uint8Array) outgoing.end(body);
-  else if (body instanceof Blob) outgoing.end(new Uint8Array(await body.arrayBuffer()));
-  else {
-    flushHeaders(outgoing);
-    await writeFromReadableStream(body, outgoing)?.catch((e) => handleResponseError(e, outgoing));
-  }
-  outgoing[outgoingEnded]?.();
-};
-var isPromise = (res) => typeof res.then === "function";
-var responseViaResponseObject = async (res, outgoing, options = {}) => {
-  if (isPromise(res)) if (options.errorHandler) try {
-    res = await res;
-  } catch (err) {
-    const errRes = await options.errorHandler(err);
-    if (!errRes) return;
-    res = errRes;
-  }
-  else res = await res.catch(handleFetchError);
-  if (cacheKey in res) return responseViaCache(res, outgoing);
-  const resHeaderRecord = buildOutgoingHttpHeaders(res.headers, res.body === null ? void 0 : defaultContentType);
-  if (res.body) {
-    const reader = res.body.getReader();
-    const values = [];
-    let done = false;
-    let currentReadPromise = void 0;
-    if (resHeaderRecord["transfer-encoding"] !== "chunked") {
-      let maxReadCount = 2;
-      for (let i = 0; i < maxReadCount; i++) {
-        currentReadPromise ||= reader.read();
-        const chunk = await readWithoutBlocking(currentReadPromise).catch((e) => {
-          console.error(e);
-          done = true;
-        });
-        if (!chunk) {
-          if (i === 1) {
-            await new Promise((resolve) => setTimeout(resolve));
-            maxReadCount = 3;
-            continue;
-          }
-          break;
-        }
-        currentReadPromise = void 0;
-        if (chunk.value) values.push(chunk.value);
-        if (chunk.done) {
-          done = true;
-          break;
-        }
-      }
-      if (done && !("content-length" in resHeaderRecord)) resHeaderRecord["content-length"] = values.reduce((acc, value3) => acc + value3.length, 0);
-    }
-    outgoing.writeHead(res.status, resHeaderRecord);
-    values.forEach((value3) => {
-      outgoing.write(value3);
-    });
-    if (done) outgoing.end();
-    else {
-      if (values.length === 0) flushHeaders(outgoing);
-      await writeFromReadableStreamDefaultReader(reader, outgoing, currentReadPromise);
-    }
-  } else if (resHeaderRecord[X_ALREADY_SENT]) {
-  } else {
-    outgoing.writeHead(res.status, resHeaderRecord);
-    outgoing.end();
-  }
-  outgoing[outgoingEnded]?.();
-};
-var getRequestListener = (fetchCallback, options = {}) => {
-  const autoCleanupIncoming = options.autoCleanupIncoming ?? true;
-  if (options.overrideGlobalObjects !== false && global.Request !== Request$1) {
-    Object.defineProperty(global, "Request", { value: Request$1 });
-    Object.defineProperty(global, "Response", { value: Response$1 });
-  }
-  return async (incoming, outgoing) => {
-    let res, req;
-    let needsBodyCleanup = false;
-    let closeHandlerAttached = false;
-    const ensureCloseHandler = () => {
-      if (!req || closeHandlerAttached) return;
-      closeHandlerAttached = true;
-      outgoing.on("close", makeCloseHandler(req, incoming, outgoing, needsBodyCleanup));
-    };
-    try {
-      req = newRequest(incoming, options.hostname);
-      needsBodyCleanup = autoCleanupIncoming && !(incoming.method === "GET" || incoming.method === "HEAD");
-      if (needsBodyCleanup) {
-        incoming[wrapBodyStream] = true;
-        if (incoming instanceof Http2ServerRequest) outgoing[outgoingEnded] = () => {
-          if (!incoming.readableEnded) setTimeout(() => {
-            if (!incoming.readableEnded) setTimeout(() => {
-              incoming.destroy();
-              outgoing.destroy();
-            });
-          });
-        };
-      }
-      res = fetchCallback(req, {
-        incoming,
-        outgoing
-      });
-      if (!isPromise(res) && isImmediateCacheableResponse(res)) {
-        if (needsBodyCleanup && !incoming.readableEnded) outgoing.once("finish", () => {
-          if (!incoming.readableEnded) drainIncoming(incoming);
-        });
-        return responseViaCache(res, outgoing);
-      }
-      ensureCloseHandler();
-    } catch (e) {
-      if (!res) if (options.errorHandler) {
-        ensureCloseHandler();
-        res = await options.errorHandler(req ? e : toRequestError(e));
-        if (!res) return;
-      } else if (!req) res = handleRequestError();
-      else res = handleFetchError(e);
-      else return handleResponseError(e, outgoing);
-    }
-    try {
-      return await responseViaResponseObject(res, outgoing, options);
-    } catch (e) {
-      return handleResponseError(e, outgoing);
-    }
-  };
-};
-var CloseEvent = globalThis.CloseEvent ?? class extends Event {
-  #eventInitDict;
-  constructor(type, eventInitDict = {}) {
-    super(type, eventInitDict);
-    this.#eventInitDict = eventInitDict;
-  }
-  get wasClean() {
-    return this.#eventInitDict.wasClean ?? false;
-  }
-  get code() {
-    return this.#eventInitDict.code ?? 0;
-  }
-  get reason() {
-    return this.#eventInitDict.reason ?? "";
-  }
-};
-var ErrorEvent = globalThis.ErrorEvent ?? class extends Event {
-  #eventInitDict;
-  constructor(type, eventInitDict = {}) {
-    super(type, eventInitDict);
-    this.#eventInitDict = eventInitDict;
-  }
-  get message() {
-    return this.#eventInitDict.message ?? "";
-  }
-  get filename() {
-    return this.#eventInitDict.filename ?? "";
-  }
-  get lineno() {
-    return this.#eventInitDict.lineno ?? 0;
-  }
-  get colno() {
-    return this.#eventInitDict.colno ?? 0;
-  }
-  get error() {
-    return this.#eventInitDict.error ?? null;
-  }
-};
-var generateConnectionSymbol = () => /* @__PURE__ */ Symbol("connection");
-var CONNECTION_SYMBOL_KEY = /* @__PURE__ */ Symbol("CONNECTION_SYMBOL_KEY");
-var WAIT_FOR_WEBSOCKET_SYMBOL = /* @__PURE__ */ Symbol("WAIT_FOR_WEBSOCKET_SYMBOL");
-var upgradeWebSocket = defineWebSocketHelper(async (c, events, options) => {
-  if (c.req.header("upgrade")?.toLowerCase() !== "websocket") return;
-  const env = c.env;
-  const waitForWebSocket = env[WAIT_FOR_WEBSOCKET_SYMBOL];
-  if (!waitForWebSocket || !env.incoming) return new Response(null, { status: 500 });
-  const connectionSymbol = generateConnectionSymbol();
-  env[CONNECTION_SYMBOL_KEY] = connectionSymbol;
-  (async () => {
-    let ws;
-    try {
-      ws = await waitForWebSocket(env.incoming, connectionSymbol);
-    } catch {
-      return;
-    }
-    const messagesReceivedInStarting = [];
-    const bufferMessage = (data, isBinary) => {
-      messagesReceivedInStarting.push([data, isBinary]);
-    };
-    ws.on("message", bufferMessage);
-    const ctx = {
-      binaryType: "arraybuffer",
-      close(code, reason) {
-        ws.close(code, reason);
-      },
-      protocol: ws.protocol,
-      raw: ws,
-      get readyState() {
-        return ws.readyState;
-      },
-      send(source, opts) {
-        ws.send(source, { compress: opts?.compress });
-      },
-      url: new URL(c.req.url)
-    };
-    try {
-      events?.onOpen?.(new Event("open"), ctx);
-    } catch (e) {
-      (options?.onError ?? console.error)(e);
-    }
-    const handleMessage = (data, isBinary) => {
-      const datas = Array.isArray(data) ? data : [data];
-      for (const data2 of datas) try {
-        events?.onMessage?.(new MessageEvent("message", { data: isBinary ? data2 instanceof ArrayBuffer ? data2 : data2.buffer.slice(data2.byteOffset, data2.byteOffset + data2.byteLength) : typeof data2 === "string" ? data2 : Buffer.from(data2).toString("utf-8") }), ctx);
-      } catch (e) {
-        (options?.onError ?? console.error)(e);
-      }
-    };
-    ws.off("message", bufferMessage);
-    for (const message of messagesReceivedInStarting) handleMessage(...message);
-    ws.on("message", (data, isBinary) => {
-      handleMessage(data, isBinary);
-    });
-    ws.on("close", (code, reason) => {
-      try {
-        events?.onClose?.(new CloseEvent("close", {
-          code,
-          reason: reason.toString()
-        }), ctx);
-      } catch (e) {
-        (options?.onError ?? console.error)(e);
-      }
-    });
-    ws.on("error", (error62) => {
-      try {
-        events?.onError?.(new ErrorEvent("error", { error: error62 }), ctx);
-      } catch (e) {
-        (options?.onError ?? console.error)(e);
-      }
-    });
-  })();
-  return new Response();
-});
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js
-var import_content_type = __toESM(require_content_type(), 1);
-function mediaTypeEssence(header) {
-  if (!header) {
-    return void 0;
-  }
-  try {
-    return import_content_type.default.parse(header).type;
-  } catch {
-    const essence = (header.split(";", 1)[0] ?? "").trim().toLowerCase();
-    if (essence === "" || header.slice(essence.length).includes(",")) {
-      return void 0;
-    }
-    return essence;
-  }
-}
-function isJsonContentType(header) {
-  if (header === "application/json") {
-    return true;
-  }
-  return mediaTypeEssence(header) === "application/json";
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js
-var DEFAULT_MAX_REQUEST_BODY_SIZE = 4 * 1024 * 1024;
-var MAX_BATCH_SIZE = 100;
-function requestBodyTooLargeMessage(maxBytes) {
-  return `Payload Too Large: Request body must not exceed ${maxBytes} bytes`;
-}
-function resolveMaxRequestBodySize(value3) {
-  if (value3 === void 0) {
-    return DEFAULT_MAX_REQUEST_BODY_SIZE;
-  }
-  if (typeof value3 !== "number" || !Number.isFinite(value3) || value3 <= 0) {
-    throw new RangeError(`maxRequestBodySize must be a positive number of bytes, got ${String(value3)}`);
-  }
-  return value3;
-}
-async function readRequestBody(request, maxBytes = DEFAULT_MAX_REQUEST_BODY_SIZE) {
-  if (Number(request.headers.get("content-length")) > maxBytes) {
-    return { tooLarge: true };
-  }
-  if (request.body === null) {
-    return { tooLarge: false, text: "" };
-  }
-  const reader = request.body.getReader();
-  const decoder = new TextDecoder();
-  let received = 0;
-  let text = "";
-  try {
-    for (; ; ) {
-      const { done, value: value3 } = await reader.read();
-      if (done) {
-        break;
-      }
-      received += value3.byteLength;
-      if (received > maxBytes) {
-        return { tooLarge: true };
-      }
-      text += decoder.decode(value3, { stream: true });
-    }
-  } finally {
-    reader.releaseLock();
-  }
-  return { tooLarge: false, text: text + decoder.decode() };
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/sseKeepAlive.js
-var DEFAULT_SSE_KEEP_ALIVE_MS = 15e3;
-var MAX_TIMER_DELAY_MS = 2 ** 31 - 1;
-function armSseKeepAlive(intervalMs, onTick) {
-  if (!Number.isFinite(intervalMs) || intervalMs < 1) {
-    return void 0;
-  }
-  const timer = setInterval(onTick, Math.min(intervalMs, MAX_TIMER_DELAY_MS));
-  timer.unref?.();
-  return timer;
-}
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/webStandardStreamableHttp.js
-var WebStandardStreamableHTTPServerTransport = class {
-  constructor(options = {}) {
-    this._started = false;
-    this._hasHandledRequest = false;
-    this._streamMapping = /* @__PURE__ */ new Map();
-    this._requestToStreamMapping = /* @__PURE__ */ new Map();
-    this._resumableStreams = /* @__PURE__ */ new Set();
-    this._requestResponseMap = /* @__PURE__ */ new Map();
-    this._initialized = false;
-    this._enableJsonResponse = false;
-    this._standaloneSseStreamId = "_GET_stream";
-    this._closed = false;
-    this.sessionIdGenerator = options.sessionIdGenerator;
-    this._enableJsonResponse = options.enableJsonResponse ?? false;
-    this._eventStore = options.eventStore;
-    this._onsessioninitialized = options.onsessioninitialized;
-    this._onsessionclosed = options.onsessionclosed;
-    this._allowedHosts = options.allowedHosts;
-    this._allowedOrigins = options.allowedOrigins;
-    this._enableDnsRebindingProtection = options.enableDnsRebindingProtection ?? false;
-    this._retryInterval = options.retryInterval;
-    this._keepAliveMs = options.keepAliveMs ?? DEFAULT_SSE_KEEP_ALIVE_MS;
-    this._maxRequestBodySize = resolveMaxRequestBodySize(options.maxRequestBodySize);
-  }
-  /**
-   * Arms a keep-alive interval for an SSE stream that periodically writes an SSE
-   * comment frame so intermediaries and idle timeouts don't kill the connection.
-   * The returned timer is owned by the stream it was armed for: the stream's
-   * cancel/cleanup callbacks must clear it. The interval clears itself if a
-   * write fails (stream already closed/cancelled).
-   */
-  startKeepAlive(controller, encoder) {
-    if (this._closed)
-      return void 0;
-    const timer = armSseKeepAlive(this._keepAliveMs, () => {
-      try {
-        controller.enqueue(encoder.encode(": keepalive\n\n"));
-      } catch {
-        if (timer !== void 0)
-          clearInterval(timer);
-      }
-    });
-    return timer;
-  }
-  /**
-   * Starts the transport. This is required by the Transport interface but is a no-op
-   * for the Streamable HTTP transport as connections are managed per-request.
-   */
-  async start() {
-    if (this._started) {
-      throw new Error("Transport already started");
-    }
-    this._started = true;
-  }
-  /**
-   * Helper to create a JSON error response
-   */
-  createJsonErrorResponse(status, code, message, options) {
-    const error62 = { code, message };
-    if (options?.data !== void 0) {
-      error62.data = options.data;
-    }
-    return new Response(JSON.stringify({
-      jsonrpc: "2.0",
-      error: error62,
-      id: null
-    }), {
-      status,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers
-      }
-    });
-  }
-  /**
-   * Validates request headers for DNS rebinding protection.
-   * @returns Error response if validation fails, undefined if validation passes.
-   */
-  validateRequestHeaders(req) {
-    if (!this._enableDnsRebindingProtection) {
-      return void 0;
-    }
-    if (this._allowedHosts && this._allowedHosts.length > 0) {
-      const hostHeader = req.headers.get("host");
-      if (!hostHeader || !this._allowedHosts.includes(hostHeader)) {
-        const error62 = `Invalid Host header: ${hostHeader}`;
-        this.onerror?.(new Error(error62));
-        return this.createJsonErrorResponse(403, -32e3, error62);
-      }
-    }
-    if (this._allowedOrigins && this._allowedOrigins.length > 0) {
-      const originHeader = req.headers.get("origin");
-      if (originHeader && !this._allowedOrigins.includes(originHeader)) {
-        const error62 = `Invalid Origin header: ${originHeader}`;
-        this.onerror?.(new Error(error62));
-        return this.createJsonErrorResponse(403, -32e3, error62);
-      }
-    }
-    return void 0;
-  }
-  /**
-   * Handles an incoming HTTP request, whether GET, POST, or DELETE
-   * Returns a Response object (Web Standard)
-   */
-  async handleRequest(req, options) {
-    if (this._closed) {
-      return this.createJsonErrorResponse(404, -32001, "Session not found");
-    }
-    if (!this.sessionIdGenerator && this._hasHandledRequest) {
-      throw new Error("Stateless transport cannot be reused across requests. Create a new transport per request.");
-    }
-    this._hasHandledRequest = true;
-    const validationError = this.validateRequestHeaders(req);
-    if (validationError) {
-      return validationError;
-    }
-    switch (req.method) {
-      case "POST":
-        return this.handlePostRequest(req, options);
-      case "GET":
-        return this.handleGetRequest(req);
-      case "DELETE":
-        return this.handleDeleteRequest(req);
-      default:
-        return this.handleUnsupportedRequest();
-    }
-  }
-  /**
-   * Writes a priming event to establish resumption capability.
-   * Only sends if eventStore is configured (opt-in for resumability) and
-   * the client's protocol version supports empty SSE data (>= 2025-11-25).
-   */
-  async writePrimingEvent(controller, encoder, streamId, protocolVersion) {
-    if (!this._eventStore) {
-      return;
-    }
-    if (protocolVersion < "2025-11-25") {
-      return;
-    }
-    const primingEventId = await this._eventStore.storeEvent(streamId, {});
-    let primingEvent = `id: ${primingEventId}
-data: 
-
-`;
-    if (this._retryInterval !== void 0) {
-      primingEvent = `id: ${primingEventId}
-retry: ${this._retryInterval}
-data: 
-
-`;
-    }
-    controller.enqueue(encoder.encode(primingEvent));
-    this._resumableStreams.add(streamId);
-  }
-  /**
-   * Handles GET requests for SSE stream
-   */
-  async handleGetRequest(req) {
-    const acceptHeader = req.headers.get("accept");
-    if (!acceptHeader?.includes("text/event-stream")) {
-      this.onerror?.(new Error("Not Acceptable: Client must accept text/event-stream"));
-      return this.createJsonErrorResponse(406, -32e3, "Not Acceptable: Client must accept text/event-stream");
-    }
-    const sessionError = this.validateSession(req);
-    if (sessionError) {
-      return sessionError;
-    }
-    const protocolError = this.validateProtocolVersion(req);
-    if (protocolError) {
-      return protocolError;
-    }
-    if (this._eventStore) {
-      const lastEventId = req.headers.get("last-event-id");
-      if (lastEventId) {
-        return this.replayEvents(lastEventId);
-      }
-    }
-    if (this._streamMapping.get(this._standaloneSseStreamId) !== void 0) {
-      this.onerror?.(new Error("Conflict: Only one SSE stream is allowed per session"));
-      return this.createJsonErrorResponse(409, -32e3, "Conflict: Only one SSE stream is allowed per session");
-    }
-    const encoder = new TextEncoder();
-    let streamController;
-    let keepAliveTimer = void 0;
-    const readable = new ReadableStream({
-      start: (controller) => {
-        streamController = controller;
-      },
-      cancel: () => {
-        if (keepAliveTimer !== void 0) {
-          clearInterval(keepAliveTimer);
-        }
-        if (this._streamMapping.get(this._standaloneSseStreamId)?.controller === streamController) {
-          this._streamMapping.delete(this._standaloneSseStreamId);
-        }
-      }
-    });
-    const headers = {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-transform",
-      Connection: "keep-alive",
-      "X-Accel-Buffering": "no"
-    };
-    if (this.sessionId !== void 0) {
-      headers["mcp-session-id"] = this.sessionId;
-    }
-    this._streamMapping.set(this._standaloneSseStreamId, {
-      controller: streamController,
-      encoder,
-      cleanup: () => {
-        if (keepAliveTimer !== void 0) {
-          clearInterval(keepAliveTimer);
-        }
-        this._streamMapping.delete(this._standaloneSseStreamId);
-        try {
-          streamController.close();
-        } catch {
-        }
-      }
-    });
-    keepAliveTimer = this.startKeepAlive(streamController, encoder);
-    return new Response(readable, { headers });
-  }
-  /**
-   * Replays events that would have been sent after the specified event ID
-   * Only used when resumability is enabled
-   */
-  async replayEvents(lastEventId) {
-    if (!this._eventStore) {
-      this.onerror?.(new Error("Event store not configured"));
-      return this.createJsonErrorResponse(400, -32e3, "Event store not configured");
-    }
-    try {
-      let streamId;
-      if (this._eventStore.getStreamIdForEventId) {
-        streamId = await this._eventStore.getStreamIdForEventId(lastEventId);
-        if (!streamId) {
-          this.onerror?.(new Error("Invalid event ID format"));
-          return this.createJsonErrorResponse(400, -32e3, "Invalid event ID format");
-        }
-        if (this._streamMapping.get(streamId) !== void 0) {
-          this.onerror?.(new Error("Conflict: Stream already has an active connection"));
-          return this.createJsonErrorResponse(409, -32e3, "Conflict: Stream already has an active connection");
-        }
-      }
-      const headers = {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no"
-      };
-      if (this.sessionId !== void 0) {
-        headers["mcp-session-id"] = this.sessionId;
-      }
-      const encoder = new TextEncoder();
-      let streamController;
-      let keepAliveTimer = void 0;
-      let replayedStreamId = void 0;
-      let cancelled = false;
-      const readable = new ReadableStream({
-        start: (controller) => {
-          streamController = controller;
-        },
-        cancel: () => {
-          cancelled = true;
-          if (keepAliveTimer !== void 0) {
-            clearInterval(keepAliveTimer);
-          }
-          if (replayedStreamId !== void 0 && this._streamMapping.get(replayedStreamId)?.controller === streamController) {
-            this._streamMapping.delete(replayedStreamId);
-          }
-        }
-      });
-      const replayedEventIds = /* @__PURE__ */ new Set();
-      replayedStreamId = await this._eventStore.replayEventsAfter(lastEventId, {
-        send: async (eventId, message) => {
-          const success2 = this.writeSSEEvent(streamController, encoder, message, eventId);
-          if (!success2) {
-            this.onerror?.(new Error("Failed replay events"));
-            try {
-              streamController.close();
-            } catch {
-            }
-          } else {
-            replayedEventIds.add(eventId);
-          }
-        }
-      });
-      if (this._closed || cancelled) {
-        try {
-          streamController.close();
-        } catch {
-        }
-        return this.createJsonErrorResponse(404, -32001, "Session not found");
-      }
-      this._streamMapping.get(replayedStreamId)?.cleanup();
-      this._streamMapping.set(replayedStreamId, {
-        controller: streamController,
-        encoder,
-        replayedEventIds,
-        cleanup: () => {
-          if (keepAliveTimer !== void 0) {
-            clearInterval(keepAliveTimer);
-          }
-          this._streamMapping.delete(replayedStreamId);
-          try {
-            streamController.close();
-          } catch {
-          }
-        }
-      });
-      this._resumableStreams.add(replayedStreamId);
-      keepAliveTimer = this.startKeepAlive(streamController, encoder);
-      return new Response(readable, { headers });
-    } catch (error62) {
-      this.onerror?.(error62);
-      return this.createJsonErrorResponse(500, -32e3, "Error replaying events");
-    }
-  }
-  /**
-   * Writes an event to an SSE stream via controller with proper formatting
-   */
-  writeSSEEvent(controller, encoder, message, eventId) {
-    try {
-      let eventData = `event: message
-`;
-      if (eventId) {
-        eventData += `id: ${eventId}
-`;
-      }
-      eventData += `data: ${JSON.stringify(message)}
-
-`;
-      controller.enqueue(encoder.encode(eventData));
-      return true;
-    } catch (error62) {
-      this.onerror?.(error62);
-      return false;
-    }
-  }
-  /**
-   * Handles unsupported requests (PUT, PATCH, etc.)
-   */
-  handleUnsupportedRequest() {
-    this.onerror?.(new Error("Method not allowed."));
-    return new Response(JSON.stringify({
-      jsonrpc: "2.0",
-      error: {
-        code: -32e3,
-        message: "Method not allowed."
-      },
-      id: null
-    }), {
-      status: 405,
-      headers: {
-        Allow: "GET, POST, DELETE",
-        "Content-Type": "application/json"
-      }
-    });
-  }
-  /**
-   * Handles POST requests containing JSON-RPC messages
-   */
-  async handlePostRequest(req, options) {
-    try {
-      const acceptHeader = req.headers.get("accept");
-      if (!acceptHeader?.includes("application/json") || !acceptHeader.includes("text/event-stream")) {
-        this.onerror?.(new Error("Not Acceptable: Client must accept both application/json and text/event-stream"));
-        return this.createJsonErrorResponse(406, -32e3, "Not Acceptable: Client must accept both application/json and text/event-stream");
-      }
-      const ct = req.headers.get("content-type");
-      if (!isJsonContentType(ct)) {
-        this.onerror?.(new Error("Unsupported Media Type: Content-Type must be application/json"));
-        return this.createJsonErrorResponse(415, -32e3, "Unsupported Media Type: Content-Type must be application/json");
-      }
-      const requestInfo = {
-        headers: Object.fromEntries(req.headers.entries()),
-        url: new URL(req.url)
-      };
-      let rawMessage;
-      if (options?.parsedBody !== void 0) {
-        rawMessage = options.parsedBody;
-      } else {
-        try {
-          const body = await readRequestBody(req, this._maxRequestBodySize);
-          if (body.tooLarge) {
-            const message = requestBodyTooLargeMessage(this._maxRequestBodySize);
-            this.onerror?.(new Error(message));
-            return this.createJsonErrorResponse(413, -32e3, message);
-          }
-          rawMessage = JSON.parse(body.text);
-        } catch {
-          this.onerror?.(new Error("Parse error: Invalid JSON"));
-          return this.createJsonErrorResponse(400, -32700, "Parse error: Invalid JSON");
-        }
-      }
-      if (Array.isArray(rawMessage) && rawMessage.length > MAX_BATCH_SIZE) {
-        this.onerror?.(new Error(`Invalid Request: Batch must not exceed ${MAX_BATCH_SIZE} messages`));
-        return this.createJsonErrorResponse(400, -32600, `Invalid Request: Batch must not exceed ${MAX_BATCH_SIZE} messages`);
-      }
-      let messages;
-      try {
-        if (Array.isArray(rawMessage)) {
-          messages = rawMessage.map((msg) => JSONRPCMessageSchema.parse(msg));
-        } else {
-          messages = [JSONRPCMessageSchema.parse(rawMessage)];
-        }
-      } catch {
-        this.onerror?.(new Error("Parse error: Invalid JSON-RPC message"));
-        return this.createJsonErrorResponse(400, -32700, "Parse error: Invalid JSON-RPC message");
-      }
-      if (this._closed) {
-        return this.createJsonErrorResponse(404, -32001, "Session not found");
-      }
-      const isInitializationRequest = messages.some(isInitializeRequest);
-      if (isInitializationRequest) {
-        if (this._initialized && this.sessionId !== void 0) {
-          this.onerror?.(new Error("Invalid Request: Server already initialized"));
-          return this.createJsonErrorResponse(400, -32600, "Invalid Request: Server already initialized");
-        }
-        if (messages.length > 1) {
-          this.onerror?.(new Error("Invalid Request: Only one initialization request is allowed"));
-          return this.createJsonErrorResponse(400, -32600, "Invalid Request: Only one initialization request is allowed");
-        }
-        this.sessionId = this.sessionIdGenerator?.();
-        this._initialized = true;
-        if (this.sessionId && this._onsessioninitialized) {
-          await Promise.resolve(this._onsessioninitialized(this.sessionId));
-        }
-      }
-      if (!isInitializationRequest) {
-        const sessionError = this.validateSession(req);
-        if (sessionError) {
-          return sessionError;
-        }
-        const protocolError = this.validateProtocolVersion(req);
-        if (protocolError) {
-          return protocolError;
-        }
-      }
-      if (this._closed) {
-        return this.createJsonErrorResponse(404, -32001, "Session not found");
-      }
-      const hasRequests = messages.some(isJSONRPCRequest);
-      if (!hasRequests) {
-        for (const message of messages) {
-          this.onmessage?.(message, { authInfo: options?.authInfo, requestInfo });
-        }
-        return new Response(null, { status: 202 });
-      }
-      const streamId = crypto.randomUUID();
-      const initRequest = messages.find((m) => isInitializeRequest(m));
-      const clientProtocolVersion = initRequest ? initRequest.params.protocolVersion : req.headers.get("mcp-protocol-version") ?? DEFAULT_NEGOTIATED_PROTOCOL_VERSION;
-      if (this._enableJsonResponse) {
-        return new Promise((resolve) => {
-          this._streamMapping.set(streamId, {
-            resolveJson: resolve,
-            cleanup: () => {
-              this._streamMapping.delete(streamId);
-            }
-          });
-          for (const message of messages) {
-            if (isJSONRPCRequest(message)) {
-              this._requestToStreamMapping.set(message.id, streamId);
-            }
-          }
-          for (const message of messages) {
-            this.onmessage?.(message, { authInfo: options?.authInfo, requestInfo });
-          }
-        });
-      }
-      const encoder = new TextEncoder();
-      let streamController;
-      let keepAliveTimer = void 0;
-      const readable = new ReadableStream({
-        start: (controller) => {
-          streamController = controller;
-        },
-        cancel: () => {
-          if (keepAliveTimer !== void 0) {
-            clearInterval(keepAliveTimer);
-          }
-          if (this._streamMapping.get(streamId)?.controller === streamController) {
-            this._streamMapping.delete(streamId);
-          }
-        }
-      });
-      const headers = {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no"
-      };
-      if (this.sessionId !== void 0) {
-        headers["mcp-session-id"] = this.sessionId;
-      }
-      for (const message of messages) {
-        if (isJSONRPCRequest(message)) {
-          this._streamMapping.set(streamId, {
-            controller: streamController,
-            encoder,
-            cleanup: () => {
-              if (keepAliveTimer !== void 0) {
-                clearInterval(keepAliveTimer);
-              }
-              this._streamMapping.delete(streamId);
-              try {
-                streamController.close();
-              } catch {
-              }
-            }
-          });
-          this._requestToStreamMapping.set(message.id, streamId);
-        }
-      }
-      try {
-        await this.writePrimingEvent(streamController, encoder, streamId, clientProtocolVersion);
-        for (const message of messages) {
-          let closeSSEStream;
-          let closeStandaloneSSEStream;
-          if (isJSONRPCRequest(message) && this._eventStore && clientProtocolVersion >= "2025-11-25") {
-            closeSSEStream = () => {
-              this.closeSSEStream(message.id);
-            };
-            closeStandaloneSSEStream = () => {
-              this.closeStandaloneSSEStream();
-            };
-          }
-          this.onmessage?.(message, { authInfo: options?.authInfo, requestInfo, closeSSEStream, closeStandaloneSSEStream });
-        }
-      } catch (error62) {
-        this._streamMapping.get(streamId)?.cleanup();
-        this._resumableStreams.delete(streamId);
-        for (const message of messages) {
-          if (isJSONRPCRequest(message)) {
-            this._requestToStreamMapping.delete(message.id);
-          }
-        }
-        throw error62;
-      }
-      if (this._streamMapping.get(streamId)?.controller === streamController) {
-        keepAliveTimer = this.startKeepAlive(streamController, encoder);
-      }
-      return new Response(readable, { status: 200, headers });
-    } catch (error62) {
-      this.onerror?.(error62);
-      return this.createJsonErrorResponse(400, -32700, "Parse error", { data: String(error62) });
-    }
-  }
-  /**
-   * Handles DELETE requests to terminate sessions
-   */
-  async handleDeleteRequest(req) {
-    const sessionError = this.validateSession(req);
-    if (sessionError) {
-      return sessionError;
-    }
-    const protocolError = this.validateProtocolVersion(req);
-    if (protocolError) {
-      return protocolError;
-    }
-    try {
-      await Promise.resolve(this._onsessionclosed?.(this.sessionId));
-      return new Response(null, { status: 200 });
-    } finally {
-      await this.close();
-    }
-  }
-  /**
-   * Validates session ID for non-initialization requests.
-   * Returns Response error if invalid, undefined otherwise
-   */
-  validateSession(req) {
-    if (this.sessionIdGenerator === void 0) {
-      return void 0;
-    }
-    if (!this._initialized) {
-      this.onerror?.(new Error("Bad Request: Server not initialized"));
-      return this.createJsonErrorResponse(400, -32e3, "Bad Request: Server not initialized");
-    }
-    const sessionId = req.headers.get("mcp-session-id");
-    if (!sessionId) {
-      this.onerror?.(new Error("Bad Request: Mcp-Session-Id header is required"));
-      return this.createJsonErrorResponse(400, -32e3, "Bad Request: Mcp-Session-Id header is required");
-    }
-    if (sessionId !== this.sessionId) {
-      this.onerror?.(new Error("Session not found"));
-      return this.createJsonErrorResponse(404, -32001, "Session not found");
-    }
-    return void 0;
-  }
-  /**
-   * Validates the MCP-Protocol-Version header on incoming requests.
-   *
-   * For initialization: Version negotiation handles unknown versions gracefully
-   * (server responds with its supported version).
-   *
-   * For subsequent requests with MCP-Protocol-Version header:
-   * - Accept if in supported list
-   * - 400 if unsupported
-   *
-   * For HTTP requests without the MCP-Protocol-Version header:
-   * - Accept and default to the version negotiated at initialization
-   */
-  validateProtocolVersion(req) {
-    const protocolVersion = req.headers.get("mcp-protocol-version");
-    if (protocolVersion !== null && !SUPPORTED_PROTOCOL_VERSIONS.includes(protocolVersion)) {
-      this.onerror?.(new Error(`Bad Request: Unsupported protocol version: ${protocolVersion} (supported versions: ${SUPPORTED_PROTOCOL_VERSIONS.join(", ")})`));
-      return this.createJsonErrorResponse(400, -32e3, `Bad Request: Unsupported protocol version: ${protocolVersion} (supported versions: ${SUPPORTED_PROTOCOL_VERSIONS.join(", ")})`);
-    }
-    return void 0;
-  }
-  async close() {
-    if (this._closed) {
-      return;
-    }
-    this._closed = true;
-    this._streamMapping.forEach(({ cleanup }) => {
-      cleanup();
-    });
-    this._streamMapping.clear();
-    this._requestResponseMap.clear();
-    this._resumableStreams.clear();
-    this.onclose?.();
-  }
-  /**
-   * Close an SSE stream for a specific request, triggering client reconnection.
-   * Use this to implement polling behavior during long-running operations -
-   * client will reconnect after the retry interval specified in the priming event.
-   */
-  closeSSEStream(requestId) {
-    const streamId = this._requestToStreamMapping.get(requestId);
-    if (!streamId)
-      return;
-    const stream = this._streamMapping.get(streamId);
-    if (stream) {
-      stream.cleanup();
-    }
-  }
-  /**
-   * Close the standalone GET SSE stream, triggering client reconnection.
-   * Use this to implement polling behavior for server-initiated notifications.
-   */
-  closeStandaloneSSEStream() {
-    const stream = this._streamMapping.get(this._standaloneSseStreamId);
-    if (stream) {
-      stream.cleanup();
-    }
-  }
-  async send(message, options) {
-    let requestId = options?.relatedRequestId;
-    if (isJSONRPCResultResponse(message) || isJSONRPCErrorResponse(message)) {
-      requestId = message.id;
-    }
-    if (requestId === void 0) {
-      if (isJSONRPCResultResponse(message) || isJSONRPCErrorResponse(message)) {
-        throw new Error("Cannot send a response on a standalone SSE stream unless resuming a previous client request");
-      }
-      let eventId;
-      if (this._eventStore) {
-        eventId = await this._eventStore.storeEvent(this._standaloneSseStreamId, message);
-      }
-      const standaloneSse = this._streamMapping.get(this._standaloneSseStreamId);
-      if (standaloneSse === void 0) {
-        return;
-      }
-      if (standaloneSse.controller && standaloneSse.encoder && (eventId === void 0 || !standaloneSse.replayedEventIds?.has(eventId))) {
-        this.writeSSEEvent(standaloneSse.controller, standaloneSse.encoder, message, eventId);
-      }
-      return;
-    }
-    const streamId = this._requestToStreamMapping.get(requestId);
-    if (!streamId) {
-      throw new Error(`No connection established for request ID: ${String(requestId)}`);
-    }
-    let stream = this._streamMapping.get(streamId);
-    if (!this._enableJsonResponse) {
-      let eventId;
-      if (this._eventStore) {
-        eventId = await this._eventStore.storeEvent(streamId, message);
-        stream = this._streamMapping.get(streamId);
-      }
-      if (stream?.controller && stream?.encoder && (eventId === void 0 || !stream.replayedEventIds?.has(eventId))) {
-        const written = this.writeSSEEvent(stream.controller, stream.encoder, message, eventId);
-        if (written && eventId !== void 0) {
-          this._resumableStreams.add(streamId);
-        }
-      }
-    }
-    if (isJSONRPCResultResponse(message) || isJSONRPCErrorResponse(message)) {
-      this._requestResponseMap.set(requestId, message);
-      const relatedIds = Array.from(this._requestToStreamMapping.entries()).filter(([_, sid]) => sid === streamId).map(([id]) => id);
-      const allResponsesReady = relatedIds.every((id) => this._requestResponseMap.has(id));
-      if (allResponsesReady) {
-        if (!stream) {
-          if (this._closed) {
-            for (const id of relatedIds) {
-              this._requestResponseMap.delete(id);
-              this._requestToStreamMapping.delete(id);
-            }
-            return;
-          }
-          if (!this._enableJsonResponse && this._eventStore && this._resumableStreams.has(streamId)) {
-            for (const id of relatedIds) {
-              this._requestResponseMap.delete(id);
-              this._requestToStreamMapping.delete(id);
-            }
-            this._resumableStreams.delete(streamId);
-            return;
-          }
-          for (const id of relatedIds) {
-            this._requestResponseMap.delete(id);
-            this._requestToStreamMapping.delete(id);
-          }
-          throw new Error(`No connection established for request ID: ${String(requestId)}`);
-        }
-        if (this._enableJsonResponse && stream.resolveJson) {
-          const headers = {
-            "Content-Type": "application/json"
-          };
-          if (this.sessionId !== void 0) {
-            headers["mcp-session-id"] = this.sessionId;
-          }
-          const responses = relatedIds.map((id) => this._requestResponseMap.get(id));
-          if (responses.length === 1) {
-            stream.resolveJson(new Response(JSON.stringify(responses[0]), { status: 200, headers }));
-          } else {
-            stream.resolveJson(new Response(JSON.stringify(responses), { status: 200, headers }));
-          }
-        } else {
-          stream.cleanup();
-        }
-        for (const id of relatedIds) {
-          this._requestResponseMap.delete(id);
-          this._requestToStreamMapping.delete(id);
-        }
-        this._resumableStreams.delete(streamId);
-      }
-    }
-  }
-};
-
-// node_modules/@modelcontextprotocol/sdk/dist/esm/server/streamableHttp.js
-var StreamableHTTPServerTransport = class {
-  constructor(options = {}) {
-    this._requestContext = /* @__PURE__ */ new WeakMap();
-    this._webStandardTransport = new WebStandardStreamableHTTPServerTransport(options);
-    this._requestListener = getRequestListener(async (webRequest) => {
-      const context = this._requestContext.get(webRequest);
-      return this._webStandardTransport.handleRequest(webRequest, {
-        authInfo: context?.authInfo,
-        parsedBody: context?.parsedBody
-      });
-    }, { overrideGlobalObjects: false });
-  }
-  /**
-   * Gets the session ID for this transport instance.
-   */
-  get sessionId() {
-    return this._webStandardTransport.sessionId;
-  }
-  /**
-   * Sets callback for when the transport is closed.
-   */
-  set onclose(handler) {
-    this._webStandardTransport.onclose = handler;
-  }
-  get onclose() {
-    return this._webStandardTransport.onclose;
-  }
-  /**
-   * Sets callback for transport errors.
-   */
-  set onerror(handler) {
-    this._webStandardTransport.onerror = handler;
-  }
-  get onerror() {
-    return this._webStandardTransport.onerror;
-  }
-  /**
-   * Sets callback for incoming messages.
-   */
-  set onmessage(handler) {
-    this._webStandardTransport.onmessage = handler;
-  }
-  get onmessage() {
-    return this._webStandardTransport.onmessage;
-  }
-  /**
-   * Starts the transport. This is required by the Transport interface but is a no-op
-   * for the Streamable HTTP transport as connections are managed per-request.
-   */
-  async start() {
-    return this._webStandardTransport.start();
-  }
-  /**
-   * Closes the transport and all active connections.
-   */
-  async close() {
-    return this._webStandardTransport.close();
-  }
-  /**
-   * Sends a JSON-RPC message through the transport.
-   */
-  async send(message, options) {
-    return this._webStandardTransport.send(message, options);
-  }
-  /**
-   * Handles an incoming HTTP request, whether GET or POST.
-   *
-   * This method converts Node.js HTTP objects to Web Standard Request/Response
-   * and delegates to the underlying WebStandardStreamableHTTPServerTransport.
-   *
-   * @param req - Node.js IncomingMessage, optionally with auth property from middleware
-   * @param res - Node.js ServerResponse
-   * @param parsedBody - Optional pre-parsed body from body-parser middleware
-   */
-  async handleRequest(req, res, parsedBody) {
-    const authInfo = req.auth;
-    const handler = getRequestListener(async (webRequest) => {
-      return this._webStandardTransport.handleRequest(webRequest, {
-        authInfo,
-        parsedBody
-      });
-    }, { overrideGlobalObjects: false });
-    await handler(req, res);
-  }
-  /**
-   * Close an SSE stream for a specific request, triggering client reconnection.
-   * Use this to implement polling behavior during long-running operations -
-   * client will reconnect after the retry interval specified in the priming event.
-   */
-  closeSSEStream(requestId) {
-    this._webStandardTransport.closeSSEStream(requestId);
-  }
-  /**
-   * Close the standalone GET SSE stream, triggering client reconnection.
-   * Use this to implement polling behavior for server-initiated notifications.
-   */
-  closeStandaloneSSEStream() {
-    this._webStandardTransport.closeStandaloneSSEStream();
-  }
-};
-
 // dist/redact.js
 var REDACTED = "[REDACTED]";
 var secrets = [];
-function registerSecret(value3) {
-  if (!value3 || value3.length < 8 || secrets.includes(value3))
+function registerSecret(value2) {
+  if (!value2 || value2.length < 8 || secrets.includes(value2))
     return;
-  secrets.push(value3);
+  secrets.push(value2);
   secrets.sort((a, b) => b.length - a.length);
 }
 var PATTERNS = [
@@ -31272,9 +28938,13 @@ function redact(input2) {
   return out;
 }
 function logStderr(level, event, fields = {}) {
-  const line = JSON.stringify({ time: (/* @__PURE__ */ new Date()).toISOString(), level, event, ...fields });
-  process.stderr.write(`${redact(line)}
+  const line = redact(JSON.stringify({ time: (/* @__PURE__ */ new Date()).toISOString(), level, event, ...fields }));
+  const stderr = typeof process !== "undefined" ? process.stderr : void 0;
+  if (stderr && typeof stderr.write === "function")
+    stderr.write(`${line}
 `);
+  else
+    console.error(line);
 }
 
 // node_modules/zod/v3/helpers/util.js
@@ -31330,11 +29000,11 @@ var util;
     return array2.map((val) => typeof val === "string" ? `'${val}'` : val).join(separator);
   }
   util2.joinValues = joinValues2;
-  util2.jsonStringifyReplacer = (_, value3) => {
-    if (typeof value3 === "bigint") {
-      return value3.toString();
+  util2.jsonStringifyReplacer = (_, value2) => {
+    if (typeof value2 === "bigint") {
+      return value2.toString();
     }
-    return value3;
+    return value2;
   };
 })(util || (util = {}));
 var objectUtil;
@@ -31503,9 +29173,9 @@ var ZodError2 = class _ZodError extends Error {
     processError(this);
     return fieldErrors;
   }
-  static assert(value3) {
-    if (!(value3 instanceof _ZodError)) {
-      throw new Error(`Not a ZodError: ${value3}`);
+  static assert(value2) {
+    if (!(value2 instanceof _ZodError)) {
+      throw new Error(`Not a ZodError: ${value2}`);
     }
   }
   toString() {
@@ -31721,10 +29391,10 @@ var ParseStatus = class _ParseStatus {
     const syncPairs = [];
     for (const pair of pairs) {
       const key = await pair.key;
-      const value3 = await pair.value;
+      const value2 = await pair.value;
       syncPairs.push({
         key,
-        value: value3
+        value: value2
       });
     }
     return _ParseStatus.mergeObjectSync(status, syncPairs);
@@ -31732,17 +29402,17 @@ var ParseStatus = class _ParseStatus {
   static mergeObjectSync(status, pairs) {
     const finalObject = {};
     for (const pair of pairs) {
-      const { key, value: value3 } = pair;
+      const { key, value: value2 } = pair;
       if (key.status === "aborted")
         return INVALID2;
-      if (value3.status === "aborted")
+      if (value2.status === "aborted")
         return INVALID2;
       if (key.status === "dirty")
         status.dirty();
-      if (value3.status === "dirty")
+      if (value2.status === "dirty")
         status.dirty();
-      if (key.value !== "__proto__" && (typeof value3.value !== "undefined" || pair.alwaysSet)) {
-        finalObject[key.value] = value3.value;
+      if (key.value !== "__proto__" && (typeof value2.value !== "undefined" || pair.alwaysSet)) {
+        finalObject[key.value] = value2.value;
       }
     }
     return { status: status.value, value: finalObject };
@@ -31751,8 +29421,8 @@ var ParseStatus = class _ParseStatus {
 var INVALID2 = Object.freeze({
   status: "aborted"
 });
-var DIRTY = (value3) => ({ status: "dirty", value: value3 });
-var OK = (value3) => ({ status: "valid", value: value3 });
+var DIRTY = (value2) => ({ status: "dirty", value: value2 });
+var OK = (value2) => ({ status: "valid", value: value2 });
 var isAborted = (x) => x.status === "aborted";
 var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
@@ -31767,10 +29437,10 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value3, path, key) {
+  constructor(parent, value2, path, key) {
     this._cachedPath = [];
     this.parent = parent;
-    this.data = value3;
+    this.data = value2;
     this._path = path;
     this._key = key;
   }
@@ -32592,25 +30262,25 @@ var ZodString2 = class _ZodString2 extends ZodType2 {
       ...errorUtil.errToObj(message)
     });
   }
-  includes(value3, options) {
+  includes(value2, options) {
     return this._addCheck({
       kind: "includes",
-      value: value3,
+      value: value2,
       position: options?.position,
       ...errorUtil.errToObj(options?.message)
     });
   }
-  startsWith(value3, message) {
+  startsWith(value2, message) {
     return this._addCheck({
       kind: "startsWith",
-      value: value3,
+      value: value2,
       ...errorUtil.errToObj(message)
     });
   }
-  endsWith(value3, message) {
+  endsWith(value2, message) {
     return this._addCheck({
       kind: "endsWith",
-      value: value3,
+      value: value2,
       ...errorUtil.errToObj(message)
     });
   }
@@ -32832,26 +30502,26 @@ var ZodNumber2 = class _ZodNumber extends ZodType2 {
     }
     return { status: status.value, value: input2.data };
   }
-  gte(value3, message) {
-    return this.setLimit("min", value3, true, errorUtil.toString(message));
+  gte(value2, message) {
+    return this.setLimit("min", value2, true, errorUtil.toString(message));
   }
-  gt(value3, message) {
-    return this.setLimit("min", value3, false, errorUtil.toString(message));
+  gt(value2, message) {
+    return this.setLimit("min", value2, false, errorUtil.toString(message));
   }
-  lte(value3, message) {
-    return this.setLimit("max", value3, true, errorUtil.toString(message));
+  lte(value2, message) {
+    return this.setLimit("max", value2, true, errorUtil.toString(message));
   }
-  lt(value3, message) {
-    return this.setLimit("max", value3, false, errorUtil.toString(message));
+  lt(value2, message) {
+    return this.setLimit("max", value2, false, errorUtil.toString(message));
   }
-  setLimit(kind, value3, inclusive, message) {
+  setLimit(kind, value2, inclusive, message) {
     return new _ZodNumber({
       ...this._def,
       checks: [
         ...this._def.checks,
         {
           kind,
-          value: value3,
+          value: value2,
           inclusive,
           message: errorUtil.toString(message)
         }
@@ -32902,10 +30572,10 @@ var ZodNumber2 = class _ZodNumber extends ZodType2 {
       message: errorUtil.toString(message)
     });
   }
-  multipleOf(value3, message) {
+  multipleOf(value2, message) {
     return this._addCheck({
       kind: "multipleOf",
-      value: value3,
+      value: value2,
       message: errorUtil.toString(message)
     });
   }
@@ -33048,26 +30718,26 @@ var ZodBigInt2 = class _ZodBigInt extends ZodType2 {
     });
     return INVALID2;
   }
-  gte(value3, message) {
-    return this.setLimit("min", value3, true, errorUtil.toString(message));
+  gte(value2, message) {
+    return this.setLimit("min", value2, true, errorUtil.toString(message));
   }
-  gt(value3, message) {
-    return this.setLimit("min", value3, false, errorUtil.toString(message));
+  gt(value2, message) {
+    return this.setLimit("min", value2, false, errorUtil.toString(message));
   }
-  lte(value3, message) {
-    return this.setLimit("max", value3, true, errorUtil.toString(message));
+  lte(value2, message) {
+    return this.setLimit("max", value2, true, errorUtil.toString(message));
   }
-  lt(value3, message) {
-    return this.setLimit("max", value3, false, errorUtil.toString(message));
+  lt(value2, message) {
+    return this.setLimit("max", value2, false, errorUtil.toString(message));
   }
-  setLimit(kind, value3, inclusive, message) {
+  setLimit(kind, value2, inclusive, message) {
     return new _ZodBigInt({
       ...this._def,
       checks: [
         ...this._def.checks,
         {
           kind,
-          value: value3,
+          value: value2,
           inclusive,
           message: errorUtil.toString(message)
         }
@@ -33112,10 +30782,10 @@ var ZodBigInt2 = class _ZodBigInt extends ZodType2 {
       message: errorUtil.toString(message)
     });
   }
-  multipleOf(value3, message) {
+  multipleOf(value2, message) {
     return this._addCheck({
       kind: "multipleOf",
-      value: value3,
+      value: value2,
       message: errorUtil.toString(message)
     });
   }
@@ -33579,10 +31249,10 @@ var ZodObject2 = class _ZodObject extends ZodType2 {
     const pairs = [];
     for (const key of shapeKeys) {
       const keyValidator = shape[key];
-      const value3 = ctx.data[key];
+      const value2 = ctx.data[key];
       pairs.push({
         key: { status: "valid", value: key },
-        value: keyValidator._parse(new ParseInputLazyPath(ctx, value3, ctx.path, key)),
+        value: keyValidator._parse(new ParseInputLazyPath(ctx, value2, ctx.path, key)),
         alwaysSet: key in ctx.data
       });
     }
@@ -33610,11 +31280,11 @@ var ZodObject2 = class _ZodObject extends ZodType2 {
     } else {
       const catchall = this._def.catchall;
       for (const key of extraKeys) {
-        const value3 = ctx.data[key];
+        const value2 = ctx.data[key];
         pairs.push({
           key: { status: "valid", value: key },
           value: catchall._parse(
-            new ParseInputLazyPath(ctx, value3, ctx.path, key)
+            new ParseInputLazyPath(ctx, value2, ctx.path, key)
             //, ctx.child(key), value, getParsedType(value)
           ),
           alwaysSet: key in ctx.data
@@ -33626,10 +31296,10 @@ var ZodObject2 = class _ZodObject extends ZodType2 {
         const syncPairs = [];
         for (const pair of pairs) {
           const key = await pair.key;
-          const value3 = await pair.value;
+          const value2 = await pair.value;
           syncPairs.push({
             key,
-            value: value3,
+            value: value2,
             alwaysSet: pair.alwaysSet
           });
         }
@@ -34060,11 +31730,11 @@ var ZodDiscriminatedUnion2 = class _ZodDiscriminatedUnion extends ZodType2 {
       if (!discriminatorValues.length) {
         throw new Error(`A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`);
       }
-      for (const value3 of discriminatorValues) {
-        if (optionsMap.has(value3)) {
-          throw new Error(`Discriminator property ${String(discriminator)} has duplicate value ${String(value3)}`);
+      for (const value2 of discriminatorValues) {
+        if (optionsMap.has(value2)) {
+          throw new Error(`Discriminator property ${String(discriminator)} has duplicate value ${String(value2)}`);
         }
-        optionsMap.set(value3, type);
+        optionsMap.set(value2, type);
       }
     }
     return new _ZodDiscriminatedUnion({
@@ -34310,10 +31980,10 @@ var ZodMap2 = class extends ZodType2 {
     }
     const keyType = this._def.keyType;
     const valueType = this._def.valueType;
-    const pairs = [...ctx.data.entries()].map(([key, value3], index) => {
+    const pairs = [...ctx.data.entries()].map(([key, value2], index) => {
       return {
         key: keyType._parse(new ParseInputLazyPath(ctx, key, ctx.path, [index, "key"])),
-        value: valueType._parse(new ParseInputLazyPath(ctx, value3, ctx.path, [index, "value"]))
+        value: valueType._parse(new ParseInputLazyPath(ctx, value2, ctx.path, [index, "value"]))
       };
     });
     if (ctx.common.async) {
@@ -34321,14 +31991,14 @@ var ZodMap2 = class extends ZodType2 {
       return Promise.resolve().then(async () => {
         for (const pair of pairs) {
           const key = await pair.key;
-          const value3 = await pair.value;
-          if (key.status === "aborted" || value3.status === "aborted") {
+          const value2 = await pair.value;
+          if (key.status === "aborted" || value2.status === "aborted") {
             return INVALID2;
           }
-          if (key.status === "dirty" || value3.status === "dirty") {
+          if (key.status === "dirty" || value2.status === "dirty") {
             status.dirty();
           }
-          finalMap.set(key.value, value3.value);
+          finalMap.set(key.value, value2.value);
         }
         return { status: status.value, value: finalMap };
       });
@@ -34336,14 +32006,14 @@ var ZodMap2 = class extends ZodType2 {
       const finalMap = /* @__PURE__ */ new Map();
       for (const pair of pairs) {
         const key = pair.key;
-        const value3 = pair.value;
-        if (key.status === "aborted" || value3.status === "aborted") {
+        const value2 = pair.value;
+        if (key.status === "aborted" || value2.status === "aborted") {
           return INVALID2;
         }
-        if (key.status === "dirty" || value3.status === "dirty") {
+        if (key.status === "dirty" || value2.status === "dirty") {
           status.dirty();
         }
-        finalMap.set(key.value, value3.value);
+        finalMap.set(key.value, value2.value);
       }
       return { status: status.value, value: finalMap };
     }
@@ -34581,9 +32251,9 @@ var ZodLiteral2 = class extends ZodType2 {
     return this._def.value;
   }
 };
-ZodLiteral2.create = (value3, params) => {
+ZodLiteral2.create = (value2, params) => {
   return new ZodLiteral2({
-    value: value3,
+    value: value2,
     typeName: ZodFirstPartyTypeKind2.ZodLiteral,
     ...processCreateParams(params)
   });
@@ -35184,8 +32854,8 @@ var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
   get with() {
     return this.check;
   },
-  set with(value3) {
-    own(this, "with", value3);
+  set with(value2) {
+    own(this, "with", value2);
   },
   parse(data, params) {
     return parse(this, data, params, { callee: this.parse });
@@ -35469,8 +33139,8 @@ function addErrorMessage(res, key, errorMessage, refs) {
     };
   }
 }
-function setResponseValueAndErrors(res, key, value3, errorMessage, refs) {
-  res[key] = value3;
+function setResponseValueAndErrors(res, key, value2, errorMessage, refs) {
+  res[key] = value2;
   addErrorMessage(res, key, errorMessage, refs);
 }
 
@@ -35922,7 +33592,7 @@ function escapeNonAlphaNumeric(source) {
   }
   return result;
 }
-function addFormat(schema, value3, message, refs) {
+function addFormat(schema, value2, message, refs) {
   if (schema.format || schema.anyOf?.some((x) => x.format)) {
     if (!schema.anyOf) {
       schema.anyOf = [];
@@ -35943,11 +33613,11 @@ function addFormat(schema, value3, message, refs) {
       }
     }
     schema.anyOf.push({
-      format: value3,
+      format: value2,
       ...message && refs.errorMessages && { errorMessage: { format: message } }
     });
   } else {
-    setResponseValueAndErrors(schema, "format", value3, message, refs);
+    setResponseValueAndErrors(schema, "format", value2, message, refs);
   }
 }
 function addPattern2(schema, regex, message, refs) {
@@ -36607,7 +34277,7 @@ var get$ref = (item, refs) => {
       return { $ref: getRelativePath(refs.currentPath, item.path) };
     case "none":
     case "seen": {
-      if (item.path.length < refs.currentPath.length && item.path.every((value3, index) => refs.currentPath[index] === value3)) {
+      if (item.path.length < refs.currentPath.length && item.path.every((value2, index) => refs.currentPath[index] === value2)) {
         console.warn(`Recursive reference detected at ${refs.currentPath.join("/")}! Defaulting to any`);
         return parseAnyDef(refs);
       }
@@ -36715,11 +34385,11 @@ function getMethodLiteral(schema) {
   if (!methodSchema) {
     throw new Error("Schema is missing a method literal");
   }
-  const value3 = getLiteralValue(methodSchema);
-  if (typeof value3 !== "string") {
+  const value2 = getLiteralValue(methodSchema);
+  if (typeof value2 !== "string") {
     throw new Error("Schema method literal must be a string");
   }
-  return value3;
+  return value2;
 }
 function parseWithCompat(schema, data) {
   const result = safeParse3(schema, data);
@@ -37686,8 +35356,8 @@ var Protocol = class {
     };
   }
 };
-function isPlainObject2(value3) {
-  return value3 !== null && typeof value3 === "object" && !Array.isArray(value3);
+function isPlainObject2(value2) {
+  return value2 !== null && typeof value2 === "object" && !Array.isArray(value2);
 }
 function mergeCapabilities(base, additional) {
   const result = { ...base };
@@ -38481,9 +36151,9 @@ var ExperimentalMcpServerTasks = class {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js
-function toolInputElementCount(value3, max) {
+function toolInputElementCount(value2, max) {
   let count = 0;
-  const stack = [value3];
+  const stack = [value2];
   while (stack.length > 0) {
     const node2 = stack.pop();
     if (node2 === null || typeof node2 !== "object")
@@ -38509,13 +36179,13 @@ function toolInputElementCount(value3, max) {
   }
   return count;
 }
-function resolveMaxToolInputElements(value3) {
-  if (value3 === void 0 || value3 === Infinity)
+function resolveMaxToolInputElements(value2) {
+  if (value2 === void 0 || value2 === Infinity)
     return void 0;
-  if (typeof value3 !== "number" || Number.isNaN(value3) || value3 < 1) {
-    throw new RangeError(`maxToolInputElements must be a number of at least 1, or Infinity, got ${String(value3)}`);
+  if (typeof value2 !== "number" || Number.isNaN(value2) || value2 < 1) {
+    throw new RangeError(`maxToolInputElements must be a number of at least 1, or Infinity, got ${String(value2)}`);
   }
-  return value3;
+  return value2;
 }
 var McpServer = class {
   constructor(serverInfo, options) {
@@ -39249,8 +36919,8 @@ var EMPTY_OBJECT_JSON_SCHEMA = {
   type: "object",
   properties: {}
 };
-function isZodTypeLike(value3) {
-  return value3 !== null && typeof value3 === "object" && "parse" in value3 && typeof value3.parse === "function" && "safeParse" in value3 && typeof value3.safeParse === "function";
+function isZodTypeLike(value2) {
+  return value2 !== null && typeof value2 === "object" && "parse" in value2 && typeof value2.parse === "function" && "safeParse" in value2 && typeof value2.safeParse === "function";
 }
 function isZodSchemaInstance(obj) {
   return "_def" in obj || "_zod" in obj || isZodTypeLike(obj);
@@ -39299,9 +36969,9 @@ function getMethodValue(schema) {
   if (!methodSchema) {
     throw new Error("Schema is missing a method literal");
   }
-  const value3 = getLiteralValue(methodSchema);
-  if (typeof value3 === "string") {
-    return value3;
+  const value2 = getLiteralValue(methodSchema);
+  if (typeof value2 === "string") {
+    return value2;
   }
   throw new Error("Schema method literal must be a string");
 }
@@ -39478,12 +37148,12 @@ function sleep(ms) {
 function backoffMs(attempt) {
   return Math.floor(Math.random() * 250 * 2 ** attempt);
 }
-function buildUrl2(baseUrl, path, query = {}) {
+function buildUrl(baseUrl, path, query = {}) {
   const url2 = new URL(baseUrl + path);
-  for (const [key, value3] of Object.entries(query)) {
-    if (value3 === void 0)
+  for (const [key, value2] of Object.entries(query)) {
+    if (value2 === void 0)
       continue;
-    url2.searchParams.set(key, Array.isArray(value3) ? value3.join(",") : String(value3));
+    url2.searchParams.set(key, Array.isArray(value2) ? value2.join(",") : String(value2));
   }
   return url2;
 }
@@ -39496,7 +37166,7 @@ var ApiClient = class {
   }
   async request(method, path, options = {}) {
     const { baseUrl } = this.tokens.assertConfigured();
-    const url2 = buildUrl2(baseUrl, path, options.query);
+    const url2 = buildUrl(baseUrl, path, options.query);
     let refreshed = false;
     for (let attempt = 1; ; attempt++) {
       const token = await this.tokens.token();
@@ -39748,8 +37418,8 @@ function annotationsFor(kind, title, idempotent, openWorld) {
     openWorldHint: openWorld
   };
 }
-function isPlainObject3(value3) {
-  return value3 !== null && typeof value3 === "object" && !Array.isArray(value3);
+function isPlainObject3(value2) {
+  return value2 !== null && typeof value2 === "object" && !Array.isArray(value2);
 }
 function defineTool(server, ctx, spec) {
   if (!NAME_PATTERN.test(spec.name)) {
@@ -39877,8 +37547,8 @@ function decodeCursor(cursor) {
   }
   throw new ToolError("cursor is not one this server issued.", "Pass next_cursor exactly as the previous page returned it, or omit cursor for the first page.");
 }
-function isRow(value3) {
-  return value3 !== null && typeof value3 === "object" && !Array.isArray(value3);
+function isRow(value2) {
+  return value2 !== null && typeof value2 === "object" && !Array.isArray(value2);
 }
 function rowsOf(body, spec, where) {
   let raw;
@@ -39896,17 +37566,17 @@ function rowsOf(body, spec, where) {
     const keys = isRow(body) ? Object.keys(body).join(", ") || "(none)" : typeof body;
     throw new ToolError(`${where} returned a response shape this server does not recognize (keys: ${keys}).`, "Report this as a server bug. Do not treat it as an empty result.");
   }
-  const list3 = raw;
-  const rows = list3.map((r) => isRow(r) ? r : { value: r });
+  const list2 = raw;
+  const rows = list2.map((r) => isRow(r) ? r : { value: r });
   return { rows, dropped: 0 };
 }
 function fillPath(template, values) {
   return template.replace(/\{([^}]+)\}/g, (_m, key) => {
-    const value3 = values[key];
-    if (value3 === void 0 || value3 === "") {
+    const value2 = values[key];
+    if (value2 === void 0 || value2 === "") {
       throw new ToolError(`Internal: no value for path parameter {${key}}.`, "Report this as a server bug.");
     }
-    return encodeURIComponent(value3);
+    return encodeURIComponent(value2);
   });
 }
 function describe3(route) {
@@ -39962,14 +37632,14 @@ async function runRoute(route, args, ctx) {
   let org;
   let rowField;
   for (const [key, param] of Object.entries(route.params ?? {})) {
-    const value3 = args[key];
-    if (value3 === void 0)
+    const value2 = args[key];
+    if (value2 === void 0)
       continue;
     const wire = param.wire ?? key;
     if (param.in === "path")
-      pathValues[wire] = String(value3);
+      pathValues[wire] = String(value2);
     else
-      query[wire] = value3;
+      query[wire] = value2;
   }
   const scope = route.scope;
   switch (scope.kind) {
@@ -43456,13 +41126,14 @@ function registerDiagnosticTools(server, ctx) {
     kind: "read",
     description: `Report this server's configuration without calling NinjaOne: version, region and base URL, whether the client id and secret are set (never their values), requested OAuth scopes and what they allow, missing environment variables, unusable settings, the organization default and boundary, and the write gate. Call this first when tools fail or seem missing, then ${TOOL_PREFIX}_test_connection.`,
     inputSchema: {},
-    async handler(_args, { config: config2 }) {
+    async handler(_args, { config: config2, transport }) {
       const ready = config2.missing.length === 0;
+      const where = transport === "stdio" ? `in the MCP client configuration${config2.envFilePath ? ` (or in ${config2.envFilePath} with chmod 600)` : ""} and restart the client` : transport === "worker" ? "as wrangler secrets (wrangler secret put) and redeploy" : "in the deployment (Key Vault secrets on Azure) and restart the container";
       const scopes = config2.scopes;
       return {
         server: SERVER_NAME,
         version: SERVER_VERSION,
-        transport: "stdio",
+        transport,
         region: config2.region ?? null,
         base_url: config2.baseUrl ?? null,
         known_regions: REGIONS,
@@ -43489,7 +41160,7 @@ function registerDiagnosticTools(server, ctx) {
         toolsets_env_var: ENV.toolsets,
         tools_listed: ctx.tools.size,
         ready,
-        next_step: ready ? `Call ${TOOL_PREFIX}_test_connection to prove the credential works.` : `Set ${config2.missing.join(", ")} in the MCP client configuration (or in ${defaultEnvFilePath()} with chmod 600) and restart the client. Create the API client in NinjaOne under Administration > Apps > API (client credentials grant).`
+        next_step: ready ? `Call ${TOOL_PREFIX}_test_connection to prove the credential works.` : `Set ${config2.missing.join(", ")} ${where}. Create the API client in NinjaOne under Administration > Apps > API (client credentials grant).`
       };
     }
   });
@@ -43539,10 +41210,10 @@ function validatePath(path) {
 }
 function cleanQuery(query) {
   const out = {};
-  for (const [key, value3] of Object.entries(query ?? {})) {
+  for (const [key, value2] of Object.entries(query ?? {})) {
     if (key.toLowerCase() === "showsecurevalues")
       continue;
-    out[key] = value3;
+    out[key] = value2;
   }
   out.showSecureValues = void 0;
   return out;
@@ -43628,20 +41299,10 @@ function registerPrompts(server) {
   }, () => user(`Check my NinjaOne connection. Call ${P4}_status_server and explain any missing variables or problems, then ${P4}_test_connection. If it fails, tell me exactly what to change (client id, secret, region or scopes) without asking me to paste a secret here.`));
 }
 
+// dist/generated/llms.js
+var LLMS_TXT = "# NinjaOne\n\n> Public documentation index for the NinjaOne platform (formerly NinjaRMM): the Public API v2 reference and OpenAPI specs, OAuth 2.0, device filters, webhooks, custom fields, and help center articles for the features this MCP server's tools reach. Compiled for agents building or using ninja-one-mcp. Every link was checked on 2026-11-23. Unverified links are left out. NinjaOne instances are regional: replace `app.ninjarmm.com` with `us2`, `eu`, `ca` or `oc` as needed. The API base is `https://{host}/v2/` and OAuth is at `https://{host}/ws/oauth/token`.\n\nKey facts:\n\n- Regions: `app.ninjarmm.com` (US), `us2.ninjarmm.com` (US2), `eu.ninjarmm.com` (EU), `ca.ninjarmm.com` (Canada), `oc.ninjarmm.com` (Oceania). Every API client exists in exactly one of them.\n- Auth: OAuth 2.0. This server uses `client_credentials` with a form-encoded POST to `/ws/oauth/token`.\n  - Scopes are `monitoring` (read), `management` (write) and `control` (remote actions and scripts).\n  - Access tokens last 3600 seconds in the documented example.\n- Paging: `pageSize` plus `after` (the last id) on list endpoints. `cursor` (a cursor name) on `/v2/queries/*`. `pageInfo.nextCursor` with `after` on ITAM.\n- Device filter: the `df` query parameter (see Device Filters below).\n- Rate limits: no public page gives numbers. The spec documents 429 on some endpoints. Retry with backoff and honor `Retry-After`.\n\n## API reference\n\n- [Public API reference, beta (US)](https://app.ninjarmm.com/apidocs-beta/): The current reference UI with auth guides and articles. Copies exist on us2, eu, ca and oc.\n- [Public API docs, Swagger UI (US)](https://app.ninjarmm.com/apidocs/): The original Swagger UI, with Authorization and Core Resources sections.\n- [Public API reference, beta (EU)](https://eu.ninjarmm.com/apidocs-beta/): EU copy of the reference.\n- [Public API reference, beta (US2)](https://us2.ninjarmm.com/apidocs-beta/): US2 copy.\n- [Public API reference, beta (CA)](https://ca.ninjarmm.com/apidocs-beta/): Canada copy.\n- [Public API reference, beta (OC)](https://oc.ninjarmm.com/apidocs-beta/): Oceania copy.\n\n## OpenAPI specs\n\n- [NinjaRMM-API-v2.yaml (US)](https://app.ninjarmm.com/apidocs-beta/NinjaRMM-API-v2.yaml): OpenAPI 3.0.1, \"NinjaOne Public API 2.0\" 2.0.9-draft, 315 operations. This is the source of `spec/ninjaone-public-api-v2.yaml` in this repo.\n- [NinjaRMM-API-v2.yaml (EU)](https://eu.ninjarmm.com/apidocs-beta/NinjaRMM-API-v2.yaml): EU variant with the same 315 operations. ca and oc serve the same file.\n- [NinjaRMM-API-v2.json (US)](https://app.ninjarmm.com/apidocs/NinjaRMM-API-v2.json): The JSON spec behind the original Swagger UI.\n- [authorization.json](https://app.ninjarmm.com/apidocs/authorization.json): OpenAPI for `/ws/oauth/authorize` and `/ws/oauth/token`.\n\n## Authorization\n\n- [OAuth 2.0 Authorization Framework overview](https://app.ninjarmm.com/apidocs-beta/articles/authorization/overview.md): Grant types, endpoints, and which flow to use.\n- [Client Credentials Flow](https://app.ninjarmm.com/apidocs-beta/articles/authorization/flows/client-credentials-flow.md): Machine-to-machine token request and an example response. This is the flow this server uses.\n- [Register Machine-to-Machine Applications](https://app.ninjarmm.com/apidocs-beta/articles/authorization/create-applications/machine-to-machine-apps.md): Creating the API Services app this server needs.\n- [API OAuth Token Configuration](https://www.ninjaone.com/docs/application-programming-interface-api/oauth-token-configuration/): Registering a client app, grant types, redirect URLs, and the monitoring, management and control scopes.\n- [Refresh Tokens](https://app.ninjarmm.com/apidocs-beta/articles/authorization/refresh-tokens.md): The `offline_access` scope and `grant_type=refresh_token`.\n- [Authorization Code Flow](https://app.ninjarmm.com/apidocs-beta/articles/authorization/flows/authorization-code-flow.md): The server-side web app flow.\n- [Authorization Code Flow with PKCE](https://app.ninjarmm.com/apidocs-beta/articles/authorization/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce.md): For native apps and SPAs.\n- [Public API 2.0 Authorization](https://www.ninjaone.com/docs/application-programming-interface-api/public-api-2-0-authorization/): Using a token or session key in the docs UI.\n\n## API guides\n\n- [Device Filters](https://app.ninjarmm.com/apidocs-beta/articles/devices/device-filters.md): Syntax for the `df` parameter, used by list and report tools.\n- [Webhooks Overview](https://app.ninjarmm.com/apidocs-beta/articles/webhooks/overview.md): Configuring the API webhook, the source hostnames per region, and the payload schema.\n- [Custom Fields Values](https://app.ninjarmm.com/apidocs-beta/articles/customFields/customFieldsValues/custom-fields-values.md): Value formats for each custom field type when reading or writing.\n- [NinjaOne Documentation: Public API](https://www.ninjaone.com/docs/application-programming-interface-api/public-api-operations/): Where the docs are, testing requests, and finding ids.\n- [Filter NinjaOne Tickets with the Public API](https://www.ninjaone.com/docs/application-programming-interface-api/ticket-filtering-api/): Filter syntax for the ticket board endpoints.\n- [Use API and CLI with Device Tags](https://www.ninjaone.com/docs/administration/device-and-system-tags/device-tagging-api-cli/): Tag endpoints.\n- [Reading from or Writing to Documentation: Automation, CLI, and API](https://www.ninjaone.com/docs/ninjaone-documentation/documentation-automation-cli-api-integration/): IT documentation through the API.\n- [ITAM: Use API Scripts to Access Core Asset Fields](https://www.ninjaone.com/docs/information-technology-asset-management-itam/access-core-asset-fields-api-scripts/): ITAM core fields.\n- [Application Programming Interface (API) articles](https://www.ninjaone.com/docs/application-programming-interface-api/): Index of all API help articles.\n- [Integration and Feature Availability by Instance](https://www.ninjaone.com/docs/integrations/integration-feature-availability-by-instance/): Which features each regional instance has.\n- [NinjaOne API License Agreement](https://www.ninjaone.com/api-license-agreement/): The API terms of use.\n\n## Help center: platform model and permissions\n\n- [NinjaOne Documentation hub](https://www.ninjaone.com/docs/): Help center home.\n- [NinjaOne Terminology](https://www.ninjaone.com/docs/getting-started/platform-getting-started/ninjaone-terminology/): Glossary.\n- [Groups, Organizations, and Locations](https://www.ninjaone.com/docs/endpoint-management/hardware-inventory/organizations-and-locations/): The tenancy model behind the `org` argument.\n- [Device Roles](https://www.ninjaone.com/docs/endpoint-management/device-roles/): Device role concepts.\n- [User Roles](https://www.ninjaone.com/docs/getting-started/users-and-permissions/user-roles-permission-management-guide/): Managing roles.\n- [Permission Settings for Technicians](https://www.ninjaone.com/docs/getting-started/users-and-permissions/technician-permission-settings-access-control/): Technician permissions, which also govern API access.\n\n## Help center: features the tools touch\n\n- [Custom Fields: Getting Started](https://www.ninjaone.com/docs/custom-fields/creating-custom-fields/): Creating fields, including the API read and write permissions a field needs.\n- [Custom Fields: Types and Functionality](https://www.ninjaone.com/docs/custom-fields/custom-field-types-functionality/): Field types.\n- [NinjaOne Documentation (IT docs)](https://www.ninjaone.com/docs/ninjaone-documentation/): Documents, templates, checklists and the knowledge base.\n- [Documentation: Knowledge Base Feature](https://www.ninjaone.com/docs/ninjaone-documentation/apps-services-documentation-guide/): The knowledge base.\n- [NinjaOne Policies](https://www.ninjaone.com/docs/policies-and-conditions/ninjaone-policies/): Policies overview.\n- [Policy Condition Types](https://www.ninjaone.com/docs/policies-and-conditions/conditions/policy-condition-types-explained/): Alert conditions.\n- [Notification Channels and Alerts](https://www.ninjaone.com/docs/getting-started/alerting-and-notifications/endpoint-notification-channels-alerts/): Notification channels and webhooks.\n- [Getting Started with Automation Scripting](https://www.ninjaone.com/docs/endpoint-management/scripting-and-automation/getting-started-automation-scripting/): Scripts that `run_device_script` can launch.\n- [Scripting, Automation and CLI Resource Catalog](https://www.ninjaone.com/docs/endpoint-management/scripting-and-automation/sscripting-automation-cli-resource-catalog/): Index of scripting articles.\n- [Patching Resource Catalog](https://www.ninjaone.com/docs/patch-management/patch-management-resource-catalog-guides/): Patch management articles.\n- [Ticketing Resource Catalog](https://www.ninjaone.com/docs/ticketing/ticketing-resource-catalog/): Ticketing articles.\n- [Backup Setup Guide](https://www.ninjaone.com/docs/backup/backup-setup-guide/): Backup setup.\n- [IT Asset Management Resource Catalog](https://www.ninjaone.com/docs/information-technology-asset-management-itam/it-asset-management-resource-catalog/): ITAM articles.\n- [Vulnerability Management Resource Catalog](https://www.ninjaone.com/docs/vulnerability-management/resource-catalog/): Vulnerability management and scan groups.\n- [PSA Resource Catalog](https://www.ninjaone.com/docs/professional-services-automation-psa/professional-services-automation-resource-catalog/): Billing, agreements and invoices.\n- [Reporting Resource Catalog](https://www.ninjaone.com/docs/reporting/reporting-resource-catalog/): Reporting articles.\n\n## Official MCP server\n\n- [Katana AI: Getting Started with the Model Context Protocol](https://www.ninjaone.com/docs/ticketing/katana-ai-getting-started-with-the-model-context-protocol/): NinjaOne's own hosted MCP server at `https://{instance}/api/v2/mcp/`. It currently supports the monitoring scope only. ninja-one-mcp is an independent project and is not affiliated with it.\n\n## Platform status and trust\n\n- [NinjaOne Trust Status](https://status.ninjaone.com/): Service status and release notices.\n- [Release Version Information](https://www.ninjaone.com/docs/getting-started/platform-getting-started/release-version-information/): How release notes are published.\n- [NinjaOne Trust](https://trustpage.ninjaone.com/): Trust and compliance center.\n- [Report a Security Vulnerability](https://www.ninjaone.com/product-security/): Vulnerability disclosure for NinjaOne itself.\n\n## Optional\n\n- [NinjaOne llms.txt](https://www.ninjaone.com/llms.txt): NinjaOne's own llms.txt. It is product and marketing focused and has no API section.\n- [Script Hub](https://www.ninjaone.com/script-hub/): Official script library.\n- [NinjaOne Academy](https://www.ninjaone.com/ninjaone-academy/): Official training.\n- [Community](https://www.ninjaone.com/community/): Official community channels.\n- [Device Filter Syntax PDF (v2.0.5)](https://resources.ninjarmm.com/API/Ninja+RMM+Public+API+v2.0.5+Device+Filter+Syntax.pdf): Older PDF of the `df` syntax.\n\n## Community (not official)\n\n- [NinjaOne PowerShell module](https://github.com/homotechsual/NinjaOne): Community PowerShell module for the API. NinjaOne publishes no official SDK.\n- [NinjaOne module docs](https://docs.homotechsual.dev/modules/ninjaone/): Docs for that module.\n";
+
 // dist/tools/resources.js
-import { readFileSync as readFileSync2 } from "node:fs";
-import { dirname, join as join2 } from "node:path";
-import { fileURLToPath } from "node:url";
-var HERE = dirname(fileURLToPath(import.meta.url));
-function bundled(file2) {
-  for (const dir of [join2(HERE, "..", ".."), HERE, join2(HERE, "..")]) {
-    try {
-      return readFileSync2(join2(dir, file2), "utf8");
-    } catch {
-    }
-  }
-  return `${file2} is not bundled with this install. See https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/${file2}`;
-}
 var DEVICE_FILTERS = `# NinjaOne device filters (df)
 
 Terms are joined with AND (also "and" or "&&"). There is no OR and no grouping.
@@ -43666,7 +41327,7 @@ When NINJAONE_ALLOWED_ORG_IDS is set this server appends "AND org in (...)" to e
 Source: https://app.ninjarmm.com/apidocs-beta/articles/devices/device-filters.md
 `;
 function registerResources(server) {
-  server.registerResource("ninjaone_docs_index", "ninjaone://docs/llms.txt", { description: "Index of NinjaOne public API and help documentation (llms.txt format).", mimeType: "text/markdown" }, async (uri) => ({ contents: [{ uri: uri.href, mimeType: "text/markdown", text: bundled("llms.txt") }] }));
+  server.registerResource("ninjaone_docs_index", "ninjaone://docs/llms.txt", { description: "Index of NinjaOne public API and help documentation (llms.txt format).", mimeType: "text/markdown" }, async (uri) => ({ contents: [{ uri: uri.href, mimeType: "text/markdown", text: LLMS_TXT }] }));
   server.registerResource("ninjaone_device_filters", "ninjaone://docs/device-filters", { description: "NinjaOne device filter (df) syntax with examples.", mimeType: "text/markdown" }, async (uri) => ({ contents: [{ uri: uri.href, mimeType: "text/markdown", text: DEVICE_FILTERS }] }));
 }
 
@@ -43810,8 +41471,8 @@ function registerViewTools(server, ctx) {
       script: ALERTS_JS,
       inputSchema: { df: external_exports.string().min(1).optional().describe('NinjaOne device filter, e.g. "org = 12".') },
       load: async (args, c) => {
-        const list3 = await callTool(c, `${P5}_list_alerts`, { ...args, limit: 500 });
-        return { ...list3, gate: { write: c.config.writeMode } };
+        const list2 = await callTool(c, `${P5}_list_alerts`, { ...args, limit: 500 });
+        return { ...list2, gate: { write: c.config.writeMode } };
       }
     }
   ];
@@ -43863,11 +41524,11 @@ async function settle2(work) {
     return { ok: false, error: formatError2(error62) };
   }
 }
-function asList(value3) {
-  if (Array.isArray(value3))
-    return value3.filter(isRow2);
-  if (isRow2(value3)) {
-    const arrays = Object.values(value3).filter(Array.isArray);
+function asList(value2) {
+  if (Array.isArray(value2))
+    return value2.filter(isRow2);
+  if (isRow2(value2)) {
+    const arrays = Object.values(value2).filter(Array.isArray);
     if (arrays.length === 1)
       return arrays[0].filter(isRow2);
   }
@@ -44115,9 +41776,17 @@ function createShared(config2) {
   const client = new ApiClient(config2);
   return { client, orgs: new OrgDirectory(client, config2) };
 }
-function createServer2(config2, shared = createShared(config2)) {
+function createServer(config2, options = {}) {
+  const shared = options.shared ?? createShared(config2);
   const server = new McpServer({ name: SERVER_NAME, title: SERVER_TITLE, version: SERVER_VERSION }, { instructions: INSTRUCTIONS });
-  const ctx = { config: config2, client: shared.client, orgs: shared.orgs, tools: /* @__PURE__ */ new Map(), readers: /* @__PURE__ */ new Map() };
+  const ctx = {
+    config: config2,
+    client: shared.client,
+    orgs: shared.orgs,
+    tools: /* @__PURE__ */ new Map(),
+    readers: /* @__PURE__ */ new Map(),
+    transport: options.transport ?? "stdio"
+  };
   const on = config2.toolsets;
   registerDiagnosticTools(server, ctx);
   registerRoutes(server, ctx, ALL_ROUTES);
@@ -44131,309 +41800,35 @@ function createServer2(config2, shared = createShared(config2)) {
   return { server, tools: ctx.tools };
 }
 
-// dist/http/auth.js
-import { createPublicKey, timingSafeEqual, verify } from "node:crypto";
-var AuthError = class extends Error {
-  status;
-  constructor(message, status = 401) {
-    super(message);
-    this.status = status;
-  }
-};
-function bearerOf(header) {
-  const m = /^Bearer\s+([A-Za-z0-9\-._~+/]+=*)$/i.exec(header ?? "");
-  return m?.[1];
-}
-function safeEqual(a, b) {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  const len = Math.max(x.length, y.length);
-  const xp = Buffer.alloc(len);
-  const yp = Buffer.alloc(len);
-  x.copy(xp);
-  y.copy(yp);
-  return timingSafeEqual(xp, yp) && x.length === y.length;
-}
-var JWKS_TTL_MS = 6 * 60 * 6e4;
-var JWKS_MIN_REFRESH_MS = 6e4;
-var JwksCache = class {
-  url;
-  keys = /* @__PURE__ */ new Map();
-  fetchedAt = 0;
-  inflight;
-  constructor(url2) {
-    this.url = url2;
-  }
-  async refresh() {
-    if (!this.inflight) {
-      this.inflight = (async () => {
-        const response = await fetch(this.url, { signal: AbortSignal.timeout(1e4) });
-        if (!response.ok)
-          throw new AuthError(`Could not fetch signing keys (${response.status}).`);
-        const body = await response.json();
-        this.keys = new Map((body.keys ?? []).filter((k) => k.kid && k.kty === "RSA").map((k) => [k.kid, k]));
-        this.fetchedAt = Date.now();
-      })().finally(() => {
-        this.inflight = void 0;
-      });
-    }
-    return this.inflight;
-  }
-  async key(kid) {
-    if (Date.now() - this.fetchedAt > JWKS_TTL_MS)
-      await this.refresh();
-    let key = this.keys.get(kid);
-    if (!key && Date.now() - this.fetchedAt > JWKS_MIN_REFRESH_MS) {
-      await this.refresh();
-      key = this.keys.get(kid);
-    }
-    return key;
-  }
-};
-function b64urlJson(part) {
-  try {
-    return JSON.parse(Buffer.from(part, "base64url").toString("utf8"));
-  } catch {
-    throw new AuthError("Malformed token.");
-  }
-}
-var CLOCK_SKEW_S = 120;
-async function verifyEntraToken(token, auth, jwks, nowS = Date.now() / 1e3) {
-  const parts = token.split(".");
-  if (parts.length !== 3)
-    throw new AuthError("Malformed token.");
-  const [h, p2, s] = parts;
-  const header = b64urlJson(h);
-  if (header.alg !== "RS256" || typeof header.kid !== "string")
-    throw new AuthError("Unsupported token algorithm.");
-  const jwk = await jwks.key(header.kid);
-  if (!jwk)
-    throw new AuthError("Unknown signing key.");
-  const ok = verify("RSA-SHA256", Buffer.from(`${h}.${p2}`), createPublicKey({ key: jwk, format: "jwk" }), Buffer.from(s, "base64url"));
-  if (!ok)
-    throw new AuthError("Invalid token signature.");
-  const claims = b64urlJson(p2);
-  if (typeof claims.iss !== "string" || !auth.issuers.includes(claims.iss))
-    throw new AuthError("Token issuer is not this tenant.");
-  if (typeof claims.tid === "string" && claims.tid !== auth.tenantId)
-    throw new AuthError("Token is from another tenant.");
-  const aud = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
-  if (!aud.some((a) => typeof a === "string" && auth.audiences.includes(a)))
-    throw new AuthError("Token audience is not this server.");
-  if (typeof claims.exp !== "number" || claims.exp + CLOCK_SKEW_S < nowS)
-    throw new AuthError("Token expired.");
-  if (typeof claims.nbf === "number" && claims.nbf - CLOCK_SKEW_S > nowS)
-    throw new AuthError("Token not yet valid.");
-  const scopes = typeof claims.scp === "string" ? claims.scp.split(" ") : [];
-  const roles = Array.isArray(claims.roles) ? claims.roles.filter((r) => typeof r === "string") : [];
-  const isApp = scopes.length === 0;
-  if (auth.requiredRole && !roles.includes(auth.requiredRole))
-    throw new AuthError(`Token lacks the ${auth.requiredRole} role.`, 403);
-  if (!isApp && auth.requiredScope && !scopes.includes(auth.requiredScope))
-    throw new AuthError(`Token lacks the ${auth.requiredScope} scope.`, 403);
-  if (isApp && !auth.requiredRole)
-    throw new AuthError("App-only tokens need an app role; set NINJAONE_HTTP_ENTRA_ROLE to allow them.", 403);
-  const subject = String(claims.oid ?? claims.azp ?? claims.appid ?? claims.sub ?? "unknown");
-  return { subject, kind: isApp ? "app" : "user" };
-}
-function makeAuthenticator(auth) {
-  if (auth.mode === "none")
-    return async () => ({ subject: "local", kind: "token" });
-  if (auth.mode === "bearer") {
-    return async (authorization) => {
-      const token = bearerOf(authorization);
-      if (!token)
-        throw new AuthError("Missing bearer token.");
-      const index = auth.tokens.findIndex((t) => safeEqual(t, token));
-      if (index === -1)
-        throw new AuthError("Invalid bearer token.");
-      return { subject: `token:${index + 1}`, kind: "token" };
-    };
-  }
-  const jwks = new JwksCache(auth.jwksUrl);
-  return async (authorization) => {
-    const token = bearerOf(authorization);
-    if (!token)
-      throw new AuthError("Missing bearer token.");
-    return verifyEntraToken(token, auth, jwks);
-  };
-}
-
-// dist/http/server.js
-var MAX_BODY_BYTES = 1048576;
-function sendJson(res, status, body, headers = {}) {
-  res.writeHead(status, { "content-type": "application/json", "cache-control": "no-store", ...headers });
-  res.end(JSON.stringify(body));
-}
-function rpcError(res, status, message, headers = {}) {
-  sendJson(res, status, { jsonrpc: "2.0", error: { code: -32e3, message }, id: null }, headers);
-}
-async function readBody(req) {
-  const chunks = [];
-  let size = 0;
-  for await (const chunk of req) {
-    size += chunk.length;
-    if (size > MAX_BODY_BYTES)
-      throw new Error("too large");
-    chunks.push(chunk);
-  }
-  const text = Buffer.concat(chunks).toString("utf8");
-  return text ? JSON.parse(text) : void 0;
-}
-function baseUrlFor(req, http) {
-  if (http.publicUrl)
-    return http.publicUrl;
-  const proto = String(req.headers["x-forwarded-proto"] ?? "http").split(",")[0]?.trim() || "http";
-  const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? `${http.host}:${http.port}`).split(",")[0]?.trim();
-  return `${proto}://${host}`;
-}
-function protectedResourceMetadata(base, http) {
-  if (http.auth.mode !== "entra")
-    return void 0;
-  return {
-    resource: `${base}/mcp`,
-    authorization_servers: [`https://login.microsoftonline.com/${http.auth.tenantId}/v2.0`],
-    scopes_supported: http.auth.advertisedScope ? [http.auth.advertisedScope] : [],
-    bearer_methods_supported: ["header"],
-    resource_name: "NinjaOne MCP",
-    resource_documentation: "https://github.com/divergeitamplifyai/ninja-one-mcp/blob/main/docs/AZURE.md"
-  };
-}
-function startHttpServer(config2, http) {
-  const shared = createShared(config2);
-  const authenticate = makeAuthenticator(http.auth);
-  const server = createHttpServer(async (req, res) => {
-    const started = Date.now();
-    const requestId = randomUUID();
-    res.setHeader("x-request-id", requestId);
-    res.setHeader("x-content-type-options", "nosniff");
-    const url2 = new URL(req.url ?? "/", "http://local");
-    const path = url2.pathname.replace(/\/+$/, "") || "/";
-    try {
-      if (req.method === "GET" && path === "/healthz") {
-        return sendJson(res, 200, { status: "ok", server: SERVER_NAME, version: SERVER_VERSION, credentials_configured: config2.missing.length === 0 });
-      }
-      if (req.method === "GET" && (path === "/.well-known/oauth-protected-resource" || path === "/.well-known/oauth-protected-resource/mcp")) {
-        const prm = protectedResourceMetadata(baseUrlFor(req, http), http);
-        return prm ? sendJson(res, 200, prm, { "cache-control": "public, max-age=3600" }) : sendJson(res, 404, { error: "not_found" });
-      }
-      if (path !== "/mcp")
-        return sendJson(res, 404, { error: "not_found" });
-      const origin = req.headers.origin;
-      if (origin && !http.allowedOrigins.includes(origin)) {
-        return rpcError(res, 403, "Origin not allowed.");
-      }
-      if (origin) {
-        res.setHeader("access-control-allow-origin", origin);
-        res.setHeader("vary", "Origin");
-      }
-      if (req.method === "OPTIONS") {
-        res.writeHead(204, {
-          "access-control-allow-methods": "POST, OPTIONS",
-          "access-control-allow-headers": "Authorization, Content-Type, Mcp-Protocol-Version, Mcp-Session-Id",
-          "access-control-max-age": "3600"
-        });
-        return res.end();
-      }
-      if (req.method !== "POST") {
-        return rpcError(res, 405, "This server is stateless: use POST /mcp.", { allow: "POST, OPTIONS" });
-      }
-      let caller;
-      try {
-        caller = await authenticate(req.headers.authorization);
-      } catch (error62) {
-        const status = error62 instanceof AuthError ? error62.status : 401;
-        const base = baseUrlFor(req, http);
-        const challenge = http.auth.mode === "entra" ? `Bearer resource_metadata="${base}/.well-known/oauth-protected-resource"${status === 403 ? ', error="insufficient_scope"' : ""}${http.auth.advertisedScope ? `, scope="${http.auth.advertisedScope}"` : ""}` : 'Bearer realm="ninja-one-mcp"';
-        logStderr("warn", "http_auth_refused", { request_id: requestId, status, reason: error62 instanceof Error ? error62.message : "error" });
-        return rpcError(res, status, error62 instanceof Error ? error62.message : "Unauthorized", { "www-authenticate": challenge });
-      }
-      let body;
-      try {
-        body = await readBody(req);
-      } catch (error62) {
-        return rpcError(res, error62 instanceof Error && error62.message === "too large" ? 413 : 400, "Request body must be JSON under 1 MB.");
-      }
-      const { server: mcp } = createServer2(config2, shared);
-      const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: void 0, enableJsonResponse: true });
-      res.on("close", () => {
-        void transport.close();
-        void mcp.close();
-      });
-      await mcp.connect(transport);
-      await transport.handleRequest(req, res, body);
-      logStderr("info", "http_request", { request_id: requestId, caller: caller.subject, caller_kind: caller.kind, ms: Date.now() - started });
-    } catch (error62) {
-      logStderr("error", "http_error", { request_id: requestId, error: error62 instanceof Error ? error62.message : String(error62) });
-      if (!res.headersSent)
-        rpcError(res, 500, "Internal error.");
-    }
-  });
-  server.requestTimeout = 12e4;
-  server.headersTimeout = 3e4;
-  return new Promise((resolve) => {
-    server.listen(http.port, http.host, () => {
-      const address = server.address();
-      const port = typeof address === "object" && address ? address.port : http.port;
-      logStderr("info", "http_listening", { host: http.host, port, auth: http.auth.mode, public_url: http.publicUrl ?? null, origins: http.allowedOrigins.length });
-      resolve({ port, close: () => new Promise((done) => server.close(() => done())) });
-    });
-  });
-}
-
 // dist/index.js
 async function main() {
-  const http = wantsHttp(process.argv.slice(2), process.env);
-  const envFile = http ? void 0 : applyEnvFile();
+  const envFile = applyEnvFile();
   const config2 = loadConfig();
   config2.envFile = envFile;
+  config2.envFilePath = defaultEnvFilePath();
   if (envFile?.problem)
     config2.problems.push(envFile.problem);
   registerSecret(config2.clientSecret);
   registerSecret(config2.clientId);
-  const summary = {
+  const { server, tools } = createServer(config2, { transport: "stdio" });
+  await server.connect(new StdioServerTransport());
+  process.stdin.on("end", () => process.exit(0));
+  process.stdin.on("close", () => process.exit(0));
+  logStderr("info", "started", {
     server: SERVER_NAME,
     version: SERVER_VERSION,
-    transport: http ? "http" : "stdio",
+    transport: "stdio",
     mode: config2.writeMode ? "write" : "read",
     destructive_allowed: config2.destructiveAllowed,
     region: config2.region ?? null,
     credentials_configured: config2.clientId !== void 0 && config2.clientSecret !== void 0,
     missing_env_vars: config2.missing,
     config_problems: config2.problems,
-    env_file_keys: config2.envFile?.loaded ?? []
-  };
-  if (http) {
-    const httpConfig = loadHttpConfig(process.env);
-    if (httpConfig.auth.mode === "bearer")
-      httpConfig.auth.tokens.forEach((t) => registerSecret(t));
-    if (httpConfig.fatal.length > 0) {
-      logStderr("error", "http_config_invalid", { problems: httpConfig.fatal });
-      process.exit(2);
-    }
-    await startHttpServer(config2, httpConfig);
-    logStderr("info", "started", summary);
-    const stop = () => process.exit(0);
-    process.on("SIGTERM", stop);
-    process.on("SIGINT", stop);
-    return;
-  }
-  const { server, tools } = createServer2(config2);
-  await server.connect(new StdioServerTransport());
-  process.stdin.on("end", () => process.exit(0));
-  process.stdin.on("close", () => process.exit(0));
-  logStderr("info", "started", { ...summary, tools: tools.size });
+    env_file_keys: config2.envFile?.loaded ?? [],
+    tools: tools.size
+  });
 }
 main().catch((error62) => {
   logStderr("error", "fatal", { error: error62 instanceof Error ? error62.message : String(error62) });
   process.exit(1);
 });
-/*! Bundled license information:
-
-content-type/index.js:
-  (*!
-   * content-type
-   * Copyright(c) 2015 Douglas Christopher Wilson
-   * MIT Licensed
-   *)
-*/

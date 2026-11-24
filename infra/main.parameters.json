@@ -4,19 +4,20 @@
   "parameters": {
     "environmentName": { "value": "${AZURE_ENV_NAME}" },
     "location": { "value": "${AZURE_LOCATION}" },
-    "ninjaRegion": { "value": "${NINJAONE_REGION=us}" },
-    "ninjaClientId": { "value": "${NINJAONE_CLIENT_ID}" },
-    "ninjaClientSecret": { "value": "${NINJAONE_CLIENT_SECRET}" },
-    "ninjaScopes": { "value": "${NINJAONE_SCOPES=monitoring}" },
-    "ninjaMode": { "value": "${NINJAONE_MODE=read}" },
-    "ninjaAllowDestructive": { "value": "${NINJAONE_ALLOW_DESTRUCTIVE=false}" },
-    "ninjaAllowedOrgIds": { "value": "${NINJAONE_ALLOWED_ORG_IDS}" },
-    "ninjaToolsets": { "value": "${NINJAONE_TOOLSETS=default}" },
-    "inboundAuth": { "value": "${MCP_INBOUND_AUTH=entra}" },
+    "region": { "value": "${NINJAONE_REGION=us}" },
+    "clientId": { "value": "${NINJAONE_CLIENT_ID}" },
+    "clientSecret": { "value": "${NINJAONE_CLIENT_SECRET}" },
+    "scopes": { "value": "${NINJAONE_SCOPES=monitoring}" },
+    "toolsets": { "value": "${NINJAONE_TOOLSETS=default}" },
+    "mode": { "value": "${NINJAONE_MODE=read}" },
+    "allowDestructive": { "value": "${NINJAONE_ALLOW_DESTRUCTIVE=false}" },
+    "allowedOrgIds": { "value": "${NINJAONE_ALLOWED_ORG_IDS}" },
+    "inboundAuth": { "value": "${MCP_HTTP_AUTH=entra}" },
     "entraClientId": { "value": "${MCP_ENTRA_CLIENT_ID}" },
     "entraAppIdUri": { "value": "${MCP_ENTRA_APP_ID_URI}" },
     "bearerToken": { "value": "${MCP_BEARER_TOKEN}" },
     "allowedOrigins": { "value": "${MCP_ALLOWED_ORIGINS}" },
-    "minReplicas": { "value": "${MCP_MIN_REPLICAS=1}" }
+    "minReplicas": { "value": "${MCP_MIN_REPLICAS=0}" },
+    "mcpExists": { "value": "${SERVICE_MCP_RESOURCE_EXISTS=false}" }
   }
 }

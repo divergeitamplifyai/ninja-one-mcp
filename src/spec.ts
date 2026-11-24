@@ -31,6 +31,8 @@ export interface ToolContext {
   tools: Map<string, ToolKind>;
   /** Read handlers by tool name, so composed tools and views reuse a tool without the SDK's internals. */
   readers: Map<string, (args: Record<string, unknown>, ctx: ToolContext) => Promise<unknown>>;
+  /** The lane this server answers on: stdio, http (Node, the container) or worker. Reported by status_server. */
+  transport: 'stdio' | 'http' | 'worker';
 }
 
 export interface ToolSpec<S extends ZodRawShapeCompat, O extends ZodRawShapeCompat> {

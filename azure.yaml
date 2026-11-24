@@ -1,10 +1,10 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 #
-# Azure Developer CLI project: `azd up` provisions infra/ and deploys the
-# container built from ./Dockerfile to Azure Container Apps. See docs/AZURE.md.
+# Azure Developer CLI project for the Azure Container Apps lane (LANES.md,
+# docs/deploy-azure.md). `azd up` provisions infra/ and deploys the image built
+# from ./Dockerfile. Settings come from the azd environment (azd env set), never
+# from this file.
 name: ninja-one-mcp
-metadata:
-  template: ninja-one-mcp
 infra:
   provider: bicep
   path: infra
