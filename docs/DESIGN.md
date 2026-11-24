@@ -77,6 +77,16 @@ OAuth 2.0 client credentials against `https://{region}/ws/oauth/token`, with the
 
 The full surface is about 300 tools. VS Code with Copilot accepts 128 per request, Cursor warns past roughly 40, and smaller lists plan better anyway. Toolsets only decide what is listed: annotations never change with configuration (STANDARD.md A5), and the gate applies to whatever is listed. Hidden read tools stay callable internally, so views and composed tools keep working when their building blocks are not listed.
 
+## Remote lane
+
+The same server runs over Streamable HTTP with `--http`. [AZURE.md](AZURE.md) deploys it to Azure Container Apps. The decisions behind it:
+
+- **Stateless.** No session ids. Every POST builds a fresh `McpServer`. Only deployment-level state is shared between requests: the NinjaOne token cache and the organization directory. Nothing about a caller lives in module scope, so any replica can serve any request.
+- **Fails closed.** Off loopback the server refuses to start without inbound auth. Shared tokens must be at least 32 characters and are compared in constant time.
+- **Auth is the server's job.** In Entra mode the server validates RS256 tokens itself with `node:crypto` against the tenant JWKS: issuer, tenant, audience, expiry, not-before, and scope or role. It publishes RFC 9728 protected resource metadata and returns a `WWW-Authenticate` challenge pointing at it, so MCP clients can sign in on their own. This adds no dependency, and the metadata path stays public, which Container Apps built-in auth cannot guarantee.
+- **No token passthrough.** The caller's token proves who may use the server. NinjaOne is always called with the deployment's own client credentials.
+- **Settings come from the deployment.** Gates, scopes, org boundary and toolsets are environment settings. A caller cannot change them.
+
 ## Distribution
 
 One codebase ships four ways:
@@ -84,6 +94,7 @@ One codebase ships four ways:
 - `npx -y github:patrickking67/ninja-one-mcp`: `bin/` runs `dist/` when it is built, and the committed bundle otherwise, so a git install needs no build.
 - `plugins/ninjaone/`: Claude Code (`.claude-plugin/plugin.json`, with `userConfig` and a keychain-stored secret) and Codex (portable `plugin.json` and `mcp.json`). Both run the same single-file bundle with plain `node`.
 - `build/ninja-one-mcp.mcpb`: Claude Desktop, built from the same bundle.
+- `Dockerfile`: the remote image. It builds from source and runs on distroless as non-root. Release tags publish it to GHCR, and `azd up` builds it into your own registry.
 - The npm package, once published.
 
 The bundle, the tool catalog, the coverage report and the generated body docs are committed. CI regenerates them and fails on drift.
