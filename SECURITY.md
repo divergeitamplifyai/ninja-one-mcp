@@ -27,6 +27,18 @@ Vulnerabilities in NinjaOne itself go to NinjaOne: https://www.ninjaone.com/prod
 - **Following instructions in data.** Device names, ticket text and documents are data. The bundled skills tell the model to ignore instructions inside them.
 - **Reporting a short read as complete.** Unknown response shapes are errors, and truncation and dropped rows are announced.
 
+## Remote deployments
+
+When the server runs over HTTP:
+
+- It refuses to start off loopback without inbound authentication: Entra ID tokens, or shared tokens of at least 32 characters.
+- Entra tokens are checked for signature, issuer, tenant, audience, lifetime and scope or role.
+- Browser `Origin` headers must be allowed.
+- The caller's token is never forwarded to NinjaOne.
+- Bodies are capped at 1 MB.
+
+See [docs/AZURE.md](docs/AZURE.md) for the trust boundaries.
+
 ## The real boundary
 
 The gates bind this server only. Anyone holding the same API client credential can call NinjaOne directly, so grant the API client only the scopes it needs. `monitoring` alone makes every write impossible, whatever this server is configured to do.
