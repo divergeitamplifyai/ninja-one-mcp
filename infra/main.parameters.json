@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": { "value": "${AZURE_ENV_NAME}" },
+    "location": { "value": "${AZURE_LOCATION}" },
+    "ninjaRegion": { "value": "${NINJAONE_REGION=us}" },
+    "ninjaClientId": { "value": "${NINJAONE_CLIENT_ID}" },
+    "ninjaClientSecret": { "value": "${NINJAONE_CLIENT_SECRET}" },
+    "ninjaScopes": { "value": "${NINJAONE_SCOPES=monitoring}" },
+    "ninjaMode": { "value": "${NINJAONE_MODE=read}" },
+    "ninjaAllowDestructive": { "value": "${NINJAONE_ALLOW_DESTRUCTIVE=false}" },
+    "ninjaAllowedOrgIds": { "value": "${NINJAONE_ALLOWED_ORG_IDS}" },
+    "ninjaToolsets": { "value": "${NINJAONE_TOOLSETS=default}" },
+    "inboundAuth": { "value": "${MCP_INBOUND_AUTH=entra}" },
+    "entraClientId": { "value": "${MCP_ENTRA_CLIENT_ID}" },
+    "entraAppIdUri": { "value": "${MCP_ENTRA_APP_ID_URI}" },
+    "bearerToken": { "value": "${MCP_BEARER_TOKEN}" },
+    "allowedOrigins": { "value": "${MCP_ALLOWED_ORIGINS}" },
+    "minReplicas": { "value": "${MCP_MIN_REPLICAS=1}" }
+  }
+}
