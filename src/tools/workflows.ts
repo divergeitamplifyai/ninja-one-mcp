@@ -7,7 +7,8 @@
  *  - ninjaone_get_device_profile    device + hardware + volumes + patches + alerts in one call
  *  - ninjaone_report_fleet_health   per-organization health across the estate
  *  - ninjaone_list_board_tickets    tickets on a board (POST /run), cursor paged
- *  - ninjaone_add_ticket_comment    multipart comment on a ticket
+ *  - ninjaone_add_ticket_comment    internal note on a ticket (multipart)
+ *  - ninjaone_send_ticket_reply     public reply, emailed to the requester (destructive)
  */
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -240,32 +241,56 @@ export function registerWorkflowTools(server: McpServer, ctx: ToolContext): void
     },
   });
 
+  /** Post a ticket comment. NinjaOne defaults comments to public, so `public` is always sent explicitly. */
+  async function postComment(c: ToolContext, tool: string, ticketId: number, comment: Record<string, unknown>) {
+    c.orgs.assertUnbounded(tool, 'tickets are addressed by id without an organization check');
+    const form = new FormData();
+    form.append('comment', new Blob([JSON.stringify(comment)], { type: 'application/json' }));
+    // Never retried: a replayed comment is a duplicate the requester may see.
+    const result = await c.client.request('POST', `/v2/ticketing/ticket/${ticketId}/comment`, { form, noRetry: true });
+    return { applied: true, ticket_id: ticketId, public: comment.public, result: result ?? null };
+  }
+
+  const commentFields = {
+    ticket_id: z.number().int().describe(`Ticket id (from ${P}_list_board_tickets).`),
+    body: z.string().min(1).describe('Comment text.'),
+    html_body: z.string().min(1).optional().describe('HTML version of the comment.'),
+    time_tracked_seconds: z.number().int().min(0).optional().describe('Time to log against the ticket, in seconds.'),
+  };
+
   def('ticketing', {
     name: `${P}_add_ticket_comment`,
     kind: 'write',
     description:
-      'Add a comment to a ticket: public (visible to the requester) or internal, as plain text or HTML, optionally with time tracked. ' +
-      `Returns the result; read the ticket's log with ${P}_list_ticket_log_entries. Needs NINJAONE_MODE=write and confirm: true.`,
-    inputSchema: {
-      ticket_id: z.number().int().describe(`Ticket id (from ${P}_list_board_tickets).`),
-      body: z.string().min(1).describe('Comment text.'),
-      html_body: z.string().min(1).optional().describe('HTML version of the comment.'),
-      public: z.boolean().describe('true: visible to the requester. false: internal note.'),
-      time_tracked_seconds: z.number().int().min(0).optional().describe('Time to log against the ticket, in seconds.'),
-      confirm: confirmParam,
-    },
+      'Add an internal note to a ticket (never visible to the requester), as plain text or HTML, optionally with time tracked. ' +
+      `To reply to the requester, use ${P}_send_ticket_reply. Read the log with ${P}_list_ticket_log_entries. ` +
+      'NinjaOne may reject ticket writes from client-credentials apps (405); see the README. Needs NINJAONE_MODE=write and confirm: true.',
+    inputSchema: { ...commentFields, confirm: confirmParam },
     async handler(args, c) {
-      c.orgs.assertUnbounded(`${P}_add_ticket_comment`, 'tickets are addressed by id without an organization check');
-      const comment = {
-        public: args.public,
+      return postComment(c, `${P}_add_ticket_comment`, args.ticket_id, {
+        public: false,
         body: args.body,
         ...(args.html_body ? { htmlBody: args.html_body } : {}),
         ...(args.time_tracked_seconds !== undefined ? { timeTracked: args.time_tracked_seconds } : {}),
-      };
-      const form = new FormData();
-      form.append('comment', new Blob([JSON.stringify(comment)], { type: 'application/json' }));
-      const result = await c.client.request('POST', `/v2/ticketing/ticket/${args.ticket_id}/comment`, { form });
-      return { applied: true, ticket_id: args.ticket_id, result: result ?? null };
+      });
+    },
+  });
+
+  def('ticketing', {
+    name: `${P}_send_ticket_reply`,
+    kind: 'destructive',
+    description:
+      'Send a public reply on a ticket. NinjaOne emails it to the requester, so it is a message to a client and cannot be taken back: ' +
+      'show the exact text to the user and get their go-ahead first. For an internal note use ' +
+      `${P}_add_ticket_comment. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true.`,
+    inputSchema: { ...commentFields, confirm: confirmParam },
+    async handler(args, c) {
+      return postComment(c, `${P}_send_ticket_reply`, args.ticket_id, {
+        public: true,
+        body: args.body,
+        ...(args.html_body ? { htmlBody: args.html_body } : {}),
+        ...(args.time_tracked_seconds !== undefined ? { timeTracked: args.time_tracked_seconds } : {}),
+      });
     },
   });
 }
