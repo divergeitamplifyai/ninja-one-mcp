@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ninja-one-mcp</title>
+<meta name="description" content="An open-source MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2. 314 tools, read-only by default, two gates for anything that changes a device.">
+<meta name="theme-color" content="#EDF0EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1412" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ninja-one-mcp">
+<meta property="og:description" content="Safe, complete access to the NinjaOne RMM Public API v2 for AI agents. Read-only by default.">
+<meta property="og:url" content="https://patrickking67.github.io/ninja-one-mcp/">
+<meta property="og:image" content="https://patrickking67.github.io/ninja-one-mcp/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://patrickking67.github.io/ninja-one-mcp/assets/og.png">
+<link rel="apple-touch-icon" href="assets/icon.png">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>
+  try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="#top" aria-label="ninja-one-mcp, back to top">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="7"/><rect class="on" x="9" y="10" width="14" height="4" rx="1.5"/><rect x="10" y="19" width="12" height="2.5" rx="1.25"/></svg>
+      <span>ninja-one-mcp</span>
+    </a>
+    <nav aria-label="Sections" class="nav">
+      <a href="#safety">Safety</a>
+      <a href="#tools">Tools</a>
+      <a href="#install">Install</a>
+      <a href="#config">Config</a>
+      <a href="https://github.com/patrickking67/ninja-one-mcp">GitHub</a>
+    </nav>
+    <button class="theme" type="button" id="theme-toggle" aria-label="Switch color theme">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.25"/><path d="M10 2.75a7.25 7.25 0 0 1 0 14.5z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="wrap">
+      <h1 id="hero-title" class="hero-title"><span>Every NinjaOne API call.</span> <span class="quiet">None by accident.</span></h1>
+      <p class="lede">An MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2. It starts read-only, and it takes two deliberate settings before an agent can touch a device.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#install">Install</a>
+        <a class="btn" href="https://github.com/patrickking67/ninja-one-mcp">View on GitHub</a>
+      </div>
+
+      <figure class="gates" aria-labelledby="gates-cap">
+        <div class="gates-head">
+          <p id="gates-cap" class="gates-cap">Each square is one tool. Flip the settings to see what an agent can run.</p>
+          <div class="switches">
+            <label class="switch">
+              <input type="checkbox" id="g-write">
+              <span class="track" aria-hidden="true"></span>
+              <code>NINJAONE_MODE=write</code>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="g-destructive" disabled>
+              <span class="track" aria-hidden="true"></span>
+              <code>NINJAONE_ALLOW_DESTRUCTIVE=true</code>
+            </label>
+          </div>
+        </div>
+        <div class="grid" id="gate-grid" aria-hidden="true"></div>
+        <figcaption class="gates-foot">
+          <p class="gates-live" id="gates-live" aria-live="polite"><strong>154</strong> of 314 tools can run. Writes are listed but refuse.</p>
+          <ul class="legend" aria-label="Legend">
+            <li><i class="k-read"></i>Read <span id="n-read">154</span></li>
+            <li><i class="k-write"></i>Write <span id="n-write">105</span></li>
+            <li><i class="k-destructive"></i>Destructive <span id="n-destructive">55</span></li>
+          </ul>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="ask-title">
+    <div class="wrap split">
+      <div>
+        <h2 id="ask-title">Ask in plain words</h2>
+        <p class="muted">The agent picks the tools. You see the answer, and every change it proposes.</p>
+      </div>
+      <ul class="prompts">
+        <li>
+          <p class="q">Which clients have the most offline servers?</p>
+          <p class="a"><code>ninjaone_report_fleet_health</code> checks every client at once, with a cap on concurrent requests.</p>
+        </li>
+        <li>
+          <p class="q">Show patch failures for Example Org this week.</p>
+          <p class="a">A fleet report from <code>/v2/queries</code>, scoped to one organization.</p>
+        </li>
+        <li>
+          <p class="q">What is wrong with device 1042?</p>
+          <p class="a"><code>ninjaone_get_device_profile</code> returns the device, hardware, volumes, patches and alerts in one call.</p>
+        </li>
+        <li>
+          <p class="q">Reboot device 1042 after hours.</p>
+          <p class="a">Needs both gates and <code>confirm: true</code>. Never retried automatically.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="safety" aria-labelledby="safety-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="safety-title">Safe by construction</h2>
+        <p class="muted">An agent with access to your RMM can reach every endpoint you manage. These rules live in the server, so they hold no matter which client or model is calling.</p>
+      </div>
+
+      <ol class="ladder" aria-label="Permission tiers">
+        <li class="rung r-read">
+          <h3>Read</h3>
+          <p class="setting">Default</p>
+          <p>Lists, profiles, reports, alerts. 154 tools. Nothing changes.</p>
+        </li>
+        <li class="rung r-write">
+          <h3>Write</h3>
+          <p class="setting"><code>NINJAONE_MODE=write</code></p>
+          <p>Updates and creates. 105 tools. Every call also takes <code>confirm: true</code>.</p>
+        </li>
+        <li class="rung r-destructive">
+          <h3>Destructive</h3>
+          <p class="setting"><code>NINJAONE_ALLOW_DESTRUCTIVE=true</code></p>
+          <p>Deletes, reboots, scripts, patch installs, full replacements, secret-bearing downloads, raw writes. 55 tools.</p>
+        </li>
+      </ol>
+
+      <dl class="rules">
+        <div>
+          <dt>Dry runs and undo</dt>
+          <dd>Wide writes are dry runs until <code>dry_run: false</code>. Writes read the record back and return before and after, so a change can be undone.</dd>
+        </div>
+        <div>
+          <dt>An organization boundary</dt>
+          <dd><code>NINJAONE_ALLOWED_ORG_IDS</code> holds every call inside a set of clients. Device filters are narrowed, and since NinjaOne filters only combine with AND, appending can never widen them. Devices are checked. Unscoped tools refuse.</dd>
+        </div>
+        <div>
+          <dt>Secrets stay out</dt>
+          <dd>Secure custom field values are never requested. Signed and tokenized URLs come only from gated download tools with <code>reveal: true</code>. Credentials are redacted from every result, error and log. OAuth client credentials only, never in a query string.</dd>
+        </div>
+        <div>
+          <dt>No surprise repeats</dt>
+          <dd>Scripts, reboots and patch installs are never retried automatically.</dd>
+        </div>
+        <div>
+          <dt>Errors that point forward</dt>
+          <dd>Every error ends with a <code>Next step:</code> line the agent can act on.</dd>
+        </div>
+        <div>
+          <dt>Checked in CI</dt>
+          <dd>A conformance suite runs over 5,000 checks against the built server. A coverage check maps every spec operation to a tool.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="cover-title">
+    <div class="wrap split">
+      <div>
+        <h2 id="cover-title">The whole API, not a sample</h2>
+        <p class="muted">All 315 operations in the Public API v2 spec are reachable. 314 have a typed tool. A few multipart and UI-config endpoints go through a gated raw passthrough.</p>
+      </div>
+      <ul class="facts">
+        <li><b>23 fleet reports</b> from <code>/v2/queries</code>: inventory, patches, antivirus, health, custom fields.</li>
+        <li><b>Interactive views</b> with MCP Apps: a fleet dashboard, a device page, and alerts with a gated Reset button.</li>
+        <li><b>NinjaOne docs on hand.</b> An <code>llms.txt</code> of NinjaOne's public docs ships as an MCP resource.</li>
+        <li><b>Toolsets</b> keep the default list to 107 tools. <code>NINJAONE_TOOLSETS=all</code> lists everything. Some clients cap tools, such as VS Code Copilot at 128 per request.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="tools" aria-labelledby="tools-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="tools-title">Tool catalog</h2>
+        <p class="muted">Every tool the server can list, with its tier and toolset.</p>
+      </div>
+
+      <div class="filters" role="search">
+        <label class="field search">
+          <span class="sr">Search tools</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4 4"/></svg>
+          <input type="search" id="q" placeholder="Search by name or description" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field select">
+          <span class="sr">Toolset</span>
+          <select id="ts">
+            <option value="">All toolsets</option>
+          </select>
+        </label>
+        <fieldset class="seg" aria-label="Tier">
+          <legend class="sr">Tier</legend>
+          <label><input type="radio" name="kind" value="" checked><span>All</span></label>
+          <label><input type="radio" name="kind" value="read"><span>Read</span></label>
+          <label><input type="radio" name="kind" value="write"><span>Write</span></label>
+          <label><input type="radio" name="kind" value="destructive"><span>Destructive</span></label>
+        </fieldset>
+      </div>
+
+      <p class="count" id="count" aria-live="polite">Loading the catalog.</p>
+      <ul class="catalog" id="catalog"></ul>
+      <div class="more-row"><button class="btn" type="button" id="more" hidden>Show more</button></div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="ts-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="ts-title">Toolsets</h2>
+        <p class="muted">Set <code>NINJAONE_TOOLSETS</code> to a comma-separated list, or <code>all</code>. Defaults are marked.</p>
+      </div>
+      <ul class="toolsets" id="toolsets"></ul>
+    </div>
+  </section>
+
+  <section class="band" id="install" aria-labelledby="install-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="install-title">Install</h2>
+        <p class="muted">You need an API client first. In NinjaOne, open Administration, Apps, API. Choose the application platform <b>API Services (machine-to-machine)</b> and grant <b>Client Credentials</b>. Scopes: <code>monitoring</code> to read, <code>management</code> for writes, <code>control</code> for scripts and remote actions.</p>
+      </div>
+
+      <div class="tabs">
+        <div class="tablist" role="tablist" aria-label="MCP client">
+          <button role="tab" id="t-cc" aria-controls="p-cc" aria-selected="true">Claude Code</button>
+          <button role="tab" id="t-cd" aria-controls="p-cd" aria-selected="false" tabindex="-1">Claude Desktop</button>
+          <button role="tab" id="t-cx" aria-controls="p-cx" aria-selected="false" tabindex="-1">Codex</button>
+          <button role="tab" id="t-cu" aria-controls="p-cu" aria-selected="false" tabindex="-1">Cursor</button>
+          <button role="tab" id="t-vs" aria-controls="p-vs" aria-selected="false" tabindex="-1">VS Code</button>
+          <button role="tab" id="t-ot" aria-controls="p-ot" aria-selected="false" tabindex="-1">Other</button>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-cc" aria-labelledby="t-cc" tabindex="0">
+          <p>As a plugin. It asks for your client id, secret and region, and stores the secret in the OS keychain.</p>
+          <div class="code"><pre><code>/plugin marketplace add patrickking67/ninja-one-mcp
+/plugin install ninjaone@ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+          <p>Or with the CLI.</p>
+          <div class="code"><pre><code>claude mcp add ninjaone -e NINJAONE_CLIENT_ID=your-id -e NINJAONE_CLIENT_SECRET=your-secret -e NINJAONE_REGION=us -- npx -y github:patrickking67/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-cd" aria-labelledby="t-cd" tabindex="0" hidden>
+          <p>Download <code>ninja-one-mcp.mcpb</code> from the <a href="https://github.com/patrickking67/ninja-one-mcp/releases/latest">latest GitHub release</a> and open it. Claude Desktop asks for the credentials.</p>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-cx" aria-labelledby="t-cx" tabindex="0" hidden>
+          <div class="code"><pre><code>codex mcp add ninjaone --env NINJAONE_CLIENT_ID=your-id --env NINJAONE_CLIENT_SECRET=your-secret --env NINJAONE_REGION=us -- npx -y github:patrickking67/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+          <p>Or install the plugin.</p>
+          <div class="code"><pre><code>codex plugin marketplace add patrickking67/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-cu" aria-labelledby="t-cu" tabindex="0" hidden>
+          <p>Add to <code>.cursor/mcp.json</code>. Cursor works best with a small toolset.</p>
+          <div class="code"><pre><code>{
+  "mcpServers": {
+    "ninjaone": {
+      "command": "npx",
+      "args": ["-y", "github:patrickking67/ninja-one-mcp"],
+      "env": {
+        "NINJAONE_CLIENT_ID": "your-id",
+        "NINJAONE_CLIENT_SECRET": "your-secret",
+        "NINJAONE_REGION": "us",
+        "NINJAONE_TOOLSETS": "core,devices,alerts"
+      }
+    }
+  }
+}</code></pre><button class="copy" type="button">Copy</button></div>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-vs" aria-labelledby="t-vs" tabindex="0" hidden>
+          <p>Add to <code>.vscode/mcp.json</code> for GitHub Copilot. VS Code prompts for the secret.</p>
+          <div class="code"><pre><code>{
+  "inputs": [
+    { "type": "promptString", "id": "ninjaone_client_id", "description": "NinjaOne client id" },
+    { "type": "promptString", "id": "ninjaone_client_secret", "description": "NinjaOne client secret", "password": true }
+  ],
+  "servers": {
+    "ninjaone": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "github:patrickking67/ninja-one-mcp"],
+      "env": {
+        "NINJAONE_CLIENT_ID": "${input:ninjaone_client_id}",
+        "NINJAONE_CLIENT_SECRET": "${input:ninjaone_client_secret}",
+        "NINJAONE_REGION": "us"
+      }
+    }
+  }
+}</code></pre><button class="copy" type="button">Copy</button></div>
+        </div>
+
+        <div class="panel" role="tabpanel" id="p-ot" aria-labelledby="t-ot" tabindex="0" hidden>
+          <p>Any MCP client that runs a local stdio server works the same way. Use command <code>npx</code>, args <code>-y github:patrickking67/ninja-one-mcp</code>, and set <code>NINJAONE_CLIENT_ID</code>, <code>NINJAONE_CLIENT_SECRET</code> and <code>NINJAONE_REGION</code> in its environment.</p>
+          <div class="code"><pre><code>npx -y github:patrickking67/ninja-one-mcp</code></pre><button class="copy" type="button">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="config" aria-labelledby="config-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="config-title">Configuration</h2>
+        <p class="muted">Everything is an environment variable. You need a client id, a secret, and a region or base URL.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="cfg">
+          <thead><tr><th scope="col">Variable</th><th scope="col">What it does</th><th scope="col">Default</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><code>NINJAONE_CLIENT_ID</code></th><td>OAuth client id of your API client.</td><td>Required</td></tr>
+            <tr><th scope="row"><code>NINJAONE_CLIENT_SECRET</code></th><td>OAuth client secret. Redacted from every result, error and log.</td><td>Required</td></tr>
+            <tr><th scope="row"><code>NINJAONE_REGION</code></th><td><code>us</code> (app.ninjarmm.com), <code>us2</code>, <code>eu</code>, <code>ca</code> or <code>oc</code>. Set this or a base URL.</td><td>None</td></tr>
+            <tr><th scope="row"><code>NINJAONE_BASE_URL</code></th><td>Full instance URL. Wins over the region when both are set.</td><td>None</td></tr>
+            <tr><th scope="row"><code>NINJAONE_SCOPES</code></th><td>OAuth scopes to request: <code>monitoring</code>, <code>management</code>, <code>control</code>.</td><td><code>monitoring</code></td></tr>
+            <tr><th scope="row"><code>NINJAONE_MODE</code></th><td><code>read</code> or <code>write</code>. Write tools refuse until this is <code>write</code>.</td><td><code>read</code></td></tr>
+            <tr><th scope="row"><code>NINJAONE_ALLOW_DESTRUCTIVE</code></th><td>Set <code>true</code> to allow the destructive tier. Needs write mode too.</td><td><code>false</code></td></tr>
+            <tr><th scope="row"><code>NINJAONE_ALLOWED_ORG_IDS</code></th><td>Comma-separated organization ids. Every call stays inside this set.</td><td>All</td></tr>
+            <tr><th scope="row"><code>NINJAONE_ORG_ID</code></th><td>Default organization for tools that take one.</td><td>None</td></tr>
+            <tr><th scope="row"><code>NINJAONE_WRITE_ALLOWLIST</code></th><td>Comma-separated tool names. Narrows which write tools may run.</td><td>None</td></tr>
+            <tr><th scope="row"><code>NINJAONE_TOOLSETS</code></th><td>Comma-separated toolsets to list, or <code>all</code>.</td><td>107 tools</td></tr>
+            <tr><th scope="row"><code>NINJAONE_MAX_CONCURRENCY</code></th><td>Parallel requests for fleet-wide fan-out, 1 to 16.</td><td><code>4</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="links-title">
+    <div class="wrap split">
+      <h2 id="links-title">Read more</h2>
+      <ul class="links">
+        <li><a href="https://github.com/patrickking67/ninja-one-mcp">Source on GitHub</a><span>Code, issues and releases.</span></li>
+        <li><a href="https://github.com/patrickking67/ninja-one-mcp/blob/main/docs/TOOLS.md">docs/TOOLS.md</a><span>Every tool with its parameters.</span></li>
+        <li><a href="https://github.com/patrickking67/ninja-one-mcp/blob/main/llms.txt">llms.txt</a><span>The NinjaOne docs index the server bundles.</span></li>
+        <li><a href="https://app.ninjarmm.com/apidocs-beta/">NinjaOne API docs</a><span>The Public API v2 reference.</span></li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-row">
+    <p>Built by <a href="https://github.com/patrickking67">Patrick King</a>. MIT License.</p>
+    <p class="disclaimer">Independent open-source project. Not affiliated with or endorsed by NinjaOne. NinjaOne is a trademark of its owner.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

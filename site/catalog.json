@@ -1,0 +1,2237 @@
+{
+ "version": "0.1.0",
+ "counts": {
+  "total": 314,
+  "read": 154,
+  "write": 105,
+  "destructive": 55
+ },
+ "default_toolsets": [
+  "core",
+  "devices",
+  "alerts",
+  "reports",
+  "actions",
+  "ticketing",
+  "views"
+ ],
+ "default_count": 107,
+ "toolsets": {
+  "core": "Diagnostics, organizations, locations, find and fleet health. Always on.",
+  "devices": "Device lists, search, profile, hardware, software, services, custom field values.",
+  "alerts": "Alerts, activities and jobs.",
+  "reports": "Fleet-wide /v2/queries reports: inventory, patches, antivirus, health, custom fields.",
+  "actions": "Device actions: reboot, scripts, services, patch scan and apply, maintenance, approval.",
+  "policies": "Policies, conditions, device roles, groups, scripts library, scheduled tasks.",
+  "ticketing": "Tickets, boards, forms, comments, ticket contacts.",
+  "documentation": "IT documentation: documents, templates, checklists, knowledge base.",
+  "assets": "ITAM: asset tags, software licenses, relationships, related items, unmanaged devices.",
+  "custom_fields": "Custom field definitions and global values.",
+  "users": "Contacts, end users, technicians, roles.",
+  "billing": "PSA billing: accounts, agreements, invoices, products, ticket products.",
+  "backup": "Backup jobs, usage, integrity checks; vulnerability scan groups.",
+  "admin": "Account configuration: webhook, notification channels, custom tabs, node roles, installers.",
+  "views": "Interactive MCP Apps views.",
+  "api": "Raw passthrough: ninjaone_api_get and ninjaone_api_write."
+ },
+ "tools": [
+  {
+   "name": "ninjaone_apply_os_patches",
+   "title": "Apply OS Patches",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Install approved OS patches on one device now. This can reboot the device per its policy. Never retried automatically. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_apply_software_patches",
+   "title": "Apply Software Patches",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Install approved third-party software patches on one device now. Never retried automatically. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_approve_devices",
+   "title": "Approve Devices",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Approve devices waiting in the pending queue (find them with ninjaone_list_devices and df \"status = PENDING\"). Dry run by default. Body (object) per NinjaOne nodeApprovalOperation. Fields: devices (integer[]). Example: {\"devices\": [101, 102]}. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_cancel_device_maintenance",
+   "title": "Cancel Device Maintenance",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Cancel the pending or active maintenance window on one device. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_reboot_device",
+   "title": "Reboot Device",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Reboot one device now. NORMAL lets users save work where the OS allows; FORCED does not. Never retried automatically. Body (object) per NinjaOne rebootDevices. Fields: reason (string). Optional {\"reason\": \"...\"} shown in the activity log. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_reject_devices",
+   "title": "Reject Devices",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Reject devices waiting in the pending queue. Rejected devices are removed. Dry run by default. Body (object) per NinjaOne nodeApprovalOperation. Fields: devices (integer[]). Example: {\"devices\": [101, 102]}. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_remove_device_owner",
+   "title": "Remove Device Owner",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Remove the owner from one device. Returns the device as it was, including the owner to restore. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_reset_alert",
+   "title": "Reset Alert",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Reset (clear) one alert. If the condition is still true it triggers again. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_reset_alert_with_activity",
+   "title": "Reset Alert With Activity",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Reset one alert and attach custom data to the activity it records, e.g. a ticket reference. Body (object) per NinjaOne resetAlertSetActivityData. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_reset_device_policy_overrides",
+   "title": "Reset Device Policy Overrides",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Remove every local policy override on one device, returning it to its policy. Returns the overrides as they were. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_retire_device",
+   "title": "Retire Device",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Decommission one device: it stops being monitored and managed. Returns the device record as it was. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_run_device_script",
+   "title": "Run Device Script",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Run a script or built-in action on one device. Get valid ids and parameters from ninjaone_get_device_scripting_options first. Needs the control scope. Never retried automatically; check the result with ninjaone_list_device_activities. Body (object) per NinjaOne runScriptOnDevice. Fields: type (\"ACTION\"|\"SCRIPT\"), id (integer), uid (string), parameters (string), runAs (string). Example: {\"type\": \"SCRIPT\", \"id\": 42, \"parameters\": \"-Verbose\", \"runAs\": \"system\"}. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_run_os_patch_scan",
+   "title": "Run OS Patch Scan",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Start an OS patch scan on one device. Results appear in ninjaone_list_device_os_patches when it finishes. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_run_software_patch_scan",
+   "title": "Run Software Patch Scan",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Start a third-party software patch scan on one device. Results appear in ninjaone_list_device_software_patches. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_run_windows_service_control",
+   "title": "Run Windows Service Control",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Start, stop, pause or restart a Windows service on one device. Find the service with ninjaone_list_device_services. Never retried automatically. Body (object) per NinjaOne controlWindowsService. Fields: action (\"START\"|\"PAUSE\"|\"STOP\"|\"RESTART\"). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_device_maintenance",
+   "title": "Set Device Maintenance",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Schedule a maintenance window on one device, suppressing alerts, patching, AV scans or tasks between start and end (epoch seconds). Undo with ninjaone_cancel_device_maintenance. Body (object) per NinjaOne updateDeviceMaintenance. Fields: disabledFeatures (\"ALERTS\"|\"PATCHING\"|\"AVSCANS\"|\"TASKS\"[]), start (number), end (number), reasonMessage (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_device_owner",
+   "title": "Set Device Owner",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Assign an end user as the owner of one device. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_windows_service_config",
+   "title": "Set Windows Service Config",
+   "kind": "destructive",
+   "toolset": "actions",
+   "description": "Change a Windows service's start type and run-as account on one device. Body (object) per NinjaOne setWindowsServiceConfiguration. Fields: startType (\"AUTO_START\"|\"AUTO_START_DELAYED\"|\"BOOT_START\"|\"DEMAND_START\"|\"DISABLED\"|\"SYSTEM_START\"), userName (string). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_device",
+   "title": "Update Device",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Update one device's display name, user data, policy, location, role or organization. Returns before and after. Body (object) per NinjaOne updateDevice. Fields: displayName (string), userData (object), nodeRoleId (integer), policyId (integer), organizationId (integer), locationId (integer), warranty (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_device_custom_fields",
+   "title": "Update Device Custom Fields",
+   "kind": "write",
+   "toolset": "actions",
+   "description": "Set custom field values on one device. Only the fields in body change. Returns before and after, so a change can be put back. Body (object) per NinjaOne updateNodeAttributeValues. Body maps custom field names to values, e.g. {\"assetOwner\": \"Example User\"}. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_custom_tab",
+   "title": "Create Custom Tab",
+   "kind": "write",
+   "toolset": "admin",
+   "description": "Creates a custom tab (name required) for a scope and entity. Returns the new tab; read it with ninjaone_get_custom_tab. Account-wide (not organization scoped). Body (object) per NinjaOne createCustomTabPublicApi. Fields: name (string, required), description (string), entityType (\"NODE_ROLE\"|\"ORGANIZATION\"|\"END_USER\"|\"SYSTEM\"|\"GLOBAL\"), entityId (integer), items (object[]), position (integer). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_custom_tab",
+   "title": "Delete Custom Tab",
+   "kind": "destructive",
+   "toolset": "admin",
+   "description": "Deletes a custom tab. Read it first with ninjaone_get_custom_tab. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_webhook",
+   "title": "Delete Webhook",
+   "kind": "destructive",
+   "toolset": "admin",
+   "description": "Removes the account webhook configuration so no events are posted. Reconfigure with ninjaone_set_webhook. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_custom_installer",
+   "title": "Download Custom Installer",
+   "kind": "destructive",
+   "toolset": "admin",
+   "description": "Generate an agent installer URL with options (organization, location, role, usage limit, expiry). The URL is an enrollment secret. Body (object) per NinjaOne getInstaller. Fields: organizationId (integer), locationId (integer), installerType (\"WINDOWS_MSI\"|\"WINDOWS_ARM64_MSI\"|\"MAC_DMG\"|\"MAC_PKG\"|\"LINUX_DEB\"|\"LINUX_RPM\"|...), usageLimit (integer), content (object). Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_installer",
+   "title": "Download Installer",
+   "kind": "destructive",
+   "toolset": "admin",
+   "description": "Get the agent installer download URL for one location. The URL embeds an install token that enrolls devices into that client, so treat it as a secret. Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_custom_tab",
+   "title": "Get Custom Tab",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Returns one custom tab definition with its items. Ids come from the list_*_custom_tabs tools. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_get_end_user_custom_tab",
+   "title": "Get End User Custom Tab",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Returns a custom tab as it appears at end user scope, with its field hierarchy. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_get_org_custom_tab",
+   "title": "Get Org Custom Tab",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Returns a custom tab as it appears at organization scope, with its field hierarchy. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_get_role_custom_tab",
+   "title": "Get Role Custom Tab",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Returns a custom tab as it appears for a device role, with its field hierarchy. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_enabled_notification_channels",
+   "title": "List Enabled Notification Channels",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Lists enabled notification channels. Channel ids are used in alert and policy settings. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_end_user_custom_tabs",
+   "title": "List End User Custom Tabs",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Lists custom tabs at end user scope. Read one with ninjaone_get_end_user_custom_tab. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_global_custom_tabs",
+   "title": "List Global Custom Tabs",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Lists custom tabs at global scope with order and visibility. Read one with ninjaone_get_custom_tab. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_node_roles",
+   "title": "List Node Roles",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Lists device (node) roles with class and parent. Role ids are used in policies and custom tabs. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_notification_channels",
+   "title": "List Notification Channels",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Lists all notification channels with type and enabled state. Only the enabled ones: ninjaone_list_enabled_notification_channels. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_org_custom_tabs",
+   "title": "List Org Custom Tabs",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Lists custom tabs at organization scope. Read one with ninjaone_get_org_custom_tab. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_role_custom_tabs",
+   "title": "List Role Custom Tabs",
+   "kind": "read",
+   "toolset": "admin",
+   "description": "Lists custom tabs for a device role. Role ids come from ninjaone_list_node_roles. Read one with ninjaone_get_role_custom_tab. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_set_webhook",
+   "title": "Set Webhook",
+   "kind": "destructive",
+   "toolset": "admin",
+   "description": "Replaces the account webhook configuration (URL, activity types, headers). NinjaOne will post events to that URL, so confirm the destination. Remove it with ninjaone_delete_webhook. Account-wide (not organization scoped). Body (object) per NinjaOne configureWebhook. Fields: url (string), activities (object), expand (string[]), headers (object[]), organizationIds (integer[]). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_custom_tab",
+   "title": "Update Custom Tab",
+   "kind": "write",
+   "toolset": "admin",
+   "description": "Updates a custom tab's fields. Returns the tab before and after. Account-wide (not organization scoped). Body (object) per NinjaOne updateCustomTabPublicApi. Fields: roleId (integer), items (object[]), position (integer). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_list_activities",
+   "title": "List Activities",
+   "kind": "read",
+   "toolset": "alerts",
+   "description": "List activity log entries across devices (newest first), narrowed with df and filters. Paged backwards in time."
+  },
+  {
+   "name": "ninjaone_list_alerts",
+   "title": "List Alerts",
+   "kind": "read",
+   "toolset": "alerts",
+   "description": "List active alerts (triggered conditions) across devices, narrowed with df. Then ninjaone_get_device_profile on a device, or ninjaone_reset_alert once handled."
+  },
+  {
+   "name": "ninjaone_list_backup_jobs",
+   "title": "List Backup Jobs",
+   "kind": "read",
+   "toolset": "alerts",
+   "description": "Lists backup jobs with status, plan, size and device. Narrow with a device filter. Pair with ninjaone_list_integrity_check_jobs."
+  },
+  {
+   "name": "ninjaone_list_device_activities",
+   "title": "List Device Activities",
+   "kind": "read",
+   "toolset": "alerts",
+   "description": "List one device's activity log (scripts, patches, alerts, actions), newest first, paged backwards in time."
+  },
+  {
+   "name": "ninjaone_list_device_alerts",
+   "title": "List Device Alerts",
+   "kind": "read",
+   "toolset": "alerts",
+   "description": "List one device's active alerts (triggered conditions). For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_jobs",
+   "title": "List Device Jobs",
+   "kind": "read",
+   "toolset": "alerts",
+   "description": "List one device's currently running jobs (scripts, patching, actions). For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_jobs",
+   "title": "List Jobs",
+   "kind": "read",
+   "toolset": "alerts",
+   "description": "List jobs running now across devices (scripts, patching, actions), narrowed with df."
+  },
+  {
+   "name": "ninjaone_api_get",
+   "title": "API Get",
+   "kind": "read",
+   "toolset": "api",
+   "description": "Call any NinjaOne Public API GET under /v2/ that no typed tool covers (docs/api-coverage.md lists them). Prefer a typed tool: it pages, scopes and shapes results. Refused while NINJAONE_ALLOWED_ORG_IDS is set, because raw paths cannot be held inside the boundary. Secure custom field values are never requested, and signed-URL routes are refused."
+  },
+  {
+   "name": "ninjaone_api_write",
+   "title": "API Write",
+   "kind": "destructive",
+   "toolset": "api",
+   "description": "Send a POST, PUT, PATCH or DELETE to any NinjaOne Public API path under /v2/ that no typed tool covers. Destructive tier: nothing checks what the call changes, so it needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true, and is refused while NINJAONE_ALLOWED_ORG_IDS is set. Never retried automatically."
+  },
+  {
+   "name": "ninjaone_create_asset_relationships",
+   "title": "Create Asset Relationships",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Creates relationships between records; each item has a source, a target and a relation type. Runs as a dry run by default. Verify with ninjaone_list_entity_relations. Body (array of objects) per NinjaOne createAssetRelationship. Each item: Fields: sourceId (integer), sourceType (\"DEVICE\"|\"CHECKLIST\"|\"CONTACT\"|\"CREDENTIAL\"|\"APPS_SERVICES_DOCUMENT\"|\"TECHNICIAN\"|...), targetId (integer), targetType (\"DEVICE\"|\"CHECKLIST\"|\"CONTACT\"|\"CREDENTIAL\"|\"APPS_SERVICES_DOCUMENT\"|\"TECHNICIAN\"|...), relationshipTypeId (integer). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_asset_tag",
+   "title": "Create Asset Tag",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Creates one asset tag. Returns the new tag; verify with ninjaone_list_asset_tags. Account-wide (not organization scoped). Body (object) per NinjaOne createTag. Fields: name (string), description (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_related_item",
+   "title": "Create Related Item",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Links one record to another as a related item (no file upload). Verify with ninjaone_list_entity_related_items. Body (object) per NinjaOne createRelatedItemForEntity. Fields: relEntityType (\"ORGANIZATION\"|\"DOCUMENT\"|\"LOCATION\"|\"NODE\"|\"ATTACHMENT\"|\"TECHNICIAN\"|...), relEntityId (integer). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_related_items",
+   "title": "Create Related Items",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Links one record to several others in one call. Runs as a dry run by default. Verify with ninjaone_list_entity_related_items. Body (array of objects) per NinjaOne createRelatedItemForEntity_1. Each item: Fields: relEntityType (\"ORGANIZATION\"|\"DOCUMENT\"|\"LOCATION\"|\"NODE\"|\"ATTACHMENT\"|\"TECHNICIAN\"|...), relEntityId (integer). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_relationship_type",
+   "title": "Create Relationship Type",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Creates a relationship type (forwardLabel, reverseLabel, description). Verify with ninjaone_list_relationship_types. Account-wide (not organization scoped). Body (object) per NinjaOne createRelationshipType. Fields: forwardLabel (string, required), reverseLabel (string, required), description (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_secure_related_item",
+   "title": "Create Secure Related Item",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Attaches a secure value (such as a credential) to a record as a related item. The value goes in the request body only; it is not echoed by this server. Body (object) per NinjaOne createSecureRelatedItemForEntity. Fields: name (string), url (string), notes (string), username (string), password (string), totpSecret (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_software_license",
+   "title": "Create Software License",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Creates one software license. Returns the new license; verify with ninjaone_get_software_license. Account-wide (not organization scoped). Body (object) per NinjaOne create. Fields: name (string, required), description (string, required), type (\"PER_DEVICE\"|\"PER_USER\"|\"CUSTOM\", required), purchaseDate (integer, required), publisherId (integer, required), vendorId (integer, required), scope (object, required), quantity (integer, required), currentUsage (integer, required), term (object, required), notificationChannelInfo (object, required), assigmentAutomationSettings (object), assignedLicenses (object), unassignedLicenses (object), note (string), costMode (\"TOTAL\"|\"PER_LICENSE\"), cost (number), usageMonitoring (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_staged_device",
+   "title": "Create Staged Device",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Creates a staged device record (a device registered before its agent installs) for an organization and location. Returns the staged device. Body (object) per NinjaOne createStagedDevice. Fields: name (string, required), orgId (integer, required), locationId (integer, required), roleId (integer, required), assignedUserUid (string), warrantyStartDate (number), warrantyEndDate (number), itamAssetId (string), itamAssetStatus (string), itamAssetPurchaseDate (number), itamAssetPurchaseAmount (number), itamAssetExpectedLifetime (string), itamAssetEndOfLifeDate (number), itamAssetSerialNumber (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_unmanaged_device",
+   "title": "Create Unmanaged Device",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Creates an unmanaged device (one without an agent) in an organization. Returns the new device with its node id; use ninjaone_update_unmanaged_device to change it. Body (object) per NinjaOne createUnmanagedDevicePublicApi. Fields: name (string, required), orgId (integer, required), locationId (integer, required), roleId (integer, required), assignedUserUid (string), warrantyStartDate (number), warrantyEndDate (number), assetFields (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_asset_relationships",
+   "title": "Delete Asset Relationships",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Deletes relationships by id (maximum 100). Find ids with ninjaone_list_entity_relations (relationId). Runs as a dry run by default. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_asset_tag",
+   "title": "Delete Asset Tag",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Deletes one asset tag and removes it from every asset. Returns nothing on success. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_asset_tags",
+   "title": "Delete Asset Tags",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Permanently delete several asset tags by id. Tagged assets lose the tag. Body (array of integer ids) per NinjaOne deleteTags. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_entity_related_items",
+   "title": "Delete Entity Related Items",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Deletes every related item of one record. List them first with ninjaone_list_entity_related_items. Runs as a dry run by default. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_related_item",
+   "title": "Delete Related Item",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Deletes one related item (the link, not the records it joins). Find the id with ninjaone_list_entity_related_items. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_software_license",
+   "title": "Delete Software License",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Deletes one software license and its assignments. Returns the license as it was in before. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_unmanaged_device",
+   "title": "Delete Unmanaged Device",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Permanently deletes one unmanaged device and its history. Prefer ninjaone_retire_unmanaged_device. Returns nothing on success. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_related_item_attachment",
+   "title": "Download Related Item Attachment",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Downloads the file attached to one related item. The file may hold secrets. Find the id with ninjaone_list_entity_related_items. Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_related_item_files",
+   "title": "Download Related Item Files",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Returns signed download URLs for every attachment related to one record. The URLs are bearer links: do not share them. Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_software_license",
+   "title": "Get Software License",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Gets one software license with its assignment list, cost and term. Find the id with ninjaone_list_software_licenses. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_asset_relationships",
+   "title": "List Asset Relationships",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists asset relationships across the account, optionally of one relation type. For one record use ninjaone_list_entity_relations. Types come from ninjaone_list_relationship_types."
+  },
+  {
+   "name": "ninjaone_list_asset_tags",
+   "title": "List Asset Tags",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists asset tags with their ids. Use it to find tag ids for ninjaone_set_asset_tags or ninjaone_update_asset_tag_assignments. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_entity_related_items",
+   "title": "List Entity Related Items",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists the related items of one record (a document, device, organization and so on). Returns compact rows; request fields for the linked entities."
+  },
+  {
+   "name": "ninjaone_list_entity_relations",
+   "title": "List Entity Relations",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists the relationships of one record (device, checklist, contact and so on), as source, target or both. Returns compact rows."
+  },
+  {
+   "name": "ninjaone_list_license_assignments",
+   "title": "List License Assignments",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists who or what holds seats of one software license, with last use time. Find the license with ninjaone_list_software_licenses. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_related_items",
+   "title": "List Related Items",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists every related item in the account. Usually too broad: prefer ninjaone_list_entity_related_items for one record. Returns compact rows."
+  },
+  {
+   "name": "ninjaone_list_related_items_by_host_type",
+   "title": "List Related Items By Host Type",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists related items hosted by records of one type, for example every item attached to a document. Can be large; page with cursor."
+  },
+  {
+   "name": "ninjaone_list_related_items_by_target",
+   "title": "List Related Items By Target",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists related items that point at one record (the reverse lookup: which records link to this one). Returns compact rows."
+  },
+  {
+   "name": "ninjaone_list_related_items_by_target_type",
+   "title": "List Related Items By Target Type",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists related items whose linked record is of one type, for example every item that links to a technician. Can be large; page with cursor."
+  },
+  {
+   "name": "ninjaone_list_relationship_types",
+   "title": "List Relationship Types",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists relationship types with their forward and reverse labels. Use it before ninjaone_create_asset_relationships. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_software_licenses",
+   "title": "List Software Licenses",
+   "kind": "read",
+   "toolset": "assets",
+   "description": "Lists software licenses with seat usage and expiry. Then ninjaone_get_software_license or ninjaone_list_license_assignments. Returns compact rows. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_retire_unmanaged_device",
+   "title": "Retire Unmanaged Device",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Decommissions one unmanaged device: it leaves the active inventory. Prefer this to ninjaone_delete_unmanaged_device. Returns nothing on success. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_retire_unmanaged_devices",
+   "title": "Retire Unmanaged Devices",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "Decommissions many unmanaged devices at once (nodeIds, at most 100). Runs as a dry run by default. Body (object) per NinjaOne decommissionUnmanagedDevicePublicApiList. Fields: nodeIds (integer[], required). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_run_asset_tag_merge",
+   "title": "Run Asset Tag Merge",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Merges asset tags into one; assets keep a single tag afterwards and the merged-away tags are removed. Runs as a dry run by default. Verify with ninjaone_list_asset_tags. Account-wide (not organization scoped). Body (object) per NinjaOne mergeTags. Fields: tagIds (integer[]), mergeMethod (\"MERGE_INTO_EXISTING_TAG\"|\"MERGE_INTO_NEW_TAG\"), mergeIntoTagId (integer), name (string), description (string). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_asset_tags",
+   "title": "Set Asset Tags",
+   "kind": "destructive",
+   "toolset": "assets",
+   "description": "REPLACES the whole tag list of one device with tagIds. Tags not listed are removed. Use ninjaone_update_asset_tag_assignments to add or remove without replacing. Runs as a dry run by default. Body (object) per NinjaOne setTagsForAsset. Fields: tagIds (integer[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_software_license",
+   "title": "Set Software License",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Creates or updates a software license in one call, matched by the key NinjaOne documents for upsert. Use it for sync jobs; otherwise ninjaone_create_software_license or ninjaone_update_software_license. Account-wide (not organization scoped). Body (object) per NinjaOne upsert. Fields: name (string, required), type (\"PER_DEVICE\"|\"PER_USER\"|\"CUSTOM\", required), publisherName (string, required), vendorName (string, required), scope (object, required), quantity (integer, required), description (string), date (integer), currentUsage (integer), currentLicensees (string[]), licenseesToAssign (string[]), licenseesToRemove (string[]), note (string), costMode (\"TOTAL\"|\"PER_LICENSE\"), cost (number), usageMonitoring (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_asset_tag",
+   "title": "Update Asset Tag",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Renames or re-describes one asset tag. Returns the updated tag. Account-wide (not organization scoped). Body (object) per NinjaOne updateTag. Fields: name (string), description (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_asset_tag_assignments",
+   "title": "Update Asset Tag Assignments",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Adds and removes tags on many devices at once (assetIds, tagIdsToAdd, tagIdsToRemove). Runs as a dry run by default. Verify with ninjaone_list_asset_tags. Body (object) per NinjaOne batchUpdateTags. Fields: assetIds (integer[]), tagIdsToAdd (integer[]), tagIdsToRemove (integer[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_license_assignment_usage",
+   "title": "Update License Assignment Usage",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Records the last-used time of license assignments. Find the assignments with ninjaone_list_license_assignments. Account-wide (not organization scoped). Body (object) per NinjaOne updateLicenseAssignmentsLastUsage. Fields: licenseId (integer), licenseeId (integer), licenseeType (\"NODE\"|\"APP_USER\"|\"CONTACT\"), lastUsage (integer). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_software_license",
+   "title": "Update Software License",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Replaces one software license definition. Read it first with ninjaone_get_software_license and send the full definition. Returns before and after. Account-wide (not organization scoped). Body (object) per NinjaOne update. Fields: name (string, required), description (string, required), type (\"PER_DEVICE\"|\"PER_USER\"|\"CUSTOM\", required), purchaseDate (integer, required), publisherId (integer, required), vendorId (integer, required), scope (object, required), quantity (integer, required), currentUsage (integer, required), term (object, required), notificationChannelInfo (object, required), assigmentAutomationSettings (object), assignedLicenses (object), unassignedLicenses (object), note (string), costMode (\"TOTAL\"|\"PER_LICENSE\"), cost (number), usageMonitoring (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_unmanaged_device",
+   "title": "Update Unmanaged Device",
+   "kind": "write",
+   "toolset": "assets",
+   "description": "Updates one unmanaged device. Returns nothing on success; verify with ninjaone_get_device. Body (object) per NinjaOne updateUnmanagedDevicePublicApi. Fields: name (string, required), orgId (integer, required), locationId (integer, required), assignedUserUid (string), warrantyStartDate (number), warrantyEndDate (number), assetFields (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_location_backup_usage",
+   "title": "Get Location Backup Usage",
+   "kind": "read",
+   "toolset": "backup",
+   "description": "Get backup storage usage for one location of an organization."
+  },
+  {
+   "name": "ninjaone_get_org_backup_usage",
+   "title": "Get Org Backup Usage",
+   "kind": "read",
+   "toolset": "backup",
+   "description": "Get backup storage usage per location for one organization (cloud and local, current and previous revisions)."
+  },
+  {
+   "name": "ninjaone_get_scan_group",
+   "title": "Get Scan Group",
+   "kind": "read",
+   "toolset": "backup",
+   "description": "Returns one vulnerability scan group with its column mappings. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_integrity_check_jobs",
+   "title": "List Integrity Check Jobs",
+   "kind": "read",
+   "toolset": "backup",
+   "description": "Lists backup integrity check jobs with status and bytes checked. Start one with ninjaone_run_integrity_check."
+  },
+  {
+   "name": "ninjaone_list_scan_groups",
+   "title": "List Scan Groups",
+   "kind": "read",
+   "toolset": "backup",
+   "description": "Lists vulnerability scan groups (third-party scan imports) with status and last upload date. Read one with ninjaone_get_scan_group. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_report_backup_usage",
+   "title": "Report Backup Usage",
+   "kind": "read",
+   "toolset": "backup",
+   "description": "Report backup storage usage per device across devices, one row per item, cursor paged. Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_run_integrity_check",
+   "title": "Run Integrity Check",
+   "kind": "write",
+   "toolset": "backup",
+   "description": "Submits a backup integrity check job for a device. Read results later with ninjaone_list_integrity_check_jobs. Body (object) per NinjaOne submitIntegrityCheckJob. Fields: deviceId (integer), planUid (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_backup_throttle",
+   "title": "Set Backup Throttle",
+   "kind": "write",
+   "toolset": "backup",
+   "description": "Sets the backup bandwidth throttle for a device. Replaces the device's current throttle settings. Body (object) per NinjaOne setBandwidthThrottleForDevice. Fields: deviceId (integer), bandwidthThrottle (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_add_catalog_ticket_products",
+   "title": "Add Catalog Ticket Products",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Adds a catalog product (from ninjaone_list_products) to a ticket. Read back with ninjaone_list_ticket_products. Body (object) per NinjaOne createCatalogTicketProducts. Fields: name (string, required), description (string, required), quantityType (\"MANUAL\"|\"DEVICE_COUNTS\"|\"TIME_ENTRIES\"|\"END_USER_COUNTS\"|\"BACKUP_STORAGE_COUNTS\"|\"SOFTWARE_LICENSE\", required), content (object, required), ticketId (integer, required), productId (integer, required), accountId (integer, required), group (boolean, required), taxId (integer), inheritTaxFromAgreement (boolean), productUserRole (object), integrationSettings (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_add_ticket_products",
+   "title": "Add Ticket Products",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Adds an ad hoc (one-off) product to a ticket. For a catalog product use ninjaone_add_catalog_ticket_products. Read back with ninjaone_list_ticket_products. Body (object) per NinjaOne createAdhocTicketProducts. Fields: name (string, required), description (string, required), quantityType (\"MANUAL\"|\"DEVICE_COUNTS\"|\"TIME_ENTRIES\"|\"END_USER_COUNTS\"|\"BACKUP_STORAGE_COUNTS\"|\"SOFTWARE_LICENSE\", required), content (object, required), ticketId (integer, required), productId (integer, required), accountId (integer, required), group (boolean, required), taxId (integer), inheritTaxFromAgreement (boolean), productUserRole (object), integrationSettings (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_approve_invoices",
+   "title": "Approve Invoices",
+   "kind": "destructive",
+   "toolset": "billing",
+   "description": "Approves invoices by id (body: invoiceIds). Approval cannot be undone through the API. Review each with ninjaone_get_invoice first. Body (object) per NinjaOne approveInvoices. Fields: invoiceIds (integer[], required). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_invoices",
+   "title": "Archive Invoices",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Archives invoices by id (body: invoiceIds). Reverse with ninjaone_restore_invoices. Body (object) per NinjaOne archiveInvoices. Fields: invoiceIds (integer[], required). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_agreement",
+   "title": "Create Agreement",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Creates an agreement with its properties and products. Returns the new agreement; check it with ninjaone_get_agreement. Body (object) per NinjaOne create_1. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_billing_account",
+   "title": "Create Billing Account",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Creates a billing account. Requires a code and a name. Returns the new account. Account-wide (not organization scoped). Body (object) per NinjaOne createAccount. Fields: code (string, required), name (string, required), description (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_invoice",
+   "title": "Create Invoice",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Creates an invoice from an agreement (body: agreementId). Returns the new invoice; review it with ninjaone_get_invoice before approving. Body (object) per NinjaOne createInvoice. Fields: agreementId (integer, required). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_product",
+   "title": "Create Product",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Creates a billing product. Needs an account id from ninjaone_list_billing_accounts. Returns the new product. Account-wide (not organization scoped). Body (object) per NinjaOne createProduct. Fields: name (string, required), description (string, required), quantityType (\"MANUAL\"|\"DEVICE_COUNTS\"|\"TIME_ENTRIES\"|\"END_USER_COUNTS\"|\"BACKUP_STORAGE_COUNTS\"|\"SOFTWARE_LICENSE\", required), accountId (integer, required), group (boolean, required), productUserRole (object, required), content (object, required), integrationSettings (object), taxId (integer), inheritTaxFromAgreement (boolean). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_billing_account",
+   "title": "Delete Billing Account",
+   "kind": "destructive",
+   "toolset": "billing",
+   "description": "Deletes a billing account. Products that use it may block the delete. Check ninjaone_list_products first. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_disable_agreement",
+   "title": "Disable Agreement",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Deactivates an agreement so it stops generating invoices. Returns the agreement before and after. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_disable_product",
+   "title": "Disable Product",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Deactivates a billing product. Reverse with ninjaone_enable_product. Returns the product before and after. Account-wide (not organization scoped). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_invoices",
+   "title": "Download Invoices",
+   "kind": "destructive",
+   "toolset": "billing",
+   "description": "Exports invoices (body per NinjaOne). The response may carry download links, so it needs reveal: true. List candidates with ninjaone_list_invoices. Body (object) per NinjaOne exportInvoices. Fields: invoiceIds (integer[], required). Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_enable_product",
+   "title": "Enable Product",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Activates a billing product so it can be used again. Returns the product before and after. Account-wide (not organization scoped). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_agreement",
+   "title": "Get Agreement",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Returns one agreement with its products, billing settings and client."
+  },
+  {
+   "name": "ninjaone_get_billing_account",
+   "title": "Get Billing Account",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Returns one billing account. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_get_invoice",
+   "title": "Get Invoice",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Returns one invoice with its line items, tax and notes."
+  },
+  {
+   "name": "ninjaone_get_product",
+   "title": "Get Product",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Returns one billing product. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_agreements",
+   "title": "List Agreements",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Lists billing agreements with client, billing dates and active state. Read one in full with ninjaone_get_agreement."
+  },
+  {
+   "name": "ninjaone_list_billing_accounts",
+   "title": "List Billing Accounts",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Lists billing (ledger) accounts with code and name. Account ids are used when creating products. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_invoices",
+   "title": "List Invoices",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Lists invoices with client, status, totals and billing period. Filter by agreement or date range. Read one with ninjaone_get_invoice."
+  },
+  {
+   "name": "ninjaone_list_products",
+   "title": "List Products",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Lists billing products (catalog items) with quantity type and active state. Product ids are used by agreements and ticket products. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_ticket_products",
+   "title": "List Ticket Products",
+   "kind": "read",
+   "toolset": "billing",
+   "description": "Lists the billable products added to a ticket, with billing status. Add more with ninjaone_add_ticket_products."
+  },
+  {
+   "name": "ninjaone_remove_ticket_products",
+   "title": "Remove Ticket Products",
+   "kind": "destructive",
+   "toolset": "billing",
+   "description": "Removes products from a ticket (body names the ticket product ids). Find ids with ninjaone_list_ticket_products. Body (object) per NinjaOne removeTicketProducts. Fields: ticketId (integer, required), ticketProductIds (integer[], required). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_invoices",
+   "title": "Restore Invoices",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Restores archived invoices by id (body: invoiceIds). Undoes ninjaone_archive_invoices. Body (object) per NinjaOne unarchiveInvoices. Fields: invoiceIds (integer[], required). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_invoice_note",
+   "title": "Set Invoice Note",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Sets the note printed on an invoice. Returns the invoice before and after. Body (object) per NinjaOne updateInvoiceNote. Fields: invoiceNote (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_time_entry_billing",
+   "title": "Set Time Entry Billing",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Sets the billing properties (billable, product) of a ticket time entry. Body (object) per NinjaOne updatePsaProperties. Fields: startDate (string), remote (boolean), inHours (object), offHours (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_agreement",
+   "title": "Update Agreement",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Replaces an agreement's properties and products. Send the whole agreement (read it first with ninjaone_get_agreement). Returns it before and after. Body (object) per NinjaOne update_1. Fields: name (string, required), multiMatchEndUsers (boolean, required), displayIncludedTimeOnInvoices (boolean, required), autoApproveInvoice (boolean, required), autoCompleteInvoice (boolean, required), invoiceNote (string, required), description (string), products (object[]), deviceCountsProducts (object[]), softwareLicenseProducts (object[]), backupStorageCountsProducts (object[]), timeEntriesProducts (object[]), endUserCountsProducts (object[]), content (object), clientId (integer), invoiceGenerationType (\"AUTOMATIC\"|\"MANUAL\"|\"ONE_OFF\"), multiMatchDevices (boolean), multiMatchDeviceBackups (boolean), billEmails (string[]), billCcEmails (string[]), billBccEmails (string[]), businessHoursSource (\"CUSTOM\"|\"TICKETING\"), nextBillDate (string), nextBillingPeriodStartDate (string), and 13 more. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_billing_account",
+   "title": "Update Billing Account",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Replaces a billing account's code, name and description. Returns the account before and after. Account-wide (not organization scoped). Body (object) per NinjaOne updateAccount. Fields: code (string, required), name (string, required), description (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_invoice",
+   "title": "Update Invoice",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Replaces an invoice's editable fields and line items. Read it first with ninjaone_get_invoice. Returns it before and after. Body (object) per NinjaOne updateInvoice. Fields: invoiceDate (string), products (object[]), agreementProducts (object[]), ticketProducts (object[]), billingPeriodStartDate (string), billingPeriodEndDate (string), invoiceNote (string), dueDate (string), invoiceNumber (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_product",
+   "title": "Update Product",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Replaces a billing product's fields. Read it first with ninjaone_get_product. Returns it before and after. Account-wide (not organization scoped). Body (object) per NinjaOne updateProduct. Fields: name (string, required), description (string, required), quantityType (\"MANUAL\"|\"DEVICE_COUNTS\"|\"TIME_ENTRIES\"|\"END_USER_COUNTS\"|\"BACKUP_STORAGE_COUNTS\"|\"SOFTWARE_LICENSE\", required), accountId (integer, required), group (boolean, required), productUserRole (object, required), content (object, required), integrationSettings (object), taxId (integer), inheritTaxFromAgreement (boolean). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_ticket_product",
+   "title": "Update Ticket Product",
+   "kind": "write",
+   "toolset": "billing",
+   "description": "Replaces the fields of one product on a ticket. Find ids with ninjaone_list_ticket_products. Body (object) per NinjaOne updateTicketProducts. Fields: name (string, required), description (string, required), quantityType (\"MANUAL\"|\"DEVICE_COUNTS\"|\"TIME_ENTRIES\"|\"END_USER_COUNTS\"|\"BACKUP_STORAGE_COUNTS\"|\"SOFTWARE_LICENSE\", required), content (object, required), ticketId (integer, required), productId (integer, required), accountId (integer, required), group (boolean, required), taxId (integer), inheritTaxFromAgreement (boolean), productUserRole (object), integrationSettings (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_location",
+   "title": "Create Location",
+   "kind": "write",
+   "toolset": "core",
+   "description": "Add a location (site) to an organization. Returns the new location. Body (object) per NinjaOne createLocationForOrganization. Fields: name (string), address (string), description (string), userData (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_organization",
+   "title": "Create Organization",
+   "kind": "write",
+   "toolset": "core",
+   "description": "Create an organization (client), optionally with locations and policy mappings. Returns the new organization. Then ninjaone_create_location or ninjaone_download_installer. Account-wide (not organization scoped). Body (object) per NinjaOne createOrganization. Fields: name (string), description (string), userData (object), nodeApprovalMode (\"AUTOMATIC\"|\"MANUAL\"|\"REJECT\"), locations (object[]), policies (object[]). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_find_organization",
+   "title": "Find Organization",
+   "kind": "read",
+   "toolset": "core",
+   "description": "Find organizations whose name contains the query (case-insensitive), with id and name. Use it to turn a client name into the org argument. Returns every match; when more than one matches, pass the id of the one you mean to other tools."
+  },
+  {
+   "name": "ninjaone_get_organization",
+   "title": "Get Organization",
+   "kind": "read",
+   "toolset": "core",
+   "description": "Get one organization: name, description, approval mode, locations, policy mappings and settings. Then ninjaone_list_org_devices or ninjaone_get_org_custom_fields."
+  },
+  {
+   "name": "ninjaone_list_locations",
+   "title": "List Locations",
+   "kind": "read",
+   "toolset": "core",
+   "description": "List locations across every organization in scope, each with its organizationId. For one client prefer ninjaone_list_org_locations."
+  },
+  {
+   "name": "ninjaone_list_org_locations",
+   "title": "List Org Locations",
+   "kind": "read",
+   "toolset": "core",
+   "description": "List the locations (sites) of one organization, with id, name, address and description."
+  },
+  {
+   "name": "ninjaone_list_organizations",
+   "title": "List Organizations",
+   "kind": "read",
+   "toolset": "core",
+   "description": "List organizations (clients) with id, name and approval mode. Use it to find the org argument for other tools, or ninjaone_find_organization to match a name. Paged."
+  },
+  {
+   "name": "ninjaone_list_organizations_detailed",
+   "title": "List Organizations Detailed",
+   "kind": "read",
+   "toolset": "core",
+   "description": "List organizations with their locations, policy mappings and settings. Heavier than ninjaone_list_organizations; use it when you need locations or policies for many clients at once."
+  },
+  {
+   "name": "ninjaone_report_fleet_health",
+   "title": "Report Fleet Health",
+   "kind": "read",
+   "toolset": "core",
+   "description": "Health across organizations, one row per organization: device count, offline devices, devices by health status, pending and failed OS patches, active alerts, and antivirus threats. Runs per organization with a concurrency cap (NINJAONE_MAX_CONCURRENCY); a failing organization is reported on its own row. Pass org to limit it to one client. Then ninjaone_list_devices with df \"org = <id> AND offline\" to drill in."
+  },
+  {
+   "name": "ninjaone_status_gate",
+   "title": "Status Gate",
+   "kind": "read",
+   "toolset": "core",
+   "description": "Explain the write gate: the current mode, whether the destructive tier is open, the optional write allowlist, which tools each gate covers, and the environment variables (NINJAONE_MODE, NINJAONE_ALLOW_DESTRUCTIVE, NINJAONE_WRITE_ALLOWLIST) that change it. Call this when a write refuses."
+  },
+  {
+   "name": "ninjaone_status_server",
+   "title": "Status Server",
+   "kind": "read",
+   "toolset": "core",
+   "description": "Report this server's configuration without calling NinjaOne: version, region and base URL, whether the client id and secret are set (never their values), requested OAuth scopes and what they allow, missing environment variables, unusable settings, the organization default and boundary, and the write gate. Call this first when tools fail or seem missing, then ninjaone_test_connection."
+  },
+  {
+   "name": "ninjaone_test_connection",
+   "title": "Test Connection",
+   "kind": "read",
+   "toolset": "core",
+   "description": "Prove the credential works: requests an OAuth token and makes one cheap call (the first organization). Returns the base URL, the scopes granted, an organization count sample, and the round-trip time. A token error here means the client id, secret or region is wrong."
+  },
+  {
+   "name": "ninjaone_update_location",
+   "title": "Update Location",
+   "kind": "write",
+   "toolset": "core",
+   "description": "Update a location's name, address or description. Body (object) per NinjaOne updateLocation. Fields: name (string), address (string), description (string), userData (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_organization",
+   "title": "Update Organization",
+   "kind": "write",
+   "toolset": "core",
+   "description": "Update an organization's name, description, approval mode or user data. Returns before and after. Body (object) per NinjaOne updateOrganization. Fields: name (string), description (string), userData (object), nodeApprovalMode (\"AUTOMATIC\"|\"MANUAL\"|\"REJECT\"). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_custom_field_definition",
+   "title": "Create Custom Field Definition",
+   "kind": "write",
+   "toolset": "custom_fields",
+   "description": "Creates one custom field definition. Returns the new definition; verify with ninjaone_get_custom_field_definition. Account-wide (not organization scoped). Body (object) per NinjaOne createNodeAttribute. Fields: label (string, required), fieldName (string, required), description (string), type (\"DROPDOWN\"|\"MULTI_SELECT\"|\"CHECKBOX\"|\"TEXT\"|\"TEXT_MULTILINE\"|\"TEXT_ENCRYPTED\"|...), technicianPermission (\"NONE\"|\"EDITABLE\"|\"READ_ONLY\"|\"ROLE_BASED\"), scriptPermission (\"NONE\"|\"READ_ONLY\"|\"WRITE_ONLY\"|\"READ_WRITE\"), apiPermission (\"NONE\"|\"READ_ONLY\"|\"WRITE_ONLY\"|\"READ_WRITE\"), defaultValue (string), content (object), scope (\"NODE_GLOBAL\"|\"NODE_ROLE\"|\"NODE_CLASS\"), definitionScope (\"NODE\"|\"END_USER\"|\"LOCATION\"|\"ORGANIZATION\"|\"GLOBAL\"[]), groupId (integer), addToDefaultTab (boolean). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_custom_field_definitions",
+   "title": "Create Custom Field Definitions",
+   "kind": "write",
+   "toolset": "custom_fields",
+   "description": "Creates many custom field definitions in one call (customFields array). Runs as a dry run by default. Verify with ninjaone_list_custom_field_definitions. Account-wide (not organization scoped). Body (object) per NinjaOne bulkCreateNodeAttributes. Fields: customFields (object[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_custom_field_definition",
+   "title": "Delete Custom Field Definition",
+   "kind": "destructive",
+   "toolset": "custom_fields",
+   "description": "Deletes one custom field definition and every value stored in it. Returns the definition as it was in before. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_custom_field_definitions",
+   "title": "Delete Custom Field Definitions",
+   "kind": "destructive",
+   "toolset": "custom_fields",
+   "description": "Deletes many custom field definitions and every value stored in them. Runs as a dry run by default. Account-wide (not organization scoped). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_custom_field_files",
+   "title": "Download Custom Field Files",
+   "kind": "destructive",
+   "toolset": "custom_fields",
+   "description": "Returns signed download URLs for files stored in the custom fields of one record. The URLs are bearer links: do not share them. Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_custom_field_definition",
+   "title": "Get Custom Field Definition",
+   "kind": "read",
+   "toolset": "custom_fields",
+   "description": "Gets one custom field definition by its field name (the name column from ninjaone_list_custom_field_definitions). Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_get_global_custom_fields",
+   "title": "Get Global Custom Fields",
+   "kind": "read",
+   "toolset": "custom_fields",
+   "description": "Get the values of global (account-level) custom fields. Secure fields are never revealed. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_custom_field_definitions",
+   "title": "List Custom Field Definitions",
+   "kind": "read",
+   "toolset": "custom_fields",
+   "description": "Lists custom field definitions (not values). Only the first upstream page (pageSize 500) is read; for more use ninjaone_api_get with cursorName. Then ninjaone_get_custom_field_definition. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_update_custom_field_definition",
+   "title": "Update Custom Field Definition",
+   "kind": "write",
+   "toolset": "custom_fields",
+   "description": "Updates one custom field definition. Returns before and after. Account-wide (not organization scoped). Body (object) per NinjaOne updateNodeAttributeByFieldName. Fields: label (string), fieldName (string), description (string), type (\"DROPDOWN\"|\"MULTI_SELECT\"|\"CHECKBOX\"|\"TEXT\"|\"TEXT_MULTILINE\"|\"TEXT_ENCRYPTED\"|...), technicianPermission (\"NONE\"|\"EDITABLE\"|\"READ_ONLY\"|\"ROLE_BASED\"), scriptPermission (\"NONE\"|\"READ_ONLY\"|\"WRITE_ONLY\"|\"READ_WRITE\"), apiPermission (\"NONE\"|\"READ_ONLY\"|\"WRITE_ONLY\"|\"READ_WRITE\"), defaultValue (string), content (object), active (boolean), scope (\"NODE_GLOBAL\"|\"NODE_ROLE\"|\"NODE_CLASS\"), definitionScope (\"NODE\"|\"END_USER\"|\"LOCATION\"|\"ORGANIZATION\"|\"GLOBAL\"[]), groupId (integer). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_custom_field_definitions",
+   "title": "Update Custom Field Definitions",
+   "kind": "write",
+   "toolset": "custom_fields",
+   "description": "Updates many custom field definitions in one call (customFields array). Runs as a dry run by default. Verify with ninjaone_list_custom_field_definitions. Account-wide (not organization scoped). Body (object) per NinjaOne bulkUpdateNodeAttributes. Fields: customFields (object[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_global_custom_fields",
+   "title": "Update Global Custom Fields",
+   "kind": "write",
+   "toolset": "custom_fields",
+   "description": "Set global custom field values. Only the fields in body change. Returns before and after. Account-wide (not organization scoped). Body (object) per NinjaOne updateGlobalCustomFields. Body maps custom field names to values. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_device",
+   "title": "Get Device",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Get one device: class, organization, location, policy, role, OS, system, maintenance and references. For hardware, volumes and patches in one call use ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_get_device_custom_fields",
+   "title": "Get Device Custom Fields",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Get one device's custom field values. Secure fields are never revealed. To change them, ninjaone_update_device_custom_fields."
+  },
+  {
+   "name": "ninjaone_get_device_last_user",
+   "title": "Get Device Last User",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Get the last logged-on user of one device and when they logged on."
+  },
+  {
+   "name": "ninjaone_get_device_link",
+   "title": "Get Device Link",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Get the NinjaOne console URL for one device, to hand a person a direct link. The link needs a console login."
+  },
+  {
+   "name": "ninjaone_get_device_profile",
+   "title": "Get Device Profile",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Everything about one device in one call: the device record, last logged-on user, volumes, disks, processors, network interfaces, active alerts, and pending/failed OS and software patch counts. Each part reports its own error instead of failing the whole call. Use it to triage a device; then ninjaone_list_device_activities for history or ninjaone_get_device_scripting_options to act."
+  },
+  {
+   "name": "ninjaone_get_device_scripting_options",
+   "title": "Get Device Scripting Options",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List the scripts and built-in actions that can run on one device, with their ids and parameters. Call this before ninjaone_run_device_script."
+  },
+  {
+   "name": "ninjaone_get_location_custom_fields",
+   "title": "Get Location Custom Fields",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Get the custom field values set on one location of an organization."
+  },
+  {
+   "name": "ninjaone_get_org_custom_fields",
+   "title": "Get Org Custom Fields",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Get the custom field values set on one organization. Secure fields are never revealed. To change them, ninjaone_update_org_custom_fields."
+  },
+  {
+   "name": "ninjaone_list_device_custom_field_definitions",
+   "title": "List Device Custom Field Definitions",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List the custom field definitions that apply to devices, locations and organizations (names, labels, types). Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_device_disks",
+   "title": "List Device Disks",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's physical disk drives. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_geolocation",
+   "title": "List Device Geolocation",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's geolocation history (where location tracking is enabled)."
+  },
+  {
+   "name": "ninjaone_list_device_network_interfaces",
+   "title": "List Device Network Interfaces",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's network interfaces with IP and MAC addresses. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_os_patch_installs",
+   "title": "List Device OS Patch Installs",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's OS patch install history. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_os_patches",
+   "title": "List Device OS Patches",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's pending, failed and rejected OS patches. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_policy_overrides",
+   "title": "List Device Policy Overrides",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Summarize the policy settings this device overrides locally."
+  },
+  {
+   "name": "ninjaone_list_device_processors",
+   "title": "List Device Processors",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's processors. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_services",
+   "title": "List Device Services",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's Windows services with state and start type. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_software",
+   "title": "List Device Software",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's installed software inventory. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_software_patch_installs",
+   "title": "List Device Software Patch Installs",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's third-party software patch install history. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_software_patches",
+   "title": "List Device Software Patches",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's pending, failed and rejected third-party software patches. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_device_volumes",
+   "title": "List Device Volumes",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List one device's storage volumes with capacity and free space. For the same data across many devices, use the matching ninjaone_report_* tool with df."
+  },
+  {
+   "name": "ninjaone_list_devices",
+   "title": "List Devices",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List devices, compact by default, narrowed with df. Then ninjaone_get_device_profile for detail on one device. For free-text lookup use ninjaone_search_devices."
+  },
+  {
+   "name": "ninjaone_list_devices_detailed",
+   "title": "List Devices Detailed",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List devices with OS, system, last logged-on user and references. Heavier than ninjaone_list_devices; pass fields to keep it small."
+  },
+  {
+   "name": "ninjaone_list_org_devices",
+   "title": "List Org Devices",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "List the devices of one organization (compact by default). Then ninjaone_get_device or ninjaone_get_device_profile for one device."
+  },
+  {
+   "name": "ninjaone_search_devices",
+   "title": "Search Devices",
+   "kind": "read",
+   "toolset": "devices",
+   "description": "Find devices by name, logged-on user, IP or MAC address. Returns matching devices with ids."
+  },
+  {
+   "name": "ninjaone_update_location_custom_fields",
+   "title": "Update Location Custom Fields",
+   "kind": "write",
+   "toolset": "devices",
+   "description": "Set custom field values on one location. Only the fields in body change. Returns before and after. Body (object) per NinjaOne updateNodeAttributeValues_2. Body maps custom field names to values. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_org_custom_fields",
+   "title": "Update Org Custom Fields",
+   "kind": "write",
+   "toolset": "devices",
+   "description": "Set custom field values on one organization. Only the fields in body change. Returns the values before and after, so a change can be put back. Body (object) per NinjaOne updateNodeAttributeValues_1. Body maps custom field names to values, e.g. {\"contractTier\": \"gold\"}. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_checklist_templates",
+   "title": "Archive Checklist Templates",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Archives checklist templates by id (checklistTemplateIds); undo with ninjaone_restore_checklist_templates. Runs as a dry run by default. Account-wide (not organization scoped). Body (object) per NinjaOne archiveChecklistTemplate. Fields: checklistTemplateIds (integer[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_checklists",
+   "title": "Archive Checklists",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Archives organization checklists by id (clientChecklistIds); undo with ninjaone_restore_checklists. Runs as a dry run by default. Body (object) per NinjaOne archiveOrganizationChecklists. Fields: clientChecklistIds (integer[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_document",
+   "title": "Archive Document",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Archives one document; it can be brought back with ninjaone_restore_document. Returns the archived document. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_document_template",
+   "title": "Archive Document Template",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Archives one document template; undo with ninjaone_restore_document_template. Returns nothing on success. Account-wide (not organization scoped). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_document_templates",
+   "title": "Archive Document Templates",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Archive several document templates by id. Undo with ninjaone_restore_document_templates. Body (array of integer ids) per NinjaOne archiveDocumentTemplates. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_documents",
+   "title": "Archive Documents",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Archive several organization documents by id. Archived documents can be brought back with ninjaone_restore_documents. Body (array of integer ids) per NinjaOne archiveMultiPageClientDocuments. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_kb_articles",
+   "title": "Archive KB Articles",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Archive knowledge base articles by id. Undo with ninjaone_restore_kb_articles. Body (array of integer ids) per NinjaOne archiveKnowledgeBaseArticles. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_archive_kb_folders",
+   "title": "Archive KB Folders",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Archive knowledge base folders (and their contents) by id. Undo with ninjaone_restore_kb_folders. Body (array of integer ids) per NinjaOne archiveKnowledgeBaseFolders. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_checklist_templates",
+   "title": "Create Checklist Templates",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Creates checklist templates with their tasks. Runs as a dry run by default. Verify with ninjaone_list_checklist_templates. Account-wide (not organization scoped). Body (array of objects) per NinjaOne createChecklistTemplates. Each item: Fields: name (string), description (object), tasks (object[]), required (boolean). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_checklists",
+   "title": "Create Checklists",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Creates organization checklists with their tasks; each item names its organization. Runs as a dry run by default. Verify with ninjaone_list_checklists. Body (array of objects) per NinjaOne createOrganizationChecklists. Each item: Fields: name (string), description (object), required (boolean), dueDate (number), assignedToUserId (integer), organizationId (integer), checklistTemplateId (integer), tasks (object[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_checklists_from_templates",
+   "title": "Create Checklists From Templates",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Create checklists in one organization from checklist templates (find ids with ninjaone_list_checklist_templates). Body (array of integer ids) per NinjaOne createOrganizationChecklistsFromTemplates. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_document",
+   "title": "Create Document",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Creates one document for an organization from a document template. Find the template with ninjaone_list_document_templates first. Returns the new document; verify with ninjaone_list_organization_documents. Body (object) per NinjaOne createOrganizationDocument. Fields: documentName (string), documentDescription (string), fields (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_document_template",
+   "title": "Create Document Template",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Creates a document template with its field definitions. Returns the new template; verify with ninjaone_get_document_template. Account-wide (not organization scoped). Body (object) per NinjaOne createDocumentTemplate. Fields: name (string, required), description (string), allowMultiple (boolean), mandatory (boolean), fields (object[]), availableToAllTechnicians (boolean), allowedTechnicianRoles (integer[]). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_documents",
+   "title": "Create Documents",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Creates many documents in one call; each item names its organization and template. Runs as a dry run by default. Verify with ninjaone_list_documents. Body (array of objects) per NinjaOne createOrganizationDocuments. Each item: Fields: documentName (string), documentDescription (string), fields (object), documentTemplateId (integer), organizationId (integer). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_kb_articles",
+   "title": "Create KB Articles",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Creates knowledge base articles; each item names its organization (or none for global) and destination folder. Runs as a dry run by default. Verify with ninjaone_list_kb_articles. Body (array of objects) per NinjaOne createKnowledgeBaseArticles. Each item: Fields: name (string), organizationId (integer), destinationFolderId (integer), destinationFolderPath (string), content (object). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_templates_from_checklist_ids",
+   "title": "Create Templates From Checklist IDs",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Turn organization checklists into reusable checklist templates, keeping their names. To rename while promoting use ninjaone_create_templates_from_checklists. Body (array of integer ids) per NinjaOne promoteClientChecklists_1. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_templates_from_checklists",
+   "title": "Create Templates From Checklists",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Promotes organization checklists into checklist templates, each with a name you choose. Runs as a dry run by default. Verify with ninjaone_list_checklist_templates. Body (array of objects) per NinjaOne promoteClientChecklists. Each item: Fields: id (integer), name (string). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_checklist",
+   "title": "Delete Checklist",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Permanently deletes one organization checklist. Prefer ninjaone_archive_checklists. Returns nothing on success. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_checklist_template",
+   "title": "Delete Checklist Template",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Permanently deletes one checklist template. Prefer ninjaone_archive_checklist_templates. Returns nothing on success. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_checklist_templates",
+   "title": "Delete Checklist Templates",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Permanently delete several checklist templates by id. Body (array of integer ids) per NinjaOne deleteChecklistTemplates. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_checklists",
+   "title": "Delete Checklists",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Permanently delete several organization checklists by id. Body (array of integer ids) per NinjaOne deleteClientChecklists. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_document",
+   "title": "Delete Document",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Permanently deletes one document. Prefer ninjaone_archive_document, which can be undone. Returns nothing on success. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_document_template",
+   "title": "Delete Document Template",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Permanently deletes one document template. Prefer ninjaone_archive_document_template. Returns the template as it was in before. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_kb_articles",
+   "title": "Delete KB Articles",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Permanently delete knowledge base articles by id. Body (array of integer ids) per NinjaOne deleteKnowledgeBaseArticles. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_kb_folders",
+   "title": "Delete KB Folders",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Permanently delete knowledge base folders and their contents by id. Body (array of integer ids) per NinjaOne deleteKnowledgeBaseFolders. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_checklist_files",
+   "title": "Download Checklist Files",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Returns signed download URLs for the files attached to one checklist. The URLs are bearer links: do not share them. Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_document_files",
+   "title": "Download Document Files",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Returns signed download URLs for the files attached to one document. The URLs are bearer links: anyone holding one can fetch the file, so do not share them. Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_kb_article",
+   "title": "Download KB Article",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Downloads one knowledge base article as a file. The content may hold secrets; read it only when you need the file itself, otherwise use ninjaone_get_kb_article. Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_download_kb_article_files",
+   "title": "Download KB Article Files",
+   "kind": "destructive",
+   "toolset": "documentation",
+   "description": "Returns signed download URLs for the attachments of one knowledge base article. The URLs are bearer links: do not share them. Returns secret values (signed or tokenized URLs): requires reveal: true and both write gates. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_checklist",
+   "title": "Get Checklist",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Gets one organization checklist with its tasks. Find the id with ninjaone_list_checklists. Returns the full checklist."
+  },
+  {
+   "name": "ninjaone_get_document_template",
+   "title": "Get Document Template",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Gets one document template with all its field definitions. Use it to learn which fields a document needs; then ninjaone_create_document. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_get_global_kb_article",
+   "title": "Get Global KB Article",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Gets one global knowledge base article with its content. Find the id with ninjaone_list_global_kb_articles. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_get_kb_article",
+   "title": "Get KB Article",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Gets one organization knowledge base article with its content. Find the id with ninjaone_list_kb_articles."
+  },
+  {
+   "name": "ninjaone_get_kb_folder",
+   "title": "Get KB Folder",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Gets one knowledge base folder by id with its sub-folders and articles. Use ninjaone_get_kb_folder_by_path when you only know the path."
+  },
+  {
+   "name": "ninjaone_get_kb_folder_by_path",
+   "title": "Get KB Folder By Path",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Gets a knowledge base folder by path (or id) within an organization, with its sub-folders and articles. Pass org to name the organization. Use it to browse the tree; then ninjaone_get_kb_article."
+  },
+  {
+   "name": "ninjaone_list_checklist_templates",
+   "title": "List Checklist Templates",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Lists checklist templates, optionally by id or name. Use it to find template ids for ninjaone_update_checklist_templates. Returns compact rows. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_checklists",
+   "title": "List Checklists",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Lists organization checklists with progress counts, filtered by organization, name, assignee or state. Use it to find a checklist id; then ninjaone_get_checklist for the tasks. Returns compact rows."
+  },
+  {
+   "name": "ninjaone_list_document_templates",
+   "title": "List Document Templates",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Lists document templates with their field definitions. Use it to find a template id before ninjaone_create_document. Returns compact rows; request fields (such as fields) for the definitions. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_documents",
+   "title": "List Documents",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Lists organization documents with their field values across organizations, filtered by template or name. Use it to find a document id and its organization; use ninjaone_list_organization_documents for one organization. Returns compact rows; request fields for more."
+  },
+  {
+   "name": "ninjaone_list_global_kb_articles",
+   "title": "List Global KB Articles",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Lists global (account-wide) knowledge base articles, optionally by name. Then ninjaone_get_global_kb_article. Returns compact rows. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_kb_articles",
+   "title": "List KB Articles",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Lists organization knowledge base articles, optionally by organization or name. Use it to find an article id; then ninjaone_get_kb_article. For account-wide articles use ninjaone_list_global_kb_articles. Returns compact rows."
+  },
+  {
+   "name": "ninjaone_list_organization_documents",
+   "title": "List Organization Documents",
+   "kind": "read",
+   "toolset": "documentation",
+   "description": "Lists every document of one organization, with field values. Use it when you already know the organization; use ninjaone_list_documents to search across organizations. Returns compact rows; request fields for more."
+  },
+  {
+   "name": "ninjaone_move_kb_items",
+   "title": "Move KB Items",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Moves knowledge base folders and articles (folderIds, documentIds) into a destination folder or organization. Runs as a dry run by default. Body (object) per NinjaOne move. Fields: folderIds (integer[]), documentIds (integer[]), destinationFolderId (integer), destinationOrganizationId (integer). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_checklist_templates",
+   "title": "Restore Checklist Templates",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Restores archived checklist templates by id (checklistTemplateIds). Runs as a dry run by default. Account-wide (not organization scoped). Body (object) per NinjaOne restoreChecklistTemplate. Fields: checklistTemplateIds (integer[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_checklists",
+   "title": "Restore Checklists",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Restores archived organization checklists by id (clientChecklistIds). Runs as a dry run by default. Body (object) per NinjaOne restoreOrganizationChecklists. Fields: clientChecklistIds (integer[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_document",
+   "title": "Restore Document",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Restores one archived document. Returns the restored document. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_document_template",
+   "title": "Restore Document Template",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Restores one archived document template. Returns the restored template. Account-wide (not organization scoped). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_document_templates",
+   "title": "Restore Document Templates",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Restore several archived document templates by id. Body (array of integer ids) per NinjaOne restoreDocumentTemplates. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_documents",
+   "title": "Restore Documents",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Restore several archived organization documents by id. Body (array of integer ids) per NinjaOne restoreMultiPageClientDocuments. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_kb_articles",
+   "title": "Restore KB Articles",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Restore archived knowledge base articles by id. Body (array of integer ids) per NinjaOne restoreKnowledgeBaseArticles. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_restore_kb_folders",
+   "title": "Restore KB Folders",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Restore archived knowledge base folders by id. Body (array of integer ids) per NinjaOne restoreKnowledgeBaseFolders. Example: [101, 102]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_checklist_templates",
+   "title": "Update Checklist Templates",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Replaces checklist templates; each item names the template id. Runs as a dry run by default. Verify with ninjaone_list_checklist_templates. Account-wide (not organization scoped). Body (array of objects) per NinjaOne updateChecklistTemplates. Each item: Fields: id (integer), name (string), description (object), tasks (object[]), required (boolean). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_checklists",
+   "title": "Update Checklists",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Updates organization checklists and their tasks; each item names the checklist. Runs as a dry run by default. Verify with ninjaone_get_checklist. Body (array of objects) per NinjaOne updateOrganizationChecklists. Each item: Fields: checklistId (integer), name (string), description (object), required (boolean), dueDate (number), assignedToUserId (integer), tasks (object[]). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_document",
+   "title": "Update Document",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Updates one document of an organization (name, description, field values). Find the document id with ninjaone_list_organization_documents. Returns the updated field values. Body (object) per NinjaOne updateOrganizationDocument. Fields: documentName (string), documentDescription (string), fields (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_document_template",
+   "title": "Update Document Template",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Replaces a document template definition. Read it first with ninjaone_get_document_template and send the full definition. Returns before and after. Account-wide (not organization scoped). Body (object) per NinjaOne updateDocumentTemplate. Fields: name (string), description (string), mandatory (boolean), fields (object[]), availableToAllTechnicians (boolean), allowedTechnicianRoles (integer[]). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_documents",
+   "title": "Update Documents",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Updates many documents in one call; each item names the document and its new values. Runs as a dry run by default. Verify with ninjaone_list_documents. Body (array of objects) per NinjaOne updateOrganizationDocuments. Each item: Fields: documentId (integer), documentName (string), documentDescription (string), fields (object). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_kb_articles",
+   "title": "Update KB Articles",
+   "kind": "write",
+   "toolset": "documentation",
+   "description": "Updates knowledge base articles; each item names the article and its new values. Runs as a dry run by default. Verify with ninjaone_get_kb_article. Body (array of objects) per NinjaOne updateKnowledgeBaseArticles. Each item: Fields: id (integer), name (string), content (object). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_policy",
+   "title": "Create Policy",
+   "kind": "write",
+   "toolset": "policies",
+   "description": "Create a policy: new, as a child of another policy, or as a copy. Account-wide (not organization scoped). Body (object) per NinjaOne createPolicy. Fields: parentPolicyId (integer), name (string), description (string), nodeClass (\"WINDOWS_SERVER\"|\"WINDOWS_WORKSTATION\"|\"LINUX_WORKSTATION\"|\"MAC\"|\"ANDROID\"|\"APPLE_IOS\"|...), enabled (boolean). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_policy_custom_field_condition",
+   "title": "Create Policy Custom Field Condition",
+   "kind": "write",
+   "toolset": "policies",
+   "description": "Add a custom-field condition (alert when a field matches) to a policy. Account-wide (not organization scoped). Body (object) per NinjaOne createCustomFieldsPolicyCondition. Fields: enabled (boolean), displayName (string), severity (\"NONE\"|\"MINOR\"|\"MODERATE\"|\"MAJOR\"|\"CRITICAL\"), priority (\"NONE\"|\"LOW\"|\"MEDIUM\"|\"HIGH\"), channels (integer[]), scripts (object[]), notificationAction (\"NONE\"|\"SEND\"), notifyOnReset (boolean), resetThreshold (integer), matchAll (object[]), matchAny (object[]). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_policy_windows_event_condition",
+   "title": "Create Policy Windows Event Condition",
+   "kind": "write",
+   "toolset": "policies",
+   "description": "Add a Windows event log condition (alert on event id and source) to a policy. Account-wide (not organization scoped). Body (object) per NinjaOne createWindowsEventPolicyCondition. Fields: source (string, required), eventIds (integer[], required), enabled (boolean), displayName (string), severity (\"NONE\"|\"MINOR\"|\"MODERATE\"|\"MAJOR\"|\"CRITICAL\"), priority (\"NONE\"|\"LOW\"|\"MEDIUM\"|\"HIGH\"), channels (integer[]), scripts (object[]), notificationAction (\"NONE\"|\"SEND\"), notifyOnReset (boolean), resetThreshold (integer), text (object), occurrence (object). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_policy_condition",
+   "title": "Delete Policy Condition",
+   "kind": "destructive",
+   "toolset": "policies",
+   "description": "Delete one condition from a policy. Read it first with the matching get tool if you may need to recreate it. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_policy_custom_field_condition",
+   "title": "Get Policy Custom Field Condition",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "Get one custom-field condition of a policy. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_get_policy_windows_event_condition",
+   "title": "Get Policy Windows Event Condition",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "Get one Windows event log condition of a policy. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_device_roles",
+   "title": "List Device Roles",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List device roles (Windows Server, Workstation, custom roles) with ids, used in policy mappings and df \"role = <id>\". Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_group_devices",
+   "title": "List Group Devices",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List the device ids in one group. For full rows use ninjaone_list_devices with df \"group = <id>\", which also respects the organization boundary."
+  },
+  {
+   "name": "ninjaone_list_groups",
+   "title": "List Groups",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List device groups (saved searches). Use a group id in df as \"group = <id>\", or ninjaone_list_group_devices. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_policies",
+   "title": "List Policies",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List policies with id, name, node class and parent policy. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_policy_custom_field_conditions",
+   "title": "List Policy Custom Field Conditions",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List the custom-field conditions of one policy. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_policy_windows_event_conditions",
+   "title": "List Policy Windows Event Conditions",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List the Windows event log conditions of one policy. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_scheduled_tasks",
+   "title": "List Scheduled Tasks",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List scheduled tasks (recurring script and action schedules). Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_scripts",
+   "title": "List Scripts",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List automation scripts in the library with ids, language and OS. To run one, ninjaone_get_device_scripting_options then ninjaone_run_device_script. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_software_products",
+   "title": "List Software Products",
+   "kind": "read",
+   "toolset": "policies",
+   "description": "List the third-party software products NinjaOne can patch, with product ids used in patch filters. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_set_org_policy_mappings",
+   "title": "Set Org Policy Mappings",
+   "kind": "destructive",
+   "toolset": "policies",
+   "description": "Replace the organization's device-role-to-policy mappings. This is a full replacement: any mapping not in body is removed. Dry run by default; the result includes the organization as it was (before), which is the undo. Body (array of objects) per NinjaOne updateNodeRolePolicyAssignmentForOrganization. Each item: Fields: nodeRoleId (integer), policyId (integer). Send every mapping you want to keep. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_report_antivirus_status",
+   "title": "Report Antivirus Status",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report antivirus product status (product, state, definitions) across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_antivirus_threats",
+   "title": "Report Antivirus Threats",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report antivirus threats detected across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_computer_systems",
+   "title": "Report Computer Systems",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report computer system details (manufacturer, model, serial, BIOS) across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_custom_fields",
+   "title": "Report Custom Fields",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report device custom field values (secure values are never included) across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_custom_fields_detailed",
+   "title": "Report Custom Fields Detailed",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report device custom field values with type and update metadata (secure values are never included) across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_device_health",
+   "title": "Report Device Health",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report device health status (healthy, needs attention, unhealthy) with the reasons across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_disks",
+   "title": "Report Disks",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report physical disk drives across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_logged_on_users",
+   "title": "Report Logged On Users",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report the last logged-on user per device across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_network_interfaces",
+   "title": "Report Network Interfaces",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report network interfaces with IP and MAC addresses across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_operating_systems",
+   "title": "Report Operating Systems",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report operating systems, versions, builds and last boot across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_os_patch_installs",
+   "title": "Report OS Patch Installs",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report OS patch install history across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_os_patches",
+   "title": "Report OS Patches",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report pending, failed and rejected OS patches across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_policy_overrides",
+   "title": "Report Policy Overrides",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report local policy overrides per device across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_processors",
+   "title": "Report Processors",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report processors across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_raid_controllers",
+   "title": "Report RAID Controllers",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report RAID controllers across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_raid_drives",
+   "title": "Report RAID Drives",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report RAID physical drives and their status across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_scoped_custom_fields",
+   "title": "Report Scoped Custom Fields",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report custom field values on organizations, locations and end users (secure values are never included) across devices, one row per item, cursor paged. Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_scoped_custom_fields_detailed",
+   "title": "Report Scoped Custom Fields Detailed",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report scoped custom field values with metadata (secure values are never included) across devices, one row per item, cursor paged. Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_software",
+   "title": "Report Software",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report installed software (name, publisher, version, install date) across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_software_patch_installs",
+   "title": "Report Software Patch Installs",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report third-party software patch install history across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_software_patches",
+   "title": "Report Software Patches",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report pending, failed and rejected third-party software patches across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_volumes",
+   "title": "Report Volumes",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report storage volumes with capacity and free space across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_report_windows_services",
+   "title": "Report Windows Services",
+   "kind": "read",
+   "toolset": "reports",
+   "description": "Report Windows services and their state across devices, one row per item, cursor paged. Narrow with df (device filter). Use it for fleet questions; follow up on one device with ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_add_ticket_comment",
+   "title": "Add Ticket Comment",
+   "kind": "write",
+   "toolset": "ticketing",
+   "description": "Add a comment to a ticket: public (visible to the requester) or internal, as plain text or HTML, optionally with time tracked. Returns the result; read the ticket's log with ninjaone_list_ticket_log_entries. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_ticket",
+   "title": "Create Ticket",
+   "kind": "write",
+   "toolset": "ticketing",
+   "description": "Creates a ticket. Requires clientId, ticketFormId, subject and status; find them with ninjaone_list_organizations, ninjaone_list_ticket_forms and ninjaone_list_ticket_statuses. Returns the new ticket; read it with ninjaone_get_ticket. Body (object) per NinjaOne create_2. Fields: clientId (integer, required), ticketFormId (integer, required), subject (string, required), status (string, required), locationId (integer), nodeId (integer), description (object), type (\"PROBLEM\"|\"QUESTION\"|\"INCIDENT\"|\"TASK\"|\"CHANGE_REQUEST\"|\"SERVICE_REQUEST\"|...), cc (object), assignedAppUserId (integer), requesterUid (string), severity (\"NONE\"|\"MINOR\"|\"MODERATE\"|\"MAJOR\"|\"CRITICAL\"), priority (\"NONE\"|\"LOW\"|\"MEDIUM\"|\"HIGH\"), parentTicketId (integer), tags (string[]), attributes (object[]), additionalAssignedTechnicianIds (integer[]), followupTime (number). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_ticket",
+   "title": "Get Ticket",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Returns one ticket: subject, status, type, priority, client, assignee, tags and attribute values. Use ninjaone_list_ticket_log_entries for its comments and history."
+  },
+  {
+   "name": "ninjaone_get_ticket_form",
+   "title": "Get Ticket Form",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Returns one ticket form with its fields. Use it to see which attributes a ticket created from the form needs. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_board_tickets",
+   "title": "List Board Tickets",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "List the tickets on a ticketing board (find boards with ninjaone_list_ticket_boards), with optional search and sort. Cursor paged. Then ninjaone_get_ticket for one ticket."
+  },
+  {
+   "name": "ninjaone_list_ticket_attributes",
+   "title": "List Ticket Attributes",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Lists ticket attributes (custom ticket fields) with type and options. Attribute ids are used in the attributes array when creating or updating a ticket. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_ticket_boards",
+   "title": "List Ticket Boards",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Lists ticket boards (saved ticket views) with id, name and ticket count. Use it to find a board id; read the tickets on a board with ninjaone_list_board_tickets. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_ticket_contacts",
+   "title": "List Ticket Contacts",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Lists ticketing contacts with client, name, email and job title. Use ninjaone_list_ticket_users to search technicians, end users and contacts together."
+  },
+  {
+   "name": "ninjaone_list_ticket_forms",
+   "title": "List Ticket Forms",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Lists ticket forms (templates that define ticket fields). Use a form id as ticketFormId when creating a ticket; inspect one with ninjaone_get_ticket_form. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_ticket_log_entries",
+   "title": "List Ticket Log Entries",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Lists a ticket's log entries (description, comments, saves, products), newest paging by anchor id. Add a comment with ninjaone_add_ticket_comment."
+  },
+  {
+   "name": "ninjaone_list_ticket_statuses",
+   "title": "List Ticket Statuses",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Lists ticket statuses with name, display name and id. Use a status name when creating or updating a ticket. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_ticket_users",
+   "title": "List Ticket Users",
+   "kind": "read",
+   "toolset": "ticketing",
+   "description": "Searches technicians, end users and contacts that can be set on a ticket (requester, assignee, cc). Returns uid and id to use in ninjaone_create_ticket."
+  },
+  {
+   "name": "ninjaone_update_ticket",
+   "title": "Update Ticket",
+   "kind": "write",
+   "toolset": "ticketing",
+   "description": "Updates a ticket (status, assignee, priority, tags, attributes). Returns the ticket before and after the change. Body (object) per NinjaOne update_2. Fields: version (integer, required), clientId (integer, required), ticketFormId (integer, required), subject (string, required), status (string, required), requesterUid (string, required), locationId (integer), nodeId (integer), type (\"PROBLEM\"|\"QUESTION\"|\"INCIDENT\"|\"TASK\"|\"CHANGE_REQUEST\"|\"SERVICE_REQUEST\"|...), cc (object), assignedAppUserId (integer), severity (\"NONE\"|\"MINOR\"|\"MODERATE\"|\"MAJOR\"|\"CRITICAL\"), priority (\"NONE\"|\"LOW\"|\"MEDIUM\"|\"HIGH\"), parentTicketId (integer), tags (string[]), attributes (object[]), additionalAssignedTechnicianIds (integer[]), followupTime (number). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_add_role_members",
+   "title": "Add Role Members",
+   "kind": "write",
+   "toolset": "users",
+   "description": "Add users to a technician or end-user role. Find role ids with ninjaone_list_user_roles and user ids with ninjaone_list_technicians. Dry run by default. Account-wide (not organization scoped). Body (array of integer ids) per NinjaOne addUserRoleMembers. Example: [12, 15]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_contact",
+   "title": "Create Contact",
+   "kind": "write",
+   "toolset": "users",
+   "description": "Creates a contact (email required, organizationId optional). Returns the new contact. Body (object) per NinjaOne createContact. Fields: email (string, required), organizationId (integer), firstName (string), lastName (string), phone (string), jobTitle (string), managerUuid (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_end_user",
+   "title": "Create End User",
+   "kind": "write",
+   "toolset": "users",
+   "description": "Creates an end user (first name, last name, email required). Optionally sends the invitation email. Returns the new user. Body (object) per NinjaOne createEndUser. Fields: firstName (string, required), lastName (string, required), email (string, required), phone (string), organizationId (integer), fullPortalAccess (boolean), managerUid (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_create_technician",
+   "title": "Create Technician",
+   "kind": "write",
+   "toolset": "users",
+   "description": "Creates a technician. Role ids come from ninjaone_list_user_roles. Returns the new technician. Account-wide (not organization scoped). Body (object) per NinjaOne createTechnician. Fields: firstName (string, required), lastName (string, required), email (string, required), phone (string), managerUid (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_contact",
+   "title": "Delete Contact",
+   "kind": "destructive",
+   "toolset": "users",
+   "description": "Deletes a contact. Read it first with ninjaone_get_contact. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_end_user",
+   "title": "Delete End User",
+   "kind": "destructive",
+   "toolset": "users",
+   "description": "Deletes an end user. Read it first with ninjaone_get_end_user. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_delete_technician",
+   "title": "Delete Technician",
+   "kind": "destructive",
+   "toolset": "users",
+   "description": "Deletes a technician. Read it first with ninjaone_get_technician. Account-wide (not organization scoped). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_get_contact",
+   "title": "Get Contact",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Get one contact: name, email, phone, job title and organization. Then ninjaone_update_contact to change it."
+  },
+  {
+   "name": "ninjaone_get_end_user",
+   "title": "Get End User",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Returns one end user with roles and device access."
+  },
+  {
+   "name": "ninjaone_get_end_user_custom_fields",
+   "title": "Get End User Custom Fields",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Returns the custom field values of an end user as a field-name map."
+  },
+  {
+   "name": "ninjaone_get_technician",
+   "title": "Get Technician",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Returns one technician with roles and assigned devices. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_contacts",
+   "title": "List Contacts",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Lists contacts across organizations with name, email, phone and organization id. Read one with ninjaone_get_contact."
+  },
+  {
+   "name": "ninjaone_list_end_users",
+   "title": "List End Users",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Lists end users with name, email, organization and portal access. Read one with ninjaone_get_end_user."
+  },
+  {
+   "name": "ninjaone_list_org_end_users",
+   "title": "List Org End Users",
+   "kind": "read",
+   "toolset": "users",
+   "description": "List the end users of one organization, optionally with their roles."
+  },
+  {
+   "name": "ninjaone_list_technicians",
+   "title": "List Technicians",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Lists technicians with name, email, roles and administrator flag. Read one with ninjaone_get_technician. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_user_roles",
+   "title": "List User Roles",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Lists technician or end user roles with their members. Role ids are used when creating users and changing role permissions. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_list_users",
+   "title": "List Users",
+   "kind": "read",
+   "toolset": "users",
+   "description": "Lists technicians and end users together, optionally with their roles. For full records use ninjaone_list_technicians or ninjaone_list_end_users. Account-wide (not organization scoped)."
+  },
+  {
+   "name": "ninjaone_remove_role_members",
+   "title": "Remove Role Members",
+   "kind": "destructive",
+   "toolset": "users",
+   "description": "Remove users from a role, which can take away their access at once. Undo with ninjaone_add_role_members. Dry run by default. Account-wide (not organization scoped). Body (array of integer ids) per NinjaOne removeUserRoleMembers. Example: [12, 15]. Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_end_user_device_access",
+   "title": "Set End User Device Access",
+   "kind": "destructive",
+   "toolset": "users",
+   "description": "Replaces the devices an end user can access. Read the current access with ninjaone_get_end_user first. Returns it before and after. Body (object) per NinjaOne patchEndUserDeviceAccess. Fields: addDeviceIds (integer[]), removeDeviceIds (integer[]). Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_set_role_org_permissions",
+   "title": "Set Role Org Permissions",
+   "kind": "destructive",
+   "toolset": "users",
+   "description": "Replaces which organizations a role can access (body: array of organization permission items). Review the role with ninjaone_list_user_roles first. Account-wide (not organization scoped). Body (array of objects) per NinjaOne setOrganizationPermissions. Each item: Fields: organizationId (integer, required), permission (\"default\"|\"noAccess\"|\"view\"|\"viewUpdate\"|\"viewUpdateDelete\", required). Runs as a dry run unless dry_run is false: the first call returns the exact request without sending it. Destructive tier: needs NINJAONE_MODE=write, NINJAONE_ALLOW_DESTRUCTIVE=true and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_contact",
+   "title": "Update Contact",
+   "kind": "write",
+   "toolset": "users",
+   "description": "Updates fields of a contact. Returns the contact before and after. Body (object) per NinjaOne updateContact. Fields: firstName (string), lastName (string), email (string), jobTitle (string), organizationId (integer), phone (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_end_user",
+   "title": "Update End User",
+   "kind": "write",
+   "toolset": "users",
+   "description": "Updates fields of an end user. Returns the user before and after. Body (object) per NinjaOne patchEndUser. Fields: firstName (string), lastName (string), organizationId (integer), fullPortalAccess (boolean), managerUid (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_end_user_custom_fields",
+   "title": "Update End User Custom Fields",
+   "kind": "write",
+   "toolset": "users",
+   "description": "Sets custom field values on an end user (body: map of field name to value). Returns the values before and after. Body (object) per NinjaOne updateNodeAttributeValues_3. Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_update_technician",
+   "title": "Update Technician",
+   "kind": "write",
+   "toolset": "users",
+   "description": "Updates fields of a technician. Returns the technician before and after. Account-wide (not organization scoped). Body (object) per NinjaOne updateTechnician. Fields: firstName (string), lastName (string), managerUid (string). Needs NINJAONE_MODE=write and confirm: true."
+  },
+  {
+   "name": "ninjaone_view_alerts",
+   "title": "View Alerts",
+   "kind": "read",
+   "toolset": "views",
+   "description": "Interactive list of active alerts with severity counts and a Reset button per alert. Reset calls ninjaone_reset_alert, which needs NINJAONE_MODE=write and is confirmed in the view. Same rows as ninjaone_list_alerts."
+  },
+  {
+   "name": "ninjaone_view_device",
+   "title": "View Device",
+   "kind": "read",
+   "toolset": "views",
+   "description": "Interactive device page: status, OS and hardware, volumes with usage meters, open patches and active alerts. Same data as ninjaone_get_device_profile."
+  },
+  {
+   "name": "ninjaone_view_fleet",
+   "title": "View Fleet",
+   "kind": "read",
+   "toolset": "views",
+   "description": "Interactive fleet health: totals and one row per organization (devices, offline share, patches pending and failed, alerts, AV threats), sortable and filterable; selecting a row asks for that client's offline devices. Same data as ninjaone_report_fleet_health, which hosts without MCP Apps receive as JSON."
+  }
+ ]
+}
