@@ -177,6 +177,7 @@ export async function startMockApi(overrides = () => undefined) {
         return send(200, { cursor: { name: `c${offset + pageSize}`, offset, count: page.length, expires: 0 }, results: page });
       }
 
+      if ((m = /^\/v2\/ticketing\/ticket\/(\d+)\/comment$/.exec(p)) && req.method === 'POST') return send(200, { id: 1, ticketId: Number(m[1]) });
       if (req.method === 'GET' && p === '/v2/custom-fields') return send(200, { page: 0, pageSize: 50, count: 0, results: [] });
 
       return send(404, { resultCode: 'NOT_FOUND', path: p });
