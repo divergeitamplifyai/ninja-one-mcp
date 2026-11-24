@@ -2,19 +2,18 @@
 
 <img src="plugins/ninjaone/assets/icon.png" width="88" height="88" alt="">
 
-# ninja-one-mcp
+# NinjaOne MCP server
 
 **Every NinjaOne API call. None by accident.**
 
-An MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2.<br>
-Read-only by default. Two gates for anything that changes a device.
+An MCP server that gives AI agents safe, complete access to the NinjaOne RMM Public API v2. Read only by default, with two gates for anything that changes a device.
 
-[Website](https://divergeitamplifyai.github.io/ninja-one-mcp/) · [Tool catalog](docs/TOOLS.md) · [Deploy to Azure](docs/AZURE.md) · [Deploy to Cloudflare](docs/CLOUDFLARE.md) · [API coverage](docs/api-coverage.md) · [Design](docs/DESIGN.md) · [NinjaOne docs index](llms.txt)
+[Website](https://divergeitamplifyai.github.io/ninja-one-mcp/) · [Tool catalog](docs/TOOLS.md) · [Deploy to Azure](docs/deploy-azure.md) · [Deploy to Cloudflare](docs/deploy-cloudflare.md) · [API coverage](docs/api-coverage.md) · [Design](docs/DESIGN.md) · [NinjaOne docs index](llms.txt)
 
 [![CI](https://github.com/divergeitamplifyai/ninja-one-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/divergeitamplifyai/ninja-one-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-15201C)](LICENSE)
 ![Node 22+](https://img.shields.io/badge/node-22%2B-15201C)
-![MCP](https://img.shields.io/badge/MCP-stdio-15201C)
+![MCP](https://img.shields.io/badge/MCP-stdio%20%7C%20HTTP-15201C)
 
 </div>
 
@@ -27,17 +26,11 @@ Read-only by default. Two gates for anything that changes a device.
   </a>
 </p>
 
----
+## What it does
 
-| | |
-|---|---|
-| **Complete** | All 315 operations in NinjaOne's Public API v2 are covered. 302 have typed tools and 13 multipart or UI-config endpoints go through a gated passthrough. A CI check maps every operation in the spec to its tool. |
-| **Safe by construction** | Read-only until you say otherwise. Destructive actions need a second switch, and every change needs `confirm: true`. Wide changes are dry runs first. Writes return `before` and `after`. |
-| **Built for many clients** | Organizations resolve by id or name, ambiguity is refused, and nothing is inferred. An optional boundary holds every call inside the clients you list. |
-| **Agent-shaped** | Compact, paged results. Composed workflows instead of 15 round trips. Every error ends with a `Next step:` line. Interactive views where the host supports MCP Apps. |
-| **Everywhere** | Claude Code, Claude Desktop, Codex, Cursor, VS Code with Copilot, and any MCP client that runs stdio servers. Or deploy it once for a whole team, to Azure Container Apps or Cloudflare Containers, with Microsoft Entra ID sign-in. |
+For MSPs and IT teams that run many client organizations in NinjaOne. All 315 operations in NinjaOne's Public API v2 are reachable: 302 through typed tools and 13 multipart or UI-config endpoints through a gated raw passthrough, and a CI check maps every spec operation to its tool. Agents triage the fleet, profile devices, report on patches and alerts, work tickets and documentation, and, once you open the gates, make changes with dry runs and read-back. It never requests secure custom field values, never infers an organization, and never replays an action.
 
-## What you can ask
+Ask things like:
 
 > Which clients have the most offline servers right now?
 >
@@ -45,36 +38,34 @@ Read-only by default. Two gates for anything that changes a device.
 >
 > Summarize failed OS patches for Example Org this week, grouped by KB.
 >
-> Which devices still run an old version of the VPN client?
->
 > Put HOST-1042 in maintenance tonight from 22:00 to 02:00, then reboot it. *(needs write mode, then both gates)*
 
 ## Install
 
-You need a NinjaOne API client first (see [Create the API client](#create-the-api-client)). Then pick your client.
+Every lane runs the same server and reads the same settings (see [Configuration](#configuration)). You need a NinjaOne API client first: see [Create the API client](#create-the-api-client).
 
-<details open>
-<summary><b>Claude Code</b>: plugin, with skills and a keychain-stored secret</summary>
+### Local (stdio)
 
-```bash
-/plugin marketplace add divergeitamplifyai/ninja-one-mcp
-/plugin install ninjaone@ninja-one-mcp
+Requires Node 22 or later. Any MCP client that runs stdio servers can start it straight from GitHub:
+
+```json
+{
+  "mcpServers": {
+    "ninjaone": {
+      "command": "npx",
+      "args": ["-y", "github:divergeitamplifyai/ninja-one-mcp"],
+      "env": {
+        "NINJAONE_CLIENT_ID": "<from your secret manager>",
+        "NINJAONE_CLIENT_SECRET": "<from your secret manager>",
+        "NINJAONE_REGION": "us",
+        "NINJAONE_MODE": "read"
+      }
+    }
+  }
+}
 ```
 
-Claude Code asks for the client id, secret, region, mode and toolsets. The secret is kept in your system keychain. The plugin also adds four skills: working with NinjaOne, setup, fleet triage and patch review.
-
-Or add just the server:
-
-```bash
-claude mcp add ninjaone -e NINJAONE_CLIENT_ID=your-id -e NINJAONE_CLIENT_SECRET=your-secret -e NINJAONE_REGION=us -- npx -y github:divergeitamplifyai/ninja-one-mcp
-```
-</details>
-
-<details>
-<summary><b>Claude Desktop</b>: one-click bundle</summary>
-
-Download `ninja-one-mcp.mcpb` from the [latest release](https://github.com/divergeitamplifyai/ninja-one-mcp/releases/latest) and open it. Claude Desktop asks for the credentials and keeps the secret out of the model's view.
-</details>
+Or from a checkout: `npm ci && npm run build`, then `"command": "node", "args": ["/absolute/path/to/ninja-one-mcp/dist/index.js"]`.
 
 <details>
 <summary><b>Codex</b></summary>
@@ -93,26 +84,7 @@ codex plugin marketplace add divergeitamplifyai/ninja-one-mcp
 <details>
 <summary><b>Cursor</b></summary>
 
-[Add to Cursor](https://cursor.com/en/install-mcp?name=ninjaone&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsImdpdGh1YjpwYXRyaWNra2luZzY3L25pbmphLW9uZS1tY3AiXSwiZW52Ijp7Ik5JTkpBT05FX0NMSUVOVF9JRCI6InlvdXItaWQiLCJOSU5KQU9ORV9DTElFTlRfU0VDUkVUIjoieW91ci1zZWNyZXQiLCJOSU5KQU9ORV9SRUdJT04iOiJ1cyIsIk5JTkpBT05FX1RPT0xTRVRTIjoiY29yZSxkZXZpY2VzLGFsZXJ0cyJ9fQ==), then replace the placeholders. Or add it to `.cursor/mcp.json` yourself:
-
-```json
-{
-  "mcpServers": {
-    "ninjaone": {
-      "command": "npx",
-      "args": ["-y", "github:divergeitamplifyai/ninja-one-mcp"],
-      "env": {
-        "NINJAONE_CLIENT_ID": "your-id",
-        "NINJAONE_CLIENT_SECRET": "your-secret",
-        "NINJAONE_REGION": "us",
-        "NINJAONE_TOOLSETS": "core,devices,alerts"
-      }
-    }
-  }
-}
-```
-
-Cursor works best with a small toolset.
+[Add to Cursor](https://cursor.com/en/install-mcp?name=ninjaone&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsImdpdGh1YjpkaXZlcmdlaXRhbXBsaWZ5YWkvbmluamEtb25lLW1jcCJdLCJlbnYiOnsiTklOSkFPTkVfQ0xJRU5UX0lEIjoieW91ci1pZCIsIk5JTkpBT05FX0NMSUVOVF9TRUNSRVQiOiJ5b3VyLXNlY3JldCIsIk5JTkpBT05FX1JFR0lPTiI6InVzIiwiTklOSkFPTkVfVE9PTFNFVFMiOiJjb3JlLGRldmljZXMsYWxlcnRzIn19), then replace the placeholders, or put the JSON above in `.cursor/mcp.json` with `"NINJAONE_TOOLSETS": "core,devices,alerts"`. Cursor works best with a small toolset.
 </details>
 
 <details>
@@ -144,37 +116,22 @@ Cursor works best with a small toolset.
 Copilot sends at most 128 tools per request. The default toolsets list 108.
 </details>
 
-<details>
-<summary><b>Any other MCP client</b></summary>
+### Claude Desktop (.mcpb)
 
-Run `npx -y github:divergeitamplifyai/ninja-one-mcp` as a stdio server, with `NINJAONE_CLIENT_ID`, `NINJAONE_CLIENT_SECRET` and `NINJAONE_REGION` in its environment. You can also use the [credentials file](#credentials-file).
-</details>
+Download `ninja-one-mcp.mcpb` from the [latest release](https://github.com/divergeitamplifyai/ninja-one-mcp/releases/latest) and open it. Fill in the fields under Settings > Extensions. The client secret is stored by Claude Desktop, not in a file, and never shown to the model. Mode defaults to `read`.
 
-<details>
-<summary><b>Remote, for a team</b>: Azure Container Apps with Entra ID sign-in</summary>
+### Claude Code plugin
 
 ```bash
-azd env new ninjaone-prod
-infra/scripts/entra-app.sh
-azd env set NINJAONE_CLIENT_ID <id> && azd env set-secret NINJAONE_CLIENT_SECRET
-azd up
+claude plugin marketplace add divergeitamplifyai/ninja-one-mcp
+claude plugin install ninjaone@ninja-one-mcp
 ```
 
-This deploys one Streamable HTTP endpoint behind Microsoft Entra ID, with the NinjaOne secret in Key Vault and the same gates as the local server. VS Code signs in with Microsoft on its own. See [docs/AZURE.md](docs/AZURE.md) for the design, trust boundaries and every step.
-</details>
-
-<details>
-<summary><b>Remote, for a team</b>: Cloudflare Workers and Containers</summary>
+Claude Code asks for the client id, secret, region, mode and toolsets, and keeps the secret in your system keychain. The plugin also adds four skills: working with NinjaOne, setup, fleet triage and patch review. To add only the server:
 
 ```bash
-cd deploy/cloudflare && npm ci
-npx wrangler secret put NINJAONE_CLIENT_ID && npx wrangler secret put NINJAONE_CLIENT_SECRET
-# set NINJAONE_HTTP_AUTH and the Entra ids (or a bearer token) in wrangler.jsonc, then:
-npx wrangler deploy
+claude mcp add ninjaone -e NINJAONE_CLIENT_ID=your-id -e NINJAONE_CLIENT_SECRET=your-secret -e NINJAONE_REGION=us -- npx -y github:divergeitamplifyai/ninja-one-mcp
 ```
-
-The same image and the same auth as the Azure lane, behind a Worker that serves only the MCP paths and refuses to start a container without inbound auth. Needs the Workers Paid plan. See [docs/CLOUDFLARE.md](docs/CLOUDFLARE.md).
-</details>
 
 ### Create the API client
 
@@ -184,89 +141,29 @@ In NinjaOne, go to **Administration > Apps > API > Client App IDs > Add**:
 - **Allowed grant types**: Client Credentials
 - **Scopes**: `monitoring` to read, `management` to make changes, `control` to run scripts and remote actions. Grant only what you need. The server asks for `monitoring` unless `NINJAONE_SCOPES` says more.
 
-The client lives in one regional instance, the one you sign in to: `us` (app.ninjarmm.com), `us2`, `eu`, `ca` or `oc`.
-
-Then ask your agent to run `ninjaone_test_connection`.
-
-## The safety model
-
-```text
-                       NINJAONE_MODE=write      NINJAONE_ALLOW_DESTRUCTIVE=true
- read    154 tools  ──────────── always ──────────────────────────────────────▶
- write   105 tools  ─── refused ───┤ runs, with confirm: true ─────────────────▶
- destr.   55 tools  ─── refused ───────────── refused ───┤ runs, confirm: true ▶
-```
-
-1. **Two gates, set by the operator, never by the model.** Writes need `NINJAONE_MODE=write`. The destructive tier needs `NINJAONE_ALLOW_DESTRUCTIVE=true` as well. That tier covers deletes, reboots, scripts, patch installs, full replacements, secret-bearing downloads and raw writes. A refused tool names the setting and sends nothing. `NINJAONE_WRITE_ALLOWLIST` can narrow writes to a short list.
-2. **`confirm: true` on every change.** The gates are a standing decision. `confirm` is the model stating that it means this specific call.
-3. **Dry runs and undo.** Writes that touch many records, such as policy mappings, bulk archive and delete, and device approval, return the exact request without sending it until `dry_run: false`. Writes read back and return `before` and `after`.
-4. **The organization boundary.** `NINJAONE_ALLOWED_ORG_IDS=12,15` holds every call inside those clients:
-   - Device filters get ` AND org in (12,15)` appended. NinjaOne filters only combine with AND, so this can only narrow.
-   - Device ids are checked against the boundary.
-   - Rows are re-checked.
-   - Tools that cannot be scoped refuse, including the raw passthrough.
-5. **Secrets stay put.**
-   - Secure custom field values are never requested.
-   - Signed and tokenized URLs (attachments, installers, exports) come only from destructive-tier `download_*` tools with `reveal: true`.
-   - Credentials travel in a form body and a bearer header, never a query string, and are redacted from every result, error and log line.
-   - Plaintext `http:` is refused off loopback.
-6. **Actions are never replayed.** Scripts, reboots, patch installs and service control are never retried, not even on 429. A 5xx on any write is never replayed.
-7. **Every error says what to do.** Failures are tool results whose last line starts with `Next step:` and names the argument, setting or tool that fixes them.
-
-These gates bind this server. A credential held by an agent outside it is bound only by its NinjaOne scopes. Grant the API client the least it needs.
-
-## Toolsets
-
-About 300 tools is more than some clients accept. `NINJAONE_TOOLSETS` picks what is listed. Write `all` for everything, `default` for the default set, or a list such as `default,billing`.
-
-| Toolset | Tools | Covers |
-|---|---:|---|
-| `core` | 14 | Diagnostics, organizations, locations, find, fleet health. Always on. |
-| `devices` | 27 | Device lists, search, profile, hardware, software, services, custom field values. |
-| `alerts` | 7 | Alerts, activities, jobs. |
-| `reports` | 23 | Fleet-wide `/v2/queries` reports: inventory, patches, antivirus, health, custom fields. |
-| `actions` | 20 | Reboot, scripts, services, patch scan and apply, maintenance, approval. |
-| `ticketing` | 13 | Tickets, boards, forms, comments, ticket contacts. |
-| `views` | 3 | Interactive MCP Apps views: fleet, device, alerts. |
-| `policies` | 16 | Policies, conditions, device roles, groups, script library, scheduled tasks. |
-| `documentation` | 57 | Documents, templates, checklists, knowledge base. |
-| `assets` | 40 | Asset tags, software licenses, relationships, related items, unmanaged devices. |
-| `custom_fields` | 11 | Custom field definitions and global values. |
-| `users` | 24 | Contacts, end users, technicians, roles. |
-| `billing` | 31 | Accounts, agreements, invoices, products, ticket products. |
-| `backup` | 8 | Backup jobs and usage, integrity checks, vulnerability scan groups. |
-| `admin` | 18 | Webhook, notification channels, custom tabs, node roles, installers. |
-| `api` | 2 | `ninjaone_api_get` and `ninjaone_api_write`. |
-
-The first seven are the default: 108 tools. See every tool in [docs/TOOLS.md](docs/TOOLS.md).
-
-### Highlights
-
-- `ninjaone_report_fleet_health`: every client in one call, with devices, offline, health, pending and failed patches, alerts and AV threats. It fans out under a concurrency cap. A client that fails gets its own error row and does not sink the answer.
-- `ninjaone_get_device_profile`: the device record, last user, volumes, disks, CPUs, NICs, alerts and patch counts in one call. A failed part is reported, not fatal.
-- `ninjaone_view_fleet`, `ninjaone_view_device`, `ninjaone_view_alerts`: interactive views in hosts that render MCP Apps. The Reset button calls the same gated tool the model would. Other hosts get the same data as JSON.
-- 23 `ninjaone_report_*` tools over `/v2/queries`, cursor paged and narrowed with `df`.
-- `ninjaone://docs/llms.txt` and `ninjaone://docs/device-filters`: NinjaOne's public docs index and the `df` syntax, served as MCP resources.
+The client lives in one regional instance, the one you sign in to: `us` (app.ninjarmm.com), `us2`, `eu`, `ca` or `oc`. Then ask your agent to run `ninjaone_test_connection`.
 
 ## Configuration
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `NINJAONE_CLIENT_ID` | (required) | API client id. |
-| `NINJAONE_CLIENT_SECRET` | (required) | API client secret. Never logged or returned. |
-| `NINJAONE_REGION` | (required) | `us`, `us2`, `eu`, `ca` or `oc`. There is no default, because a wrong guess sends your credential to the wrong instance. |
-| `NINJAONE_BASE_URL` | | Instance origin. Overrides the region. Must be https. |
-| `NINJAONE_SCOPES` | `monitoring` | OAuth scopes to request: `monitoring`, `management`, `control`. |
-| `NINJAONE_MODE` | `read` | `write` enables the write tier. |
-| `NINJAONE_ALLOW_DESTRUCTIVE` | `false` | `true` enables the destructive tier. Needs write mode. |
-| `NINJAONE_WRITE_ALLOWLIST` | | Comma-separated write tool names. Every other write refuses. |
-| `NINJAONE_ALLOWED_ORG_IDS` | | Comma-separated organization ids. A hard boundary on every call. |
-| `NINJAONE_ORG_ID` | | Default organization when a call omits `org`. The argument always wins. |
-| `NINJAONE_TOOLSETS` | `default` | Which toolsets to list. |
-| `NINJAONE_MAX_CONCURRENCY` | `4` | Fan-out concurrency, 1 to 16. |
-| `NINJAONE_ENV_FILE` | `~/.config/ninja-one-mcp/.env` | Credentials file path, or `none`. |
+Every variable, from [.env.example](.env.example). With nothing set the server still starts; `ninjaone_status_server` says what is missing. Typos fail closed.
 
-Typos fail closed. `ninjaone_status_server` reports every problem without calling the API.
+| Variable | Required | Default | Meaning |
+|---|---|---|---|
+| `NINJAONE_CLIENT_ID` | yes | | API client id. |
+| `NINJAONE_CLIENT_SECRET` | yes | | API client secret. Never logged or returned. |
+| `NINJAONE_REGION` | yes, unless `NINJAONE_BASE_URL` | | `us`, `us2`, `eu`, `ca` or `oc`. No default: a wrong guess sends the credential to the wrong instance. |
+| `NINJAONE_BASE_URL` | no | | Instance origin. Overrides the region. https only. |
+| `NINJAONE_SCOPES` | no | `monitoring` | OAuth scopes to request: `monitoring`, `management`, `control`. |
+| `NINJAONE_ORG_ID` | no | | Default organization when a call omits `org`. The argument always wins. |
+| `NINJAONE_ALLOWED_ORG_IDS` | no | | Hard boundary: comma-separated organization ids. |
+| `NINJAONE_MODE` | no | `read` | `write` enables the write tier. |
+| `NINJAONE_ALLOW_DESTRUCTIVE` | no | `false` | `true` also enables the destructive tier. Needs write mode. |
+| `NINJAONE_WRITE_ALLOWLIST` | no | | Comma-separated write tool names. Every other write refuses. |
+| `NINJAONE_TOOLSETS` | no | `default` | Which toolsets to list (see [Tools](#tools)). |
+| `NINJAONE_MAX_CONCURRENCY` | no | `4` | Fan-out cap for cross-organization reads, 1 to 16. |
+| `NINJAONE_ENV_FILE` | no | `~/.config/ninja-one-mcp/.env` | Credentials file path, or `none`. stdio only. |
+
+Remote hosting adds the `MCP_*` transport settings in [LANES.md](LANES.md#3-environment-variables).
 
 ### Credentials file
 
@@ -278,63 +175,104 @@ printf 'NINJAONE_CLIENT_ID=...\nNINJAONE_CLIENT_SECRET=...\nNINJAONE_REGION=us\n
 chmod 600 ~/.config/ninja-one-mcp/.env
 ```
 
-- Only `NINJAONE_*` keys are read.
-- The environment always wins over the file.
-- The file is ignored if other users can read it.
+Only `NINJAONE_*` keys are read, the environment always wins over the file, and the file is ignored if other users can read it.
 
-## How it is built
+## Safety model
 
 ```text
-src/
-  routes/          declarative route tables: one Route per endpoint (path, scope, paging, body, safety)
-  engine.ts        turns every Route into a tool through one audited path
-  tools/           composed workflows, views, passthrough, diagnostics, resources
-  auth.ts          OAuth client credentials, token cache, single-flight refresh
-  client.ts        HTTP, 401 refresh, 429 and GET-only 5xx retries, never-retry actions
-  orgs.ts          organization directory, boundary, device checks, df narrowing
-  gate.ts spec.ts  the two gates, confirm, annotations; defineTool is the only way to register
-  toolsets.ts      listing groups for clients that cap tools
-  http/            Streamable HTTP transport: Entra or shared-token auth, metadata, origin checks
-spec/              NinjaOne's OpenAPI spec, the source of truth for coverage and body docs
-scripts/           conformance, coverage, catalog, body docs, bundle, .mcpb pack
-plugins/ninjaone/  the NinjaOne plugin: Claude Code and Codex manifests, skills, bundled server
-site/              the website (GitHub Pages)
-infra/, azure.yaml Azure Container Apps deployment (Bicep + azd), Dockerfile
-deploy/cloudflare/ Cloudflare Workers and Containers deployment (Wrangler)
+                       NINJAONE_MODE=write      NINJAONE_ALLOW_DESTRUCTIVE=true
+ read    154 tools  ------------ always ---------------------------------------->
+ write   105 tools  --- refused ---| runs, with confirm: true ------------------>
+ destr.   56 tools  --- refused -------------- refused ---| runs, confirm: true >
 ```
 
-Each tool is declared once as data. The engine applies the same order to every call:
+- **Read only by default.** Write tools are listed but refuse until `NINJAONE_MODE=write`. The destructive tier (deletes, reboots, scripts, patch installs, full replacements, secret-bearing downloads and raw writes) also needs `NINJAONE_ALLOW_DESTRUCTIVE=true`. A refused tool names the setting and sends nothing.
+- **Every write takes `confirm: true`**, on the call itself. Writes that touch many records return the exact request until `dry_run: false`, and writes read back and return `before` and `after`.
+- **No guessed tenants.** Organization tools take `org` (an id or a unique part of the name); ambiguous names are refused with the candidates. `NINJAONE_ALLOWED_ORG_IDS` is a hard boundary: device filters are narrowed, device ids and rows are checked, and tools that cannot be scoped refuse, including the raw passthrough.
+- **No credential in the transcript.** Credentials come from the environment, travel in a form body and a bearer header, never a query string, and are redacted from results, errors and logs. Secure custom field values are never requested; signed URLs come only from destructive-tier `download_*` tools with `reveal: true`.
+- **Actions are never replayed.** Scripts, reboots, patch installs and service control are never retried, not even on 429. Every error ends with a `Next step:` line.
+- **The real boundary is the credential.** The gates bind this server only; grant the API client only the scopes it needs. `monitoring` alone makes every write impossible.
 
-1. Gate.
-2. Scope.
-3. Request.
-4. `before`.
-5. Dry run.
-6. Send.
-7. `after`.
-8. Shape.
+`mutations.json` records each tool's blast radius and rollback.
 
-A safety rule is therefore written once, not 300 times. [docs/DESIGN.md](docs/DESIGN.md) explains the decisions.
+## Tools
 
-## Develop
+315 tools: 151 read, 3 interactive views, 105 write, 56 destructive. The default toolsets list 108 (78 read and views, 19 write, 11 destructive). Every tool, with its kind, is in [docs/TOOLS.md](docs/TOOLS.md).
+
+### Diagnostics (3)
+
+| Tool | Kind | Does |
+|---|---|---|
+| `ninjaone_status_server` | read | Configuration and missing settings, no API call. |
+| `ninjaone_status_gate` | read | Gate state and the settings that change it. |
+| `ninjaone_test_connection` | read | One token request and one cheap authenticated call. |
+
+### Toolsets (315)
+
+`NINJAONE_TOOLSETS` picks what is listed: `all`, `default`, or a list such as `default,billing`. Toolsets only decide listing; annotations and gates never change with them.
+
+| Toolset | Tools | Covers |
+|---|---:|---|
+| `core` | 14 | Diagnostics, organizations, locations, find, fleet health. Always on. |
+| `devices` | 27 | Device lists, search, profile, hardware, software, services, custom field values. |
+| `alerts` | 7 | Alerts, activities, jobs. |
+| `reports` | 23 | Fleet-wide `/v2/queries` reports: inventory, patches, antivirus, health, custom fields. |
+| `actions` | 20 | Reboot, scripts, services, patch scan and apply, maintenance, approval. |
+| `ticketing` | 14 | Tickets, boards, forms, comments, ticket contacts. |
+| `views` | 3 | Interactive MCP Apps views: fleet, device, alerts. |
+| `policies` | 16 | Policies, conditions, device roles, groups, script library, scheduled tasks. |
+| `documentation` | 57 | Documents, templates, checklists, knowledge base. |
+| `assets` | 40 | Asset tags, software licenses, relationships, related items, unmanaged devices. |
+| `custom_fields` | 11 | Custom field definitions and global values. |
+| `users` | 24 | Contacts, end users, technicians, roles. |
+| `billing` | 31 | Accounts, agreements, invoices, products, ticket products. |
+| `backup` | 8 | Backup jobs and usage, integrity checks, vulnerability scan groups. |
+| `admin` | 18 | Webhook, notification channels, custom tabs, node roles, installers. |
+| `api` | 2 | `ninjaone_api_get` (read) and `ninjaone_api_write` (destructive). |
+
+The first seven are the default.
+
+### Highlights
+
+| Tool | Kind | Does |
+|---|---|---|
+| `ninjaone_report_fleet_health` | read | Every client in one call: devices, offline, health, pending and failed patches, alerts, AV threats. A failing client gets its own error row. |
+| `ninjaone_get_device_profile` | read | Device record, last user, volumes, disks, CPUs, NICs, alerts and patch counts in one call. |
+| `ninjaone_view_fleet`, `ninjaone_view_device`, `ninjaone_view_alerts` | read (view) | Interactive views where the host renders MCP Apps; JSON elsewhere. The Reset button calls the same gated tool the model would. |
+| `ninjaone_reset_alert` | write | Reset one alert. |
+| `ninjaone_api_write` | destructive | Raw POST, PUT, PATCH or DELETE for endpoints without a typed tool. |
+
+Resources: `ninjaone://docs/llms.txt` (NinjaOne's public docs index) and `ninjaone://docs/device-filters` (the `df` syntax). Prompts: `fleet_triage`, `patch_review`, `device_triage`, `setup_check`.
+
+## Remote hosting
+
+The same server runs as a shared remote MCP endpoint, read only by default:
+
+- **Azure Container Apps**, Entra ID sign-in, NinjaOne client id and secret in Key Vault: [docs/deploy-azure.md](docs/deploy-azure.md).
+- **Cloudflare Workers**, Cloudflare Access or a bearer token: [docs/deploy-cloudflare.md](docs/deploy-cloudflare.md).
+
+Every caller acts as the deployment's one NinjaOne API client, so use a `monitoring`-only client and `NINJAONE_ALLOWED_ORG_IDS` where you can. Both deploy workflows are manual and off until `DEPLOY_AZURE_ENABLED` or `DEPLOY_CLOUDFLARE_ENABLED` is set. Lane rules: [LANES.md](LANES.md).
+
+## Development
 
 ```bash
 npm ci
-npm run check      # typecheck, generated-file drift, 40 tests, 5,164 conformance checks, coverage, catalog, bundle
-npm run gen        # regenerate body docs, views runtime, catalog, coverage and the plugin bundle
-npm run pack:mcpb  # build/ninja-one-mcp.mcpb
+npm run check          # typecheck, generated-file drift, tests, conformance, coverage, catalog, bundle, lane checks
+npm run gen            # regenerate the docs index, body docs, views runtime, catalog, coverage and plugin bundle
+npm run start:http     # local Streamable HTTP on 127.0.0.1:8080 (set MCP_HTTP_AUTH)
+npm run pack:mcpb      # build/ninja-one-mcp.mcpb
 ```
 
-The tests run the built server over real stdio against a loopback NinjaOne mock. The mock reproduces the API's dangerous behaviors, such as a policy PUT that replaces everything and a POST that 5xxs after it may have applied. A tool that would cause damage fails a test, not a tenant. Nothing leaves the machine.
+Tests use `node:test` against loopback mocks only. The NinjaOne mock reproduces the API's dangerous behaviors, such as a policy PUT that replaces everything and a POST that fails after it may have applied, so a tool that would cause damage fails a test, not a tenant. Each tool is declared once as a route and goes through one engine (gate, scope, request, `before`, dry run, send, `after`, shape); [docs/DESIGN.md](docs/DESIGN.md) explains the decisions.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md).
+Standard and review checklist: [STANDARD.md](STANDARD.md), [CHECKLIST.md](CHECKLIST.md). Agent instructions: [AGENTS.md](AGENTS.md). Contributing: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Security
 
-Report vulnerabilities privately through GitHub's [private vulnerability reporting](https://github.com/divergeitamplifyai/ninja-one-mcp/security/advisories/new). See [SECURITY.md](SECURITY.md).
+Report vulnerabilities privately through GitHub's [private vulnerability reporting](https://github.com/divergeitamplifyai/ninja-one-mcp/security/advisories/new), as described in [SECURITY.md](SECURITY.md). Never include credentials, tenant ids or client data in an issue.
 
 ## License
 
-[MIT](LICENSE) © 2026 Patrick King.
+[MIT](LICENSE), 2026 Patrick King.
 
-NinjaOne also runs its own hosted MCP server ([Katana AI](https://www.ninjaone.com/docs/ticketing/katana-ai-getting-started-with-the-model-context-protocol/)), which is monitoring-only for now. This project is independent and open source. It is not affiliated with or endorsed by NinjaOne. NinjaOne is a trademark of its owner.
+NinjaOne also runs its own hosted MCP server ([Katana AI](https://www.ninjaone.com/docs/ticketing/katana-ai-getting-started-with-the-model-context-protocol/)). This project is independent and open source. It is not affiliated with or endorsed by NinjaOne. NinjaOne is a trademark of its owner.
