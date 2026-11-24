@@ -83,6 +83,12 @@ export class TokenProvider {
     const text = await response.text();
     if (!response.ok) {
       // NinjaOne answers a bad client id or secret with 400/401 invalid_client.
+      if (/client app not exist/i.test(text)) {
+        throw new ToolError(
+          `NinjaOne has no API client with this id in ${baseUrl} (${response.status}: client app not exist).`,
+          `An API client exists in one regional instance only. Check ${ENV.region} (us, us2, eu, ca, oc) matches the instance you sign in to, then check ${ENV.clientId}.`,
+        );
+      }
       const reason = /invalid_client|unauthorized|invalid_grant/i.test(text) ? ' (invalid client credentials)' : /invalid_scope/i.test(text) ? ' (scope not allowed for this client)' : '';
       throw new ToolError(
         `NinjaOne refused the token request with ${response.status}${reason}.`,
