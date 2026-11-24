@@ -28,3 +28,11 @@ test('nothing loads from the network and nothing casts a shadow', () => {
   assert.equal(/@import|url\(|https?:\/\//i.test(THEME_CSS), false);
   assert.equal(/box-shadow:\s*0/.test(THEME_CSS), false);
 });
+
+test('the views use THEME_CSS and define no palette or fonts of their own', async () => {
+  const { readFileSync } = await import('node:fs');
+  const source = readFileSync(new URL('../src/tools/views.ts', import.meta.url), 'utf8');
+  const css = source.slice(source.indexOf('const CSS = `'), source.indexOf('`;', source.indexOf('const CSS = `')));
+  assert.match(css, /^const CSS = `\$\{THEME_CSS\}/);
+  assert.equal(/#[0-9a-f]{3,8}\b|rgb\(|hsl\(|font-family|@import|url\(/i.test(css), false);
+});

@@ -14,28 +14,23 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { SERVER_VERSION, TOOL_PREFIX } from '../constants.js';
+import { THEME_CSS } from '../apps/theme.js';
 import { APP_RUNTIME } from '../generated/app-runtime.js';
 import { defineTool, type ToolContext } from '../spec.js';
 
 const P = TOOL_PREFIX;
 export const RESOURCE_MIME_TYPE = 'text/html;profile=mcp-app';
 
-const CSS = `
-:root{color-scheme:light dark;--fg:var(--color-text-primary,light-dark(#111,#f4f4f2));--muted:var(--color-text-secondary,light-dark(#555,#b8b8b2));--subtle:var(--color-text-tertiary,light-dark(#777,#8f8f88));--card:var(--color-background-secondary,light-dark(#f6f6f4,#262624));--line:var(--color-border-tertiary,light-dark(rgb(0 0 0/12%),rgb(255 255 255/12%)));--ok:var(--color-text-success,light-dark(#1f6b2a,#7cc187));--warn:var(--color-text-warning,light-dark(#7a5a00,#e0b34a));--bad:var(--color-text-danger,light-dark(#a1261f,#f08a84));--accent:var(--color-text-info,light-dark(#2457c5,#8bb1ff));--r:var(--border-radius-lg,10px)}
-*{box-sizing:border-box}html,body{margin:0;background:transparent;color:var(--fg);font:14px/1.45 var(--font-sans,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif);-webkit-font-smoothing:antialiased}
-body{padding:12px 4px}h1{font-size:16px;font-weight:600;margin:0 0 12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-h2{font-size:12px;font-weight:500;color:var(--subtle);letter-spacing:.04em;text-transform:uppercase;margin:16px 0 6px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.kpi{background:var(--card);border-radius:var(--r);padding:10px 12px}
+/** Layout only. Colors, fonts and radii come from THEME_CSS (STANDARD.md V2). */
+const CSS = `${THEME_CSS}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.kpi{background:var(--card);border:var(--hair) solid var(--line);border-radius:var(--radius-card);padding:10px 12px}
 .kpi .n{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}.kpi .l{color:var(--subtle);font-size:12px}
-.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--card);color:var(--muted)}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
-.wrap{overflow:auto;max-height:460px;border:.5px solid var(--line);border-radius:var(--r)}table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{text-align:left;padding:7px 10px;border-bottom:.5px solid var(--line);white-space:nowrap}th{position:sticky;top:0;background:var(--color-background-primary,Canvas);color:var(--subtle);font-weight:500;font-size:12px;cursor:pointer}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}tr.click{cursor:pointer}tr.click:hover td{background:var(--card)}
-input,button{font:inherit;color:inherit;background:transparent;border:.5px solid var(--line);border-radius:8px;padding:5px 10px;min-height:30px}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}
-.bar{display:flex;gap:8px;align-items:center;margin:0 0 8px}.muted{color:var(--muted)}.note{font-size:13px;color:var(--muted);margin:8px 0}.err{color:var(--bad);padding:16px}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+th{cursor:pointer}td.num,th.num{text-align:right}tr.click{cursor:pointer}
+.bar{display:flex;gap:8px;align-items:center;margin:0 0 8px}.note{font-size:13px;color:var(--muted);margin:8px 0}
 .meter{height:6px;border-radius:3px;background:var(--line);overflow:hidden;min-width:80px}.meter i{display:block;height:100%;background:var(--accent)}.meter i.hot{background:var(--bad)}
 dl{display:grid;grid-template-columns:max-content 1fr;gap:3px 14px;margin:0;font-size:13px}dt{color:var(--subtle)}dd{margin:0}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}.card{background:var(--card);border-radius:var(--r);padding:10px 12px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
 `;
 
 const BOOT = `
@@ -52,10 +47,10 @@ async function boot(render){
   const app=new App({ name:'ninja-one-mcp', version:${JSON.stringify(SERVER_VERSION)} }, {}, { autoResize:true });
   view.call=async(name,args)=>data(await app.callServerTool({ name, arguments:args }));
   view.ask=async(text)=>{ try{ await app.sendMessage({ role:'user', content:[{ type:'text', text }] }); }catch(e){ console.error(e); } };
-  const draw=()=>{ try{ render(root,view); sortable(root); }catch(e){ root.innerHTML='<div class="err">'+esc(e.message)+'</div>'; } };
+  const draw=()=>{ try{ render(root,view); sortable(root); }catch(e){ root.innerHTML='<div class="error">'+esc(e.message)+'</div>'; } };
   view.redraw=draw;
   app.ontoolinput=(p)=>{ view.input=p.arguments??{}; };
-  app.ontoolresult=(p)=>{ try{ view.data=data(p); }catch(e){ root.innerHTML='<div class="err">'+esc(e.message)+'</div>'; return; } draw(); };
+  app.ontoolresult=(p)=>{ try{ view.data=data(p); }catch(e){ root.innerHTML='<div class="error">'+esc(e.message)+'</div>'; return; } draw(); };
   app.onhostcontextchanged=ctx;
   await app.connect(); ctx(app.getHostContext());
 }
@@ -74,7 +69,7 @@ boot((root, view) => {
       .map(([k,l]) => '<div class="kpi"><div class="n ' + (k !== 'devices' && sum(k) > 0 ? 'warn' : '') + '">' + num(sum(k)) + '</div><div class="l">' + l + '</div></div>').join('') + '</div>'
     + (d.warning ? '<div class="note">' + esc(d.warning) + '</div>' : '')
     + '<h2>By organization</h2><div class="bar"><input type="search" placeholder="Filter organizations" id="q"></div>'
-    + '<div class="wrap"><table><thead><tr><th>Organization</th><th class="num">Devices</th><th class="num">Offline</th><th>Offline share</th><th class="num">Patches pending</th><th class="num">Failed</th><th class="num">Alerts</th><th class="num">AV threats</th></tr></thead><tbody>'
+    + '<div class="tablewrap"><table><thead><tr><th>Organization</th><th class="num">Devices</th><th class="num">Offline</th><th>Offline share</th><th class="num">Patches pending</th><th class="num">Failed</th><th class="num">Alerts</th><th class="num">AV threats</th></tr></thead><tbody>'
     + items.map((r) => { const share = r.devices ? Math.round((r.offline / r.devices) * 100) : 0;
         return r.ok === false ? '<tr><td>' + esc(r.org_name) + '</td><td colspan="7" class="bad">' + esc(String(r.error).split('\\n')[0]) + '</td></tr>'
         : '<tr class="click" data-org="' + esc(r.org_id) + '" data-name="' + esc(r.org_name) + '"><td>' + esc(r.org_name) + '</td><td class="num">' + num(r.devices) + '</td><td class="num ' + (r.offline ? 'warn' : '') + '" data-v="' + r.offline + '">' + num(r.offline) + '</td>'
@@ -98,10 +93,10 @@ boot((root, view) => {
     + '<div class="kpis"><div class="kpi"><div class="n ' + (alerts.length ? 'warn' : '') + '">' + alerts.length + '</div><div class="l">Active alerts</div></div>'
     + '<div class="kpi"><div class="n">' + num(p.os?.total) + '</div><div class="l">OS patches open</div></div>'
     + '<div class="kpi"><div class="n">' + num(p.software?.total) + '</div><div class="l">Software patches open</div></div></div></div>'
-    + '<h2>Volumes</h2><div class="wrap"><table><thead><tr><th>Name</th><th>File system</th><th class="num">Capacity</th><th class="num">Free</th><th>Used</th></tr></thead><tbody>'
+    + '<h2>Volumes</h2><div class="tablewrap"><table><thead><tr><th>Name</th><th>File system</th><th class="num">Capacity</th><th class="num">Free</th><th>Used</th></tr></thead><tbody>'
     + vols.map((v) => { const used = v.capacity ? Math.round(((v.capacity - (v.freeSpace ?? 0)) / v.capacity) * 100) : 0; return '<tr><td>' + esc(v.name ?? v.label) + '</td><td>' + esc(v.fileSystem) + '</td><td class="num" data-v="' + (v.capacity ?? 0) + '">' + gb(v.capacity) + '</td><td class="num" data-v="' + (v.freeSpace ?? 0) + '">' + gb(v.freeSpace) + '</td><td data-v="' + used + '"><div class="meter"><i class="' + (used > 90 ? 'hot' : '') + '" style="width:' + used + '%"></i></div></td></tr>'; }).join('')
     + '</tbody></table></div>'
-    + (alerts.length ? '<h2>Alerts</h2><div class="wrap"><table><thead><tr><th>Severity</th><th>Message</th><th>Since</th></tr></thead><tbody>' + alerts.map((a) => '<tr><td>' + esc(a.severity) + '</td><td>' + esc(a.message) + '</td><td>' + (a.createTime ? new Date(a.createTime * 1000).toLocaleString() : '-') + '</td></tr>').join('') + '</tbody></table></div>' : '')
+    + (alerts.length ? '<h2>Alerts</h2><div class="tablewrap"><table><thead><tr><th>Severity</th><th>Message</th><th>Since</th></tr></thead><tbody>' + alerts.map((a) => '<tr><td>' + esc(a.severity) + '</td><td>' + esc(a.message) + '</td><td>' + (a.createTime ? new Date(a.createTime * 1000).toLocaleString() : '-') + '</td></tr>').join('') + '</tbody></table></div>' : '')
     + (d.warning ? '<div class="note">' + esc(d.warning) + '</div>' : '');
 });`;
 
@@ -111,8 +106,8 @@ boot((root, view) => {
   const sev = {}; items.forEach((a) => { sev[a.severity ?? 'NONE'] = (sev[a.severity ?? 'NONE'] ?? 0) + 1; });
   root.innerHTML = '<h1>Active alerts <span class="badge">' + items.length + '</span>' + Object.entries(sev).map(([k, n]) => '<span class="badge ' + (k === 'CRITICAL' ? 'bad' : k === 'MAJOR' ? 'warn' : '') + '">' + n + ' ' + esc(k.toLowerCase()) + '</span>').join('') + '</h1>'
     + (gate.write ? '' : '<div class="note">Read mode: Reset is disabled until NINJAONE_MODE=write.</div>')
-    + '<div class="wrap"><table><thead><tr><th>Severity</th><th>Device</th><th>Message</th><th>Source</th><th>Since</th><th></th></tr></thead><tbody>'
-    + items.map((a) => '<tr><td>' + esc(a.severity) + '</td><td>' + esc(a.deviceId) + '</td><td style="white-space:normal;max-width:420px">' + esc(a.message) + '</td><td>' + esc(a.sourceType) + '</td><td data-v="' + (a.createTime ?? 0) + '">' + (a.createTime ? new Date(a.createTime * 1000).toLocaleString() : '-') + '</td><td><button data-uid="' + esc(a.uid) + '"' + (gate.write ? '' : ' disabled') + '>Reset</button></td></tr>').join('')
+    + '<div class="tablewrap"><table><thead><tr><th>Severity</th><th>Device</th><th>Message</th><th>Source</th><th>Since</th><th></th></tr></thead><tbody>'
+    + items.map((a) => '<tr><td>' + esc(a.severity) + '</td><td>' + esc(a.deviceId) + '</td><td class="wrap" style="max-width:420px">' + esc(a.message) + '</td><td>' + esc(a.sourceType) + '</td><td data-v="' + (a.createTime ?? 0) + '">' + (a.createTime ? new Date(a.createTime * 1000).toLocaleString() : '-') + '</td><td><button data-uid="' + esc(a.uid) + '"' + (gate.write ? '' : ' disabled') + '>Reset</button></td></tr>').join('')
     + '</tbody></table></div>';
   root.querySelectorAll('button[data-uid]').forEach((b) => { b.onclick = async () => {
     if (!confirm('Reset this alert? If the condition is still true it will trigger again.')) return;
