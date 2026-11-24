@@ -1,22 +1,37 @@
 name: Release
 
-# Builds the Claude Desktop bundle for a version tag and attaches it to the
-# GitHub release. Push a tag like v0.1.0 that matches package.json.
+# Push a tag like v0.1.0 that matches package.json:
+#   1. check     the full suite, and the tag must match package.json
+#   2. image     the container, built natively on amd64 and arm64 runners in parallel
+#   3. publish   one multi-arch tag (:<version> and :latest) on GHCR, then the
+#                GitHub release with the Claude Desktop .mcpb
+#
+# Run it by hand (workflow_dispatch) with an existing tag to rebuild and
+# republish that version's image without creating a release.
+
 on:
   push:
     tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to rebuild the image for, e.g. v0.1.0
+        required: true
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
+
+env:
+  TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
 jobs:
-  release:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ env.TAG }}
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -25,25 +40,84 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run check
       - name: Tag matches package.json
-        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
-      - run: node scripts/pack-mcpb.mjs build/ninja-one-mcp.mcpb
-      - name: Publish the container image to GHCR
+        run: test "v$(node -p "require('./package.json').version")" = "$TAG"
+
+  image:
+    needs: check
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TAG }}
+          persist-credentials: false
+      - name: Build, smoke test and push linux/${{ matrix.arch }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           image=ghcr.io/${GITHUB_REPOSITORY,,}
-          version=${GITHUB_REF_NAME#v}
-          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
-          docker build -t "$image:$version" -t "$image:latest" \
+          version=${TAG#v}
+          docker build --platform linux/${{ matrix.arch }} -t "$image:$version-${{ matrix.arch }}" \
             --label org.opencontainers.image.version="$version" \
-            --label org.opencontainers.image.revision="$GITHUB_SHA" .
-          docker push "$image:$version"
-          docker push "$image:latest"
+            --label org.opencontainers.image.revision="$(git rev-parse HEAD)" .
+          # The image must serve health and refuse unauthenticated MCP before it ships.
+          docker run -d --name smoke -p 8080:8080 -e NINJAONE_HTTP_AUTH=bearer \
+            -e NINJAONE_HTTP_BEARER_TOKENS=release-smoke-token-not-a-secret-0123 -e NINJAONE_REGION=us \
+            "$image:$version-${{ matrix.arch }}"
+          for _ in $(seq 1 20); do curl -fsS localhost:8080/healthz && break; sleep 1; done
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8080/mcp -H 'content-type: application/json' -d '{}')" = 401
+          docker rm -f smoke
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker push "$image:$version-${{ matrix.arch }}"
           docker logout ghcr.io
 
-      - name: Publish release
+  publish:
+    needs: image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.TAG }}
+          persist-credentials: false
+
+      - name: Publish the multi-arch image tags
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          notes=$(awk "/^## \[${GITHUB_REF_NAME#v}\]/{f=1;next} /^## \[/{f=0} f" CHANGELOG.md)
-          gh release create "$GITHUB_REF_NAME" build/ninja-one-mcp.mcpb --title "$GITHUB_REF_NAME" --notes "$notes" --verify-tag
+          image=ghcr.io/${GITHUB_REPOSITORY,,}
+          version=${TAG#v}
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker buildx imagetools create -t "$image:$version" -t "$image:latest" \
+            "$image:$version-amd64" "$image:$version-arm64"
+          docker buildx imagetools inspect "$image:$version"
+          docker logout ghcr.io
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: github.event_name == 'push'
+        with:
+          node-version: 24
+          cache: npm
+      - if: github.event_name == 'push'
+        run: npm ci --no-audit --no-fund && npm run build && node scripts/bundle.mjs && node scripts/pack-mcpb.mjs build/ninja-one-mcp.mcpb
+
+      - name: Publish the GitHub release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes=$(awk "/^## \[${TAG#v}\]/{f=1;next} /^## \[/{f=0} f" CHANGELOG.md)
+          gh release create "$TAG" build/ninja-one-mcp.mcpb --title "$TAG" --notes "$notes" --verify-tag
