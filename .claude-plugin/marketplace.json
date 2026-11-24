@@ -1,0 +1,19 @@
+{
+  "name": "ninja-one-mcp",
+  "owner": {
+    "name": "Patrick King",
+    "url": "https://github.com/patrickking67"
+  },
+  "metadata": {
+    "description": "The NinjaOne plugin: an MCP server for the NinjaOne RMM Public API v2, with skills for fleet triage and patch review."
+  },
+  "plugins": [
+    {
+      "name": "ninjaone",
+      "source": "./plugins/ninjaone",
+      "description": "NinjaOne RMM: fleet health, devices, patching, alerts, reports, ticketing and documentation. Read-only by default.",
+      "category": "productivity",
+      "homepage": "https://patrickking67.github.io/ninja-one-mcp/"
+    }
+  ]
+}

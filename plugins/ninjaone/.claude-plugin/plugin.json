@@ -1,0 +1,108 @@
+{
+  "name": "ninjaone",
+  "displayName": "NinjaOne",
+  "version": "0.1.0",
+  "description": "NinjaOne RMM for Claude: fleet health, devices, patching, alerts, reports, ticketing and documentation through the NinjaOne Public API v2. Read-only by default.",
+  "author": {
+    "name": "Patrick King",
+    "url": "https://github.com/patrickking67"
+  },
+  "homepage": "https://patrickking67.github.io/ninja-one-mcp/",
+  "repository": "https://github.com/patrickking67/ninja-one-mcp",
+  "license": "MIT",
+  "keywords": [
+    "ninjaone",
+    "rmm",
+    "msp",
+    "endpoint-management",
+    "patching",
+    "mcp"
+  ],
+  "network": {
+    "hosts": [
+      "app.ninjarmm.com",
+      "us2.ninjarmm.com",
+      "eu.ninjarmm.com",
+      "ca.ninjarmm.com",
+      "oc.ninjarmm.com"
+    ]
+  },
+  "userConfig": {
+    "client_id": {
+      "type": "string",
+      "title": "NinjaOne client ID",
+      "description": "From Administration > Apps > API in NinjaOne (API Services app, client credentials grant).",
+      "required": true
+    },
+    "client_secret": {
+      "type": "string",
+      "title": "NinjaOne client secret",
+      "description": "Stored in your system keychain, never in settings.json.",
+      "required": true,
+      "sensitive": true
+    },
+    "region": {
+      "type": "string",
+      "title": "NinjaOne region",
+      "description": "The instance your API client lives in: us (app.ninjarmm.com), us2, eu, ca or oc.",
+      "options": [
+        "us",
+        "us2",
+        "eu",
+        "ca",
+        "oc"
+      ],
+      "default": "us"
+    },
+    "mode": {
+      "type": "string",
+      "title": "Write mode",
+      "description": "read keeps every change refused. write allows changes; destructive actions still need the next option.",
+      "options": [
+        "read",
+        "write"
+      ],
+      "default": "read"
+    },
+    "allow_destructive": {
+      "type": "string",
+      "title": "Allow destructive actions",
+      "description": "true allows deletes, reboots, scripts, patch installs and replacements. Needs write mode.",
+      "options": [
+        "false",
+        "true"
+      ],
+      "default": "false"
+    },
+    "toolsets": {
+      "type": "string",
+      "title": "Toolsets",
+      "description": "Comma-separated groups to list, or all. Default: core,devices,alerts,reports,actions,ticketing,views.",
+      "default": "default"
+    },
+    "allowed_org_ids": {
+      "type": "string",
+      "title": "Allowed organization ids",
+      "description": "Optional hard boundary: comma-separated NinjaOne organization ids this plugin may touch. Leave empty for all.",
+      "default": ""
+    }
+  },
+  "mcpServers": {
+    "ninjaone": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/server/ninja-one-mcp.mjs"
+      ],
+      "env": {
+        "NINJAONE_CLIENT_ID": "${user_config.client_id}",
+        "NINJAONE_CLIENT_SECRET": "${user_config.client_secret}",
+        "NINJAONE_REGION": "${user_config.region}",
+        "NINJAONE_MODE": "${user_config.mode}",
+        "NINJAONE_ALLOW_DESTRUCTIVE": "${user_config.allow_destructive}",
+        "NINJAONE_TOOLSETS": "${user_config.toolsets}",
+        "NINJAONE_ALLOWED_ORG_IDS": "${user_config.allowed_org_ids}",
+        "NINJAONE_SCOPES": "monitoring management control"
+      }
+    }
+  }
+}

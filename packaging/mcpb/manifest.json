@@ -1,0 +1,97 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/mcpb/main/schemas/mcpb-manifest-latest.schema.json",
+  "manifest_version": "0.4",
+  "name": "ninjaone",
+  "display_name": "NinjaOne",
+  "version": "0.1.0",
+  "description": "NinjaOne RMM for Claude: fleet health, devices, patching, alerts, reports, ticketing and documentation through the NinjaOne Public API v2. Read-only by default.",
+  "long_description": "Every operation in the NinjaOne Public API v2 is reachable: 314 typed tools in toolsets, plus a gated passthrough for the rest.\n\n## Setup\n\n1. In NinjaOne, go to Administration > Apps > API and add a client app. Set the platform to API Services (machine-to-machine) and the grant to Client Credentials. Grant the monitoring scope to read, management to make changes, and control for scripts and remote actions.\n2. Install this bundle and enter the client id, client secret and region.\n3. Leave Mode at read to start. Set it to write for changes, and set Allow destructive actions to true on top of that for reboots, scripts, patch installs, deletes and replacements.\n\n## Safety\n\nRead-only until you turn writes on. Destructive actions need a second switch, and every change takes confirm: true. Wide changes are dry runs first, and writes return before and after. An optional organization boundary holds every call inside the clients you list. Secure custom field values are never requested.\n\n## Try\n\n- \"Show fleet health across every client.\"\n- \"Which servers have been offline for more than a day?\"\n- \"Summarize failed patches for Example Org this week.\"\n\nIndependent open-source project. Not affiliated with or endorsed by NinjaOne.",
+  "author": {
+    "name": "Patrick King",
+    "url": "https://github.com/patrickking67"
+  },
+  "homepage": "https://patrickking67.github.io/ninja-one-mcp/",
+  "documentation": "https://github.com/patrickking67/ninja-one-mcp#readme",
+  "support": "https://github.com/patrickking67/ninja-one-mcp/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patrickking67/ninja-one-mcp.git"
+  },
+  "license": "MIT",
+  "keywords": ["ninjaone", "rmm", "msp", "patching", "endpoint-management"],
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/ninja-one-mcp.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/ninja-one-mcp.mjs"],
+      "env": {
+        "NINJAONE_CLIENT_ID": "${user_config.client_id}",
+        "NINJAONE_CLIENT_SECRET": "${user_config.client_secret}",
+        "NINJAONE_REGION": "${user_config.region}",
+        "NINJAONE_MODE": "${user_config.mode}",
+        "NINJAONE_ALLOW_DESTRUCTIVE": "${user_config.allow_destructive}",
+        "NINJAONE_TOOLSETS": "${user_config.toolsets}",
+        "NINJAONE_ALLOWED_ORG_IDS": "${user_config.allowed_org_ids}",
+        "NINJAONE_SCOPES": "${user_config.scopes}"
+      }
+    }
+  },
+  "user_config": {
+    "client_id": {
+      "type": "string",
+      "title": "Client ID",
+      "description": "NinjaOne API client id (Administration > Apps > API).",
+      "required": true
+    },
+    "client_secret": {
+      "type": "string",
+      "title": "Client secret",
+      "description": "NinjaOne API client secret. Stored by Claude Desktop, never shown to the model.",
+      "sensitive": true,
+      "required": true
+    },
+    "region": {
+      "type": "string",
+      "title": "Region",
+      "description": "us (app.ninjarmm.com), us2, eu, ca or oc.",
+      "default": "us",
+      "required": true
+    },
+    "scopes": {
+      "type": "string",
+      "title": "OAuth scopes",
+      "description": "Space-separated scopes to request: monitoring, management, control. Must be granted to the API client.",
+      "default": "monitoring"
+    },
+    "mode": {
+      "type": "string",
+      "title": "Mode",
+      "description": "read (default) refuses every change. write allows changes.",
+      "default": "read"
+    },
+    "allow_destructive": {
+      "type": "string",
+      "title": "Allow destructive actions",
+      "description": "true allows reboots, scripts, patch installs, deletes and replacements. Needs Mode = write.",
+      "default": "false"
+    },
+    "toolsets": {
+      "type": "string",
+      "title": "Toolsets",
+      "description": "Comma-separated toolsets to list, default or all.",
+      "default": "default"
+    },
+    "allowed_org_ids": {
+      "type": "string",
+      "title": "Allowed organization ids",
+      "description": "Optional: comma-separated organization ids every call is held inside.",
+      "default": ""
+    }
+  },
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": { "node": ">=22.0.0" }
+  }
+}

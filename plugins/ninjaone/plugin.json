@@ -1,0 +1,36 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ninjaone",
+  "version": "0.1.0",
+  "description": "NinjaOne RMM: fleet health, devices, patching, alerts, reports, ticketing and documentation through the NinjaOne Public API v2. Read-only by default.",
+  "author": {
+    "name": "Patrick King",
+    "url": "https://github.com/patrickking67"
+  },
+  "homepage": "https://patrickking67.github.io/ninja-one-mcp/",
+  "repository": "https://github.com/patrickking67/ninja-one-mcp",
+  "license": "MIT",
+  "keywords": ["ninjaone", "rmm", "msp", "endpoint-management", "patching", "mcp"],
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/ninjaone-setup/SKILL.md",
+      "interface": {
+        "displayName": "NinjaOne",
+        "shortDescription": "Safe, complete access to the NinjaOne RMM API",
+        "longDescription": "Ask about every client's fleet health, triage a device, review patch failures, search alerts and tickets, and run gated actions. Read-only until you turn writes on; destructive actions need a second switch.",
+        "developerName": "Patrick King",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://patrickking67.github.io/ninja-one-mcp/",
+        "defaultPrompt": [
+          "Use NinjaOne to show fleet health across every client.",
+          "Use NinjaOne to list offline servers and why they need attention.",
+          "Use NinjaOne to summarize failed patches this week."
+        ],
+        "brandColor": "#3B5BDB",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/icon.png"
+      }
+    }
+  }
+}
