@@ -13,6 +13,7 @@ import { ALL_ROUTES } from './routes/index.js';
 import type { ToolContext } from './spec.js';
 import { registerDiagnosticTools } from './tools/diagnostics.js';
 import { registerPassthroughTools } from './tools/passthrough.js';
+import { registerPrompts } from './tools/prompts.js';
 import { registerResources } from './tools/resources.js';
 import { registerViewTools } from './tools/views.js';
 import { registerWorkflowTools } from './tools/workflows.js';
@@ -34,6 +35,8 @@ export const INSTRUCTIONS = [
   `Diagnostics: ${p}_status_server (configuration, no API call), ${p}_status_gate (why a write refused), ${p}_test_connection (proves the credential).`,
   '',
   'Secrets: secure custom field values are never requested. Signed and tokenized URLs (attachments, installers, exports) come only from the gated download tools with reveal: true.',
+  '',
+  'Prompts: fleet_triage, patch_review, device_triage and setup_check run the common workflows.',
   '',
   'Docs: the ninjaone://docs/llms.txt resource indexes NinjaOne\'s public API and help documentation. Every error ends with a "Next step:" line; follow it rather than retrying unchanged.',
 ].join('\n');
@@ -57,5 +60,6 @@ export function createServer(config: Config): CreatedServer {
   if (on.has('api')) registerPassthroughTools(server, ctx);
   if (on.has('views')) registerViewTools(server, ctx);
   registerResources(server);
+  registerPrompts(server);
   return { server, tools: ctx.tools };
 }

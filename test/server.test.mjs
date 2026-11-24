@@ -413,6 +413,19 @@ test('the docs index and device filter guide are readable resources', async () =
   }
 });
 
+test('workflow prompts are listed and render with their arguments', async () => {
+  const s = await session();
+  try {
+    const { prompts } = await s.client.listPrompts();
+    assert.deepEqual(prompts.map((p) => p.name).sort(), ['device_triage', 'fleet_triage', 'patch_review', 'setup_check']);
+    const fleet = await s.client.getPrompt({ name: 'fleet_triage', arguments: { org: 'Alpha Org' } });
+    assert.match(fleet.messages[0].content.text, /Alpha Org/);
+    assert.match(fleet.messages[0].content.text, /ninjaone_report_fleet_health/);
+  } finally {
+    await s.close();
+  }
+});
+
 test('stdout carries only JSON-RPC', async () => {
   const s = await session();
   try {
