@@ -18,6 +18,15 @@ Read-only by default. Two gates for anything that changes a device.
 
 </div>
 
+<p align="center">
+  <a href="https://patrickking67.github.io/ninja-one-mcp/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/site-dark.png">
+      <img src="docs/assets/site-light.png" alt="The ninja-one-mcp website: every tool as a square, lit by the two write gates" width="820">
+    </picture>
+  </a>
+</p>
+
 ---
 
 | | |
