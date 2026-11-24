@@ -1,0 +1,1270 @@
+{
+  "server": "ninjaone",
+  "source": "derived",
+  "reviewed": "2026-11-23",
+  "tools": {
+    "ninjaone_add_catalog_ticket_products": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_add_role_members": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Remove the same users with ninjaone_remove_role_members."
+    },
+    "ninjaone_add_ticket_comment": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Comments cannot be deleted through the API. Remove it in the NinjaOne console."
+    },
+    "ninjaone_add_ticket_products": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_api_get": {
+      "mutating": false
+    },
+    "ninjaone_api_write": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Unknown: a raw write can change anything. Reverse it by hand in the NinjaOne console; the result shows what was sent."
+    },
+    "ninjaone_apply_os_patches": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through this server. Uninstall a bad patch on the device or roll it back in the NinjaOne console."
+    },
+    "ninjaone_apply_software_patches": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through this server. Reinstall the previous version or roll back in the NinjaOne console."
+    },
+    "ninjaone_approve_devices": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Remove or retire the approved devices in the NinjaOne console. The dry run lists them first."
+    },
+    "ninjaone_approve_invoices": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API: approved invoices are final. Correct them with a credit in the console."
+    },
+    "ninjaone_archive_checklist_templates": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Restore it with ninjaone_restore_checklist_templates or in the NinjaOne console."
+    },
+    "ninjaone_archive_checklists": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Restore it with ninjaone_restore_checklists or in the NinjaOne console."
+    },
+    "ninjaone_archive_document": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Restore it with ninjaone_restore_document or in the NinjaOne console."
+    },
+    "ninjaone_archive_document_template": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Restore it with ninjaone_restore_document_template or in the NinjaOne console."
+    },
+    "ninjaone_archive_document_templates": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Restore it with ninjaone_restore_document_templates or in the NinjaOne console."
+    },
+    "ninjaone_archive_documents": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Restore it with ninjaone_restore_documents or in the NinjaOne console."
+    },
+    "ninjaone_archive_invoices": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Restore it with ninjaone_restore_invoices or in the NinjaOne console."
+    },
+    "ninjaone_archive_kb_articles": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Restore it with ninjaone_restore_kb_articles or in the NinjaOne console."
+    },
+    "ninjaone_archive_kb_folders": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Restore it with ninjaone_restore_kb_folders or in the NinjaOne console."
+    },
+    "ninjaone_cancel_device_maintenance": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Schedule the window again with ninjaone_set_device_maintenance, using the maintenance under before in the result."
+    },
+    "ninjaone_create_agreement": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_asset_relationships": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_asset_tag": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_billing_account": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_checklist_templates": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_checklists": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_checklists_from_templates": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_contact": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_custom_field_definition": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_custom_field_definitions": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_custom_tab": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_document": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_document_template": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_documents": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_end_user": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_invoice": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_kb_articles": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_location": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_organization": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_policy": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_policy_custom_field_condition": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_policy_windows_event_condition": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_product": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_related_item": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_related_items": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_relationship_type": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_secure_related_item": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_software_license": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_staged_device": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_technician": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_templates_from_checklist_ids": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_templates_from_checklists": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_ticket": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_create_unmanaged_device": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Delete what this call created, with the matching ninjaone_delete_* tool or in the NinjaOne console. The result carries the new id."
+    },
+    "ninjaone_delete_asset_relationships": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_asset_tag": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_asset_tags": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_billing_account": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_checklist": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_checklist_template": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_checklist_templates": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_checklists": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_contact": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_custom_field_definition": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; the result includes it under before."
+    },
+    "ninjaone_delete_custom_field_definitions": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_custom_tab": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_document": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_document_template": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; the result includes it under before."
+    },
+    "ninjaone_delete_end_user": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_entity_related_items": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_kb_articles": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_kb_folders": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_policy_condition": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_related_item": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_software_license": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; the result includes it under before."
+    },
+    "ninjaone_delete_technician": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_unmanaged_device": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_delete_webhook": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Configure it again with ninjaone_set_webhook. Events sent while it was gone are not replayed."
+    },
+    "ninjaone_disable_agreement": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Enable it again with ninjaone_enable_agreement."
+    },
+    "ninjaone_disable_product": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Enable it again with ninjaone_enable_product."
+    },
+    "ninjaone_download_checklist_files": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Signed URLs cannot be revoked through the API; they expire on their own. Treat the result as a secret and do not paste it anywhere shared."
+    },
+    "ninjaone_download_custom_field_files": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Signed URLs cannot be revoked through the API; they expire on their own. Treat the result as a secret and do not paste it anywhere shared."
+    },
+    "ninjaone_download_custom_installer": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "The URL enrolls devices into that client. If it leaked, regenerate installers in the console and remove unknown devices."
+    },
+    "ninjaone_download_document_files": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Signed URLs cannot be revoked through the API; they expire on their own. Treat the result as a secret and do not paste it anywhere shared."
+    },
+    "ninjaone_download_installer": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "The URL enrolls devices into that client. If it leaked, regenerate installers in the console and remove unknown devices."
+    },
+    "ninjaone_download_invoices": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Signed URLs cannot be revoked through the API; they expire on their own. Treat the result as a secret and do not paste it anywhere shared."
+    },
+    "ninjaone_download_kb_article": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Signed URLs cannot be revoked through the API; they expire on their own. Treat the result as a secret and do not paste it anywhere shared."
+    },
+    "ninjaone_download_kb_article_files": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Signed URLs cannot be revoked through the API; they expire on their own. Treat the result as a secret and do not paste it anywhere shared."
+    },
+    "ninjaone_download_related_item_attachment": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Signed URLs cannot be revoked through the API; they expire on their own. Treat the result as a secret and do not paste it anywhere shared."
+    },
+    "ninjaone_download_related_item_files": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Signed URLs cannot be revoked through the API; they expire on their own. Treat the result as a secret and do not paste it anywhere shared."
+    },
+    "ninjaone_enable_product": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Disable it again with ninjaone_disable_product."
+    },
+    "ninjaone_find_organization": {
+      "mutating": false
+    },
+    "ninjaone_get_agreement": {
+      "mutating": false
+    },
+    "ninjaone_get_billing_account": {
+      "mutating": false
+    },
+    "ninjaone_get_checklist": {
+      "mutating": false
+    },
+    "ninjaone_get_contact": {
+      "mutating": false
+    },
+    "ninjaone_get_custom_field_definition": {
+      "mutating": false
+    },
+    "ninjaone_get_custom_tab": {
+      "mutating": false
+    },
+    "ninjaone_get_device": {
+      "mutating": false
+    },
+    "ninjaone_get_device_custom_fields": {
+      "mutating": false
+    },
+    "ninjaone_get_device_last_user": {
+      "mutating": false
+    },
+    "ninjaone_get_device_link": {
+      "mutating": false
+    },
+    "ninjaone_get_device_profile": {
+      "mutating": false
+    },
+    "ninjaone_get_device_scripting_options": {
+      "mutating": false
+    },
+    "ninjaone_get_document_template": {
+      "mutating": false
+    },
+    "ninjaone_get_end_user": {
+      "mutating": false
+    },
+    "ninjaone_get_end_user_custom_fields": {
+      "mutating": false
+    },
+    "ninjaone_get_end_user_custom_tab": {
+      "mutating": false
+    },
+    "ninjaone_get_global_custom_fields": {
+      "mutating": false
+    },
+    "ninjaone_get_global_kb_article": {
+      "mutating": false
+    },
+    "ninjaone_get_invoice": {
+      "mutating": false
+    },
+    "ninjaone_get_kb_article": {
+      "mutating": false
+    },
+    "ninjaone_get_kb_folder": {
+      "mutating": false
+    },
+    "ninjaone_get_kb_folder_by_path": {
+      "mutating": false
+    },
+    "ninjaone_get_location_backup_usage": {
+      "mutating": false
+    },
+    "ninjaone_get_location_custom_fields": {
+      "mutating": false
+    },
+    "ninjaone_get_org_backup_usage": {
+      "mutating": false
+    },
+    "ninjaone_get_org_custom_fields": {
+      "mutating": false
+    },
+    "ninjaone_get_org_custom_tab": {
+      "mutating": false
+    },
+    "ninjaone_get_organization": {
+      "mutating": false
+    },
+    "ninjaone_get_policy_custom_field_condition": {
+      "mutating": false
+    },
+    "ninjaone_get_policy_windows_event_condition": {
+      "mutating": false
+    },
+    "ninjaone_get_product": {
+      "mutating": false
+    },
+    "ninjaone_get_role_custom_tab": {
+      "mutating": false
+    },
+    "ninjaone_get_scan_group": {
+      "mutating": false
+    },
+    "ninjaone_get_software_license": {
+      "mutating": false
+    },
+    "ninjaone_get_technician": {
+      "mutating": false
+    },
+    "ninjaone_get_ticket": {
+      "mutating": false
+    },
+    "ninjaone_get_ticket_form": {
+      "mutating": false
+    },
+    "ninjaone_list_activities": {
+      "mutating": false
+    },
+    "ninjaone_list_agreements": {
+      "mutating": false
+    },
+    "ninjaone_list_alerts": {
+      "mutating": false
+    },
+    "ninjaone_list_asset_relationships": {
+      "mutating": false
+    },
+    "ninjaone_list_asset_tags": {
+      "mutating": false
+    },
+    "ninjaone_list_backup_jobs": {
+      "mutating": false
+    },
+    "ninjaone_list_billing_accounts": {
+      "mutating": false
+    },
+    "ninjaone_list_board_tickets": {
+      "mutating": false
+    },
+    "ninjaone_list_checklist_templates": {
+      "mutating": false
+    },
+    "ninjaone_list_checklists": {
+      "mutating": false
+    },
+    "ninjaone_list_contacts": {
+      "mutating": false
+    },
+    "ninjaone_list_custom_field_definitions": {
+      "mutating": false
+    },
+    "ninjaone_list_device_activities": {
+      "mutating": false
+    },
+    "ninjaone_list_device_alerts": {
+      "mutating": false
+    },
+    "ninjaone_list_device_custom_field_definitions": {
+      "mutating": false
+    },
+    "ninjaone_list_device_disks": {
+      "mutating": false
+    },
+    "ninjaone_list_device_geolocation": {
+      "mutating": false
+    },
+    "ninjaone_list_device_jobs": {
+      "mutating": false
+    },
+    "ninjaone_list_device_network_interfaces": {
+      "mutating": false
+    },
+    "ninjaone_list_device_os_patch_installs": {
+      "mutating": false
+    },
+    "ninjaone_list_device_os_patches": {
+      "mutating": false
+    },
+    "ninjaone_list_device_policy_overrides": {
+      "mutating": false
+    },
+    "ninjaone_list_device_processors": {
+      "mutating": false
+    },
+    "ninjaone_list_device_roles": {
+      "mutating": false
+    },
+    "ninjaone_list_device_services": {
+      "mutating": false
+    },
+    "ninjaone_list_device_software": {
+      "mutating": false
+    },
+    "ninjaone_list_device_software_patch_installs": {
+      "mutating": false
+    },
+    "ninjaone_list_device_software_patches": {
+      "mutating": false
+    },
+    "ninjaone_list_device_volumes": {
+      "mutating": false
+    },
+    "ninjaone_list_devices": {
+      "mutating": false
+    },
+    "ninjaone_list_devices_detailed": {
+      "mutating": false
+    },
+    "ninjaone_list_document_templates": {
+      "mutating": false
+    },
+    "ninjaone_list_documents": {
+      "mutating": false
+    },
+    "ninjaone_list_enabled_notification_channels": {
+      "mutating": false
+    },
+    "ninjaone_list_end_user_custom_tabs": {
+      "mutating": false
+    },
+    "ninjaone_list_end_users": {
+      "mutating": false
+    },
+    "ninjaone_list_entity_related_items": {
+      "mutating": false
+    },
+    "ninjaone_list_entity_relations": {
+      "mutating": false
+    },
+    "ninjaone_list_global_custom_tabs": {
+      "mutating": false
+    },
+    "ninjaone_list_global_kb_articles": {
+      "mutating": false
+    },
+    "ninjaone_list_group_devices": {
+      "mutating": false
+    },
+    "ninjaone_list_groups": {
+      "mutating": false
+    },
+    "ninjaone_list_integrity_check_jobs": {
+      "mutating": false
+    },
+    "ninjaone_list_invoices": {
+      "mutating": false
+    },
+    "ninjaone_list_jobs": {
+      "mutating": false
+    },
+    "ninjaone_list_kb_articles": {
+      "mutating": false
+    },
+    "ninjaone_list_license_assignments": {
+      "mutating": false
+    },
+    "ninjaone_list_locations": {
+      "mutating": false
+    },
+    "ninjaone_list_node_roles": {
+      "mutating": false
+    },
+    "ninjaone_list_notification_channels": {
+      "mutating": false
+    },
+    "ninjaone_list_org_custom_tabs": {
+      "mutating": false
+    },
+    "ninjaone_list_org_devices": {
+      "mutating": false
+    },
+    "ninjaone_list_org_end_users": {
+      "mutating": false
+    },
+    "ninjaone_list_org_locations": {
+      "mutating": false
+    },
+    "ninjaone_list_organization_documents": {
+      "mutating": false
+    },
+    "ninjaone_list_organizations": {
+      "mutating": false
+    },
+    "ninjaone_list_organizations_detailed": {
+      "mutating": false
+    },
+    "ninjaone_list_policies": {
+      "mutating": false
+    },
+    "ninjaone_list_policy_custom_field_conditions": {
+      "mutating": false
+    },
+    "ninjaone_list_policy_windows_event_conditions": {
+      "mutating": false
+    },
+    "ninjaone_list_products": {
+      "mutating": false
+    },
+    "ninjaone_list_related_items": {
+      "mutating": false
+    },
+    "ninjaone_list_related_items_by_host_type": {
+      "mutating": false
+    },
+    "ninjaone_list_related_items_by_target": {
+      "mutating": false
+    },
+    "ninjaone_list_related_items_by_target_type": {
+      "mutating": false
+    },
+    "ninjaone_list_relationship_types": {
+      "mutating": false
+    },
+    "ninjaone_list_role_custom_tabs": {
+      "mutating": false
+    },
+    "ninjaone_list_scan_groups": {
+      "mutating": false
+    },
+    "ninjaone_list_scheduled_tasks": {
+      "mutating": false
+    },
+    "ninjaone_list_scripts": {
+      "mutating": false
+    },
+    "ninjaone_list_software_licenses": {
+      "mutating": false
+    },
+    "ninjaone_list_software_products": {
+      "mutating": false
+    },
+    "ninjaone_list_technicians": {
+      "mutating": false
+    },
+    "ninjaone_list_ticket_attributes": {
+      "mutating": false
+    },
+    "ninjaone_list_ticket_boards": {
+      "mutating": false
+    },
+    "ninjaone_list_ticket_contacts": {
+      "mutating": false
+    },
+    "ninjaone_list_ticket_forms": {
+      "mutating": false
+    },
+    "ninjaone_list_ticket_log_entries": {
+      "mutating": false
+    },
+    "ninjaone_list_ticket_products": {
+      "mutating": false
+    },
+    "ninjaone_list_ticket_statuses": {
+      "mutating": false
+    },
+    "ninjaone_list_ticket_users": {
+      "mutating": false
+    },
+    "ninjaone_list_user_roles": {
+      "mutating": false
+    },
+    "ninjaone_list_users": {
+      "mutating": false
+    },
+    "ninjaone_move_kb_items": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_move_kb_items (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_reboot_device": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible: the device restarts and unsaved work may be lost. Check it came back with ninjaone_get_device."
+    },
+    "ninjaone_reject_devices": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible: rejected devices are removed from the pending queue. Reinstall the agent to enroll them again."
+    },
+    "ninjaone_remove_device_owner": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; the result includes it under before."
+    },
+    "ninjaone_remove_role_members": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Add the same users back with ninjaone_add_role_members. Their access is gone until then."
+    },
+    "ninjaone_remove_ticket_products": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Recreate it by hand from the record; read it with the matching get or list tool before deleting."
+    },
+    "ninjaone_report_antivirus_status": {
+      "mutating": false
+    },
+    "ninjaone_report_antivirus_threats": {
+      "mutating": false
+    },
+    "ninjaone_report_backup_usage": {
+      "mutating": false
+    },
+    "ninjaone_report_computer_systems": {
+      "mutating": false
+    },
+    "ninjaone_report_custom_fields": {
+      "mutating": false
+    },
+    "ninjaone_report_custom_fields_detailed": {
+      "mutating": false
+    },
+    "ninjaone_report_device_health": {
+      "mutating": false
+    },
+    "ninjaone_report_disks": {
+      "mutating": false
+    },
+    "ninjaone_report_fleet_health": {
+      "mutating": false
+    },
+    "ninjaone_report_logged_on_users": {
+      "mutating": false
+    },
+    "ninjaone_report_network_interfaces": {
+      "mutating": false
+    },
+    "ninjaone_report_operating_systems": {
+      "mutating": false
+    },
+    "ninjaone_report_os_patch_installs": {
+      "mutating": false
+    },
+    "ninjaone_report_os_patches": {
+      "mutating": false
+    },
+    "ninjaone_report_policy_overrides": {
+      "mutating": false
+    },
+    "ninjaone_report_processors": {
+      "mutating": false
+    },
+    "ninjaone_report_raid_controllers": {
+      "mutating": false
+    },
+    "ninjaone_report_raid_drives": {
+      "mutating": false
+    },
+    "ninjaone_report_scoped_custom_fields": {
+      "mutating": false
+    },
+    "ninjaone_report_scoped_custom_fields_detailed": {
+      "mutating": false
+    },
+    "ninjaone_report_software": {
+      "mutating": false
+    },
+    "ninjaone_report_software_patch_installs": {
+      "mutating": false
+    },
+    "ninjaone_report_software_patches": {
+      "mutating": false
+    },
+    "ninjaone_report_volumes": {
+      "mutating": false
+    },
+    "ninjaone_report_windows_services": {
+      "mutating": false
+    },
+    "ninjaone_reset_alert": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "No undo needed: if the condition is still true the alert triggers again."
+    },
+    "ninjaone_reset_alert_with_activity": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "No undo needed: if the condition is still true the alert triggers again."
+    },
+    "ninjaone_reset_device_policy_overrides": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Recreate the overrides by hand in the console from before in the result; the API cannot set them back."
+    },
+    "ninjaone_restore_checklist_templates": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Archive it again with ninjaone_archive_checklist_templates."
+    },
+    "ninjaone_restore_checklists": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Archive it again with ninjaone_archive_checklists."
+    },
+    "ninjaone_restore_document": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Archive it again with ninjaone_archive_document."
+    },
+    "ninjaone_restore_document_template": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Archive it again with ninjaone_archive_document_template."
+    },
+    "ninjaone_restore_document_templates": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Archive it again with ninjaone_archive_document_templates."
+    },
+    "ninjaone_restore_documents": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Archive it again with ninjaone_archive_documents."
+    },
+    "ninjaone_restore_invoices": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Archive it again with ninjaone_archive_invoices."
+    },
+    "ninjaone_restore_kb_articles": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Archive it again with ninjaone_archive_kb_articles."
+    },
+    "ninjaone_restore_kb_folders": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Archive it again with ninjaone_archive_kb_folders."
+    },
+    "ninjaone_retire_device": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API: the device is decommissioned. Reinstall the agent to bring it back as a new device."
+    },
+    "ninjaone_retire_unmanaged_device": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API. Read the current state with the matching get or list tool first, and correct it by hand in the NinjaOne console."
+    },
+    "ninjaone_retire_unmanaged_devices": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Read the current state with the matching get or list tool first, and correct it by hand in the NinjaOne console."
+    },
+    "ninjaone_run_asset_tag_merge": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_run_asset_tag_merge (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_run_device_script": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Not reversible through the API: the script runs on the device. Reverse its effects with another script; review the run in ninjaone_list_device_activities."
+    },
+    "ninjaone_run_integrity_check": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "No undo needed: an integrity check only verifies backup data."
+    },
+    "ninjaone_run_os_patch_scan": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "No undo needed: a scan only refreshes patch status."
+    },
+    "ninjaone_run_software_patch_scan": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "No undo needed: a scan only refreshes patch status."
+    },
+    "ninjaone_run_windows_service_control": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Run the opposite action (start after stop) with ninjaone_run_windows_service_control."
+    },
+    "ninjaone_search_devices": {
+      "mutating": false
+    },
+    "ninjaone_set_asset_tags": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Not reversible through the API. Read the current state with the matching get or list tool first, and correct it by hand in the NinjaOne console."
+    },
+    "ninjaone_set_backup_throttle": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Re-apply the previous values with ninjaone_set_backup_throttle (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_set_device_maintenance": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Cancel it with ninjaone_cancel_device_maintenance."
+    },
+    "ninjaone_set_device_owner": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_set_device_owner again with the values under before in the result."
+    },
+    "ninjaone_set_end_user_device_access": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_set_end_user_device_access again with the values under before in the result."
+    },
+    "ninjaone_set_invoice_note": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_set_invoice_note again with the values under before in the result."
+    },
+    "ninjaone_set_org_policy_mappings": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Call ninjaone_set_org_policy_mappings again with the policies under before in the result."
+    },
+    "ninjaone_set_role_org_permissions": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Not reversible through the API. Read the current state with the matching get or list tool first, and correct it by hand in the NinjaOne console."
+    },
+    "ninjaone_set_software_license": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_set_software_license (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_set_time_entry_billing": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Re-apply the previous values with ninjaone_set_time_entry_billing (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_set_webhook": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Point the webhook back at the previous URL with ninjaone_set_webhook, or remove it with ninjaone_delete_webhook."
+    },
+    "ninjaone_set_windows_service_config": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Set the previous start type and account again with ninjaone_set_windows_service_config; read them first with ninjaone_list_device_services."
+    },
+    "ninjaone_status_gate": {
+      "mutating": false
+    },
+    "ninjaone_status_server": {
+      "mutating": false
+    },
+    "ninjaone_test_connection": {
+      "mutating": false
+    },
+    "ninjaone_update_agreement": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_update_agreement again with the values under before in the result."
+    },
+    "ninjaone_update_asset_tag": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_asset_tag (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_asset_tag_assignments": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_asset_tag_assignments (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_billing_account": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Call ninjaone_update_billing_account again with the values under before in the result."
+    },
+    "ninjaone_update_checklist_templates": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_checklist_templates (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_checklists": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_checklists (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_contact": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_update_contact again with the values under before in the result."
+    },
+    "ninjaone_update_custom_field_definition": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Call ninjaone_update_custom_field_definition again with the values under before in the result."
+    },
+    "ninjaone_update_custom_field_definitions": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_custom_field_definitions (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_custom_tab": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Call ninjaone_update_custom_tab again with the values under before in the result."
+    },
+    "ninjaone_update_device": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_update_device again with the values under before in the result."
+    },
+    "ninjaone_update_device_custom_fields": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_update_device_custom_fields again with the values under before in the result."
+    },
+    "ninjaone_update_document": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_document (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_document_template": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Call ninjaone_update_document_template again with the values under before in the result."
+    },
+    "ninjaone_update_documents": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_documents (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_end_user": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_update_end_user again with the values under before in the result."
+    },
+    "ninjaone_update_end_user_custom_fields": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_update_end_user_custom_fields again with the values under before in the result."
+    },
+    "ninjaone_update_global_custom_fields": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Call ninjaone_update_global_custom_fields again with the values under before in the result."
+    },
+    "ninjaone_update_invoice": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_update_invoice again with the values under before in the result."
+    },
+    "ninjaone_update_kb_articles": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_kb_articles (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_license_assignment_usage": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_license_assignment_usage (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_location": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Re-apply the previous values with ninjaone_update_location (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_location_custom_fields": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Call ninjaone_update_location_custom_fields again with the values under before in the result."
+    },
+    "ninjaone_update_org_custom_fields": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Call ninjaone_update_org_custom_fields again with the values under before in the result."
+    },
+    "ninjaone_update_organization": {
+      "mutating": true,
+      "blastRadius": "single-tenant",
+      "rollback": "Call ninjaone_update_organization again with the values under before in the result."
+    },
+    "ninjaone_update_product": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Call ninjaone_update_product again with the values under before in the result."
+    },
+    "ninjaone_update_software_license": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Call ninjaone_update_software_license again with the values under before in the result."
+    },
+    "ninjaone_update_technician": {
+      "mutating": true,
+      "blastRadius": "multi-tenant",
+      "rollback": "Call ninjaone_update_technician again with the values under before in the result."
+    },
+    "ninjaone_update_ticket": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Call ninjaone_update_ticket again with the values under before in the result."
+    },
+    "ninjaone_update_ticket_product": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Re-apply the previous values with ninjaone_update_ticket_product (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_update_unmanaged_device": {
+      "mutating": true,
+      "blastRadius": "single-object",
+      "rollback": "Re-apply the previous values with ninjaone_update_unmanaged_device (read them first with the matching get or list tool), or edit them back in the NinjaOne console."
+    },
+    "ninjaone_view_alerts": {
+      "mutating": false
+    },
+    "ninjaone_view_device": {
+      "mutating": false
+    },
+    "ninjaone_view_fleet": {
+      "mutating": false
+    }
+  },
+  "endpointNote": "Generated from this repository's tools/list (all toolsets), with blast radius and rollback written from each route's scope, read-back and verb, and hand-written for device actions, replacements, access changes and secrets. CI fails if a tool is added, removed or reclassified without updating this file. Set source to verified after a person reviews every entry."
+}
