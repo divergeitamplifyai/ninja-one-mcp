@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Remote transport:** Streamable HTTP (`--http`), stateless, with Microsoft Entra ID or shared-token auth, RFC 9728 protected resource metadata, Origin checks and `/healthz`.
+- **Azure Container Apps deployment:** Bicep, azd, Key Vault, managed identity, a distroless image, an Entra app registration script and docs/AZURE.md.
+- **Prompts:** fleet triage, patch review, device triage and connection check.
+- **Ticketing:** `ninjaone_send_ticket_reply` for public replies (destructive tier). `ninjaone_add_ticket_comment` now only posts internal notes.
+
+### Fixed
+
+- The coverage and catalog scripts now run on Windows.
+- An unknown client id is explained as a likely region mismatch.
+
 ## [0.1.0] - 2026-11-23
 
 First release.
